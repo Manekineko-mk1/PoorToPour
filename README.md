@@ -71,17 +71,25 @@ The MVP dashboard should feel like a compact dark-mode trading research cockpit:
 
 These mockups are visual references, not strict pixel-perfect implementation specs.
 
+The v0.2 renders are inspired by the Spring Duck screenshots in `Research_Docs/Screenshots`. Those signal-dashboard ideas are planned for MVP+ unless they directly support the first scan, rank, inspect, learn workflow.
+
 ### Dashboard Home
 
-![PoorToPour Dashboard Home](Mock_UI_Renders/Mock_UI_PoorToPour_01_MainScreen.png)
+![PoorToPour Dashboard Home](Mock_UI_Renders/Mock_UI_PoorToPour_01_MainScreen_v0.2.png)
 
 ### Scan History
 
-![PoorToPour Scan History](Mock_UI_Renders/Mock_UI_PoorToPour_02_ScanHistory.png)
+![PoorToPour Scan History](Mock_UI_Renders/Mock_UI_PoorToPour_02_ScanHistory_v0.2.png)
 
 ### Settings
 
-![PoorToPour Settings](Mock_UI_Renders/Mock_UI_PoorToPour_03_Settings.png)
+![PoorToPour Settings](Mock_UI_Renders/Mock_UI_PoorToPour_03_Settings_v0.2.png)
+
+### Sector Scanner / Market Regime
+
+MVP+ visual reference only. The MVP remains focused on scan, rank, inspect, and learn.
+
+![PoorToPour Sector Scanner](Mock_UI_Renders/Mock_UI_PoorToPour_04_SectorScanner.png)
 
 ### Run Manual Scan
 

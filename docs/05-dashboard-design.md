@@ -4,8 +4,8 @@
 **Description:** From broke to pouring champagne.  
 **Document:** `/docs/05-dashboard-design.md`  
 **Date created:** 2026-04-30  
-**Last updated:** 2026-04-30  
-**Status:** Draft v0.1
+**Last updated:** 2026-05-25  
+**Status:** Draft v0.3
 
 ---
 
@@ -121,6 +121,26 @@ Use a three-level information hierarchy:
 
 Avoid cramming everything into one screen.
 
+## 3.4 Current Mock Render Set
+
+The `Mock_UI_Renders` folder contains visual references for the current dashboard direction. These renders are not pixel-perfect implementation specs.
+
+| Render | Scope | Notes |
+| --- | --- | --- |
+| `Mock_UI_PoorToPour_01_MainScreen_v0.2.png` | MVP visual direction with MVP+ right-rail references | Dashboard shell, scan summary, ranked table, chart evidence, detected signals, and market regime panels |
+| `Mock_UI_PoorToPour_02_ScanHistory_v0.2.png` | MVP visual direction | Scan run table, selected scan summary, provider health, warnings, and candidate drilldown |
+| `Mock_UI_PoorToPour_03_Settings_v0.2.png` | MVP visual direction with MVP+ disabled/labelled controls | Scan config, provider settings, trading filters, UI preferences, and future-feature toggles |
+| `Mock_UI_PoorToPour_04_SectorScanner.png` | MVP+ / later reference | Sector/theme scanner and market-regime exploration; not required for MVP |
+
+The v0.2 visual direction favors:
+
+- persistent left navigation on desktop;
+- compact top header with scan, data, provider, manual-run, and environment status;
+- dense information cards with clear status coloring;
+- ranked candidate table as the central surface;
+- chart evidence close to the candidate list;
+- future signal/regime panels kept visually available but scoped as MVP+ unless trivial.
+
 ---
 
 ## 4. MVP Screens
@@ -161,9 +181,11 @@ Recommended left sidebar or top navigation:
 | Scan History | `/scans` | Yes |
 | Settings | `/settings` | Yes |
 | Watchlist | `/watchlist` | MVP+ |
+| Sector Scanner | `/sector-scanner` | MVP+ |
 | Backtesting | `/backtesting` | Later |
 | Alerts | `/alerts` | Later |
 | Cost / Usage | `/usage` | MVP+ |
+| Reports | `/reports` | Later |
 | Paper Trading | `/paper-trading` | Later |
 
 MVP recommendation:
@@ -239,6 +261,23 @@ Header / Global Status
   |
   +-- Recent Scan History
 ```
+
+The v0.2 Dashboard Home render combines the MVP flow with several labelled MVP+ visual references. For implementation, prioritize:
+
+1. header/status bar;
+2. latest scan summary cards;
+3. ranked candidate table;
+4. chart evidence for selected candidate;
+5. data health and caution visibility.
+
+The following visible render elements should remain MVP+ unless they are trivial and do not delay the core flow:
+
+- detected signals right rail;
+- market regime panel;
+- command palette / global search;
+- watchlist counts and actions;
+- external TradingView links;
+- chart signal markers beyond basic breakout/support/invalidation evidence.
 
 ---
 
@@ -643,6 +682,18 @@ It supports:
 - reviewing past candidates;
 - future backtesting workflow.
 
+The v0.2 Scan History render adds useful direction:
+
+- summary cards for total, successful, partial, and failed runs;
+- filter row for date range, scan type, universe, status, and search;
+- selected scan summary panel;
+- provider health panel;
+- recent errors/warnings panel;
+- tabs for candidates, job log, signal summary, and scan configuration;
+- signal quality trend as a later analytics panel.
+
+For MVP, the table, selected scan details, provider errors, and candidate drilldown matter most. Trend analytics and exports can wait until MVP+.
+
 ---
 
 ## 8.2 Scan History Table
@@ -733,6 +784,15 @@ Settings should:
 - avoid exposing secrets;
 - separate display settings from backend secrets;
 - require confirmation for expensive scan changes later.
+
+The v0.2 Settings render establishes a useful pattern:
+
+- MVP controls are editable and validated.
+- MVP+ controls may be visible only when clearly labelled as MVP+ or beta.
+- AI insight controls must remain disabled in MVP.
+- Broker automation controls must not appear as actionable MVP settings.
+- Settings changes should require an explicit save.
+- Test scan configuration and export settings can be MVP+ unless needed for development.
 
 ---
 
@@ -854,18 +914,47 @@ From OpenStock-style product references:
 - external TradingView chart link;
 - market regime panel.
 
-From Spring Duck-style signal dashboard references:
+From Spring Duck-style signal dashboard references and the v0.2 mock render direction:
 
+- candlestick chart with signal markers;
+- moving averages and volume bars around the selected candidate;
 - chart signal markers;
 - detected-signal cards;
+- market signal cards;
 - sector/theme scanner grid;
+- scanner-aware watchlist;
+- ticker chips/search;
 - AI candidate insight panel after deterministic scanner output exists.
+- tabbed views such as Overview, Scanner, and Tasks.
+- visual signal taxonomy.
 
-These are visual/product references only and should not expand MVP scope.
+These are visual/product references for MVP+. They should not expand the MVP scope, and AI insight must explain deterministic scanner output rather than create independent trade decisions.
 
 ---
 
-## 12.2 Watchlist
+## 12.2 Sector Scanner / Market Regime
+
+The `Mock_UI_PoorToPour_04_SectorScanner.png` render is an MVP+ / later reference for scanning sectors and themes.
+
+Potential features:
+
+- market-regime filter;
+- sector/theme cards with candidate counts and 20-day performance;
+- selected sector detail panel;
+- strongest setup types by sector;
+- dominant caution flags by sector;
+- relative strength chart versus S&P 500;
+- top tickers within the selected sector/theme.
+
+Reason to defer:
+
+- requires sector/theme grouping quality;
+- adds another ranking surface before the core candidate scanner is proven;
+- can increase provider, indicator, and UI complexity.
+
+---
+
+## 12.3 Watchlist
 
 Purpose:
 
@@ -887,7 +976,7 @@ Reason to defer:
 
 ---
 
-## 12.3 Exports
+## 12.4 Exports
 
 Possible exports:
 
@@ -903,7 +992,7 @@ Reason to defer:
 
 ---
 
-## 12.4 Alerts
+## 12.5 Alerts
 
 Possible alert types:
 
@@ -921,7 +1010,7 @@ Reason to defer:
 
 ---
 
-## 12.5 Cost / Usage Dashboard
+## 12.6 Cost / Usage Dashboard
 
 Possible metrics:
 
@@ -938,7 +1027,7 @@ Reason to defer:
 
 ---
 
-## 12.6 News / Catalyst Feed
+## 12.7 News / Catalyst Feed
 
 Post-MVP context layer.
 
@@ -1106,6 +1195,7 @@ Needs:
 | UI-D-008 | Data freshness must be visible throughout dashboard | Trading safety and trust |
 | UI-D-009 | `Actionable` means worth manual review, not buy | Prevents overstating scanner authority |
 | UI-D-010 | The dashboard must show partial/failed scans clearly | Avoids false confidence |
+| UI-D-011 | v0.2 mock renders are visual references, not MVP scope expansion | Preserves scan-rank-inspect-learn while capturing useful UI direction |
 
 ---
 
@@ -1123,6 +1213,7 @@ Needs:
 | Q-UI-008 | Should Dashboard and Candidates be separate pages? | Not necessary for MVP | Open |
 | Q-UI-009 | Should table support column customization? | No, later | Open |
 | Q-UI-010 | Should scan results be exportable? | MVP+ | Open |
+| Q-UI-011 | Should Sector Scanner be promoted from MVP+ to MVP? | No, keep MVP+ until core scanner is proven | Open |
 
 ---
 
@@ -1157,5 +1248,7 @@ The dashboard MVP is complete when:
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-25 | v0.4 | Expanded Spring Duck-inspired MVP+ UI cluster behind the v0.2 renders | Jesse + AI |
+| 2026-05-25 | v0.3 | Captured v0.2 mock render direction, scan history/settings refinements, and Sector Scanner as MVP+ reference | Jesse + AI |
 | 2026-05-14 | v0.2 | Added external-inspired MVP+ UI ideas and future chart signal marker guidance | Jesse + AI |
 | 2026-04-30 | v0.1 | Created initial dashboard design document | Jesse + AI |

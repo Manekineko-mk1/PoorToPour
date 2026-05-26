@@ -89,6 +89,8 @@ Use this file to preserve why decisions were made, not just what was chosen. Fut
 | D-057 | 2026-05-14 | Accepted | Add OpenStock-inspired ideas such as command palette, scanner-aware watchlist, alerts, and scan briefings to MVP+ or later roadmap | These are useful product patterns but not required for MVP scanner validation | Delays convenience features | Keeps MVP focused while preserving good ideas |
 | D-058 | 2026-05-14 | Accepted | Add Spring Duck-inspired ideas such as chart signal markers, detected-signal cards, sector scanner grid, and AI insight panel to MVP+ or later roadmap | These strengthen the future signal UX but could create scope drift if added now | Delays visually attractive features | Preserves MVP simplicity while improving final vision |
 | D-059 | 2026-05-14 | Accepted | Future pattern signals require deterministic rules and validation before entering scoring | Visual chart patterns can be subjective and overfit-prone | Slower feature expansion | Protects scanner credibility and backtesting quality |
+| D-060 | 2026-05-25 | Accepted | Treat v0.2 mock UI renders as visual direction, not MVP scope expansion | The renders clarify the desired product feel while showing several MVP+ ideas | Some visible panels may not be built immediately | Keeps implementation focused on scan-rank-inspect-learn |
+| D-061 | 2026-05-25 | Accepted | Treat Spring Duck-inspired signal UX as a deliberate MVP+ feature cluster | The reference aligns well with PoorToPour's future scanner experience after deterministic rules exist | Adds a visible backlog of attractive UI ideas | Captures the desired direction while preserving MVP scope |
 
 ---
 
@@ -139,3 +141,5 @@ Use the next available `D-###` ID.
 | 2026-04-30 | Added decisions from dashboard design planning | Jesse + AI |
 | 2026-04-30 | Added decisions from risk and backtesting planning | Jesse + AI |
 | 2026-05-14 | Added external-reference scope decisions for OpenStock and Spring Duck ideas | Jesse + AI |
+| 2026-05-25 | Added decision for v0.2 mock UI render scope | Jesse + AI |
+| 2026-05-25 | Added decision for Spring Duck-inspired MVP+ signal UX cluster | Jesse + AI |

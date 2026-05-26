@@ -211,11 +211,15 @@ Potential future additions:
 - scanner-aware watchlist;
 - chart signal markers;
 - detected-signal cards;
+- market signal cards;
 - sector/theme scanner grid;
+- ticker chips/search;
 - market regime panel;
 - alert engine;
 - daily/weekly scan briefing;
 - AI candidate insight panel;
+- tabbed views such as Overview, Scanner, and Tasks;
+- visual signal taxonomy;
 - richer chart pattern detection such as VCP or Adam & Eve patterns.
 
 These ideas must not expand the MVP unless explicitly re-approved.
@@ -502,6 +506,7 @@ This project plan keeps only a short decision snapshot. Add new major decisions 
 
 - Added external inspiration parking lot for OpenStock and Spring Duck ideas.
 - Reconfirmed that external references should not expand MVP scope without explicit approval.
+- Updated Spring Duck-inspired items as MVP+ candidates behind the v0.2 mock direction.
 
 ### v0.3 - 2026-04-30
 
