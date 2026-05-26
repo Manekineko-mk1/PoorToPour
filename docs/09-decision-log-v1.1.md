@@ -85,6 +85,10 @@ Use this file to preserve why decisions were made, not just what was chosen. Fut
 | D-053 | 2026-04-30 | Accepted | Use 2:1 as the initial preferred minimum risk/reward for Actionable swing candidates | Simple conservative starting point for manual review | May reject some valid lower-R opportunities | Gives scoring and status labels a clear first threshold |
 | D-054 | 2026-04-30 | Accepted | Paper trading is required before any broker automation | Real-time simulated validation is safer than jumping from backtest to live trading | Slower path to automation | Creates a necessary safety gate |
 | D-055 | 2026-04-30 | Accepted | Live automation requires kill switch, risk limits, audit logs, monitoring, and live/paper separation | Automation without safety controls is unacceptable | Significant implementation overhead later | Protects against runaway or unsafe trading behavior |
+| D-056 | 2026-05-14 | Accepted | Keep external-project inspiration out of MVP unless it supports the existing scan-rank-inspect-learn flow | Prevents MVP scope drift after reviewing OpenStock and Spring Duck references | Some attractive features are delayed | Preserves Phase 1 focus on data foundation and core scanner |
+| D-057 | 2026-05-14 | Accepted | Add OpenStock-inspired ideas such as command palette, scanner-aware watchlist, alerts, and scan briefings to MVP+ or later roadmap | These are useful product patterns but not required for MVP scanner validation | Delays convenience features | Keeps MVP focused while preserving good ideas |
+| D-058 | 2026-05-14 | Accepted | Add Spring Duck-inspired ideas such as chart signal markers, detected-signal cards, sector scanner grid, and AI insight panel to MVP+ or later roadmap | These strengthen the future signal UX but could create scope drift if added now | Delays visually attractive features | Preserves MVP simplicity while improving final vision |
+| D-059 | 2026-05-14 | Accepted | Future pattern signals require deterministic rules and validation before entering scoring | Visual chart patterns can be subjective and overfit-prone | Slower feature expansion | Protects scanner credibility and backtesting quality |
 
 ---
 
@@ -134,3 +138,4 @@ Use the next available `D-###` ID.
 | 2026-04-30 | Added Tier 1-only MVP data-source decision and MVP+ re-evaluation path | Jesse + AI |
 | 2026-04-30 | Added decisions from dashboard design planning | Jesse + AI |
 | 2026-04-30 | Added decisions from risk and backtesting planning | Jesse + AI |
+| 2026-05-14 | Added external-reference scope decisions for OpenStock and Spring Duck ideas | Jesse + AI |

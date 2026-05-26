@@ -640,14 +640,27 @@ Checklist:
 | Product Phase | Features |
 | --- | --- |
 | MVP | Daily/weekly scanner, dashboard, candidate detail, scan history, settings |
-| MVP+ | Watchlist, exports, improved filters, saved views |
+| MVP+ | Watchlist, exports, improved filters, saved views, global ticker search, scanner-aware watchlist, chart signal markers, detected-signal panel, market regime panel |
 | Phase 2 | Company, earnings, and news/catalyst feed improvements |
 | Phase 3 | Backtesting UI and strategy validation |
-| Phase 4 | Alerts and notifications |
+| Phase 4 | Alerts, notifications, and daily/weekly scan briefing |
 | Phase 5 | Intraday monitoring |
 | Phase 6 | Paper trading |
 | Phase 7 | Controlled broker automation |
 | Phase 8 | Personal trading assistant with strict guardrails |
+
+### 14.1 MVP+ Candidate Features from External Review
+
+The following ideas were captured from OpenStock-style market portal references and Spring Duck-style signal dashboard references. They are not required for MVP.
+
+- Command palette / global ticker search.
+- Scanner-aware watchlist.
+- External TradingView chart link.
+- Chart signal markers.
+- Detected Signals panel.
+- Sector/theme scanner grid.
+- Market regime panel.
+- AI candidate insight panel after deterministic scanner output exists.
 
 ---
 
@@ -669,4 +682,5 @@ Checklist:
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-14 | v0.2 | Added MVP+ external-review candidate features without expanding MVP scope | Jesse + AI |
 | 2026-04-30 | v0.1 | Created initial product requirements document | Jesse + AI |

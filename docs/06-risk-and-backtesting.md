@@ -532,9 +532,23 @@ Requirements from the beginning:
 - no future data leakage;
 - reproducible inputs.
 
+### 14.2 Validation Requirement for Future Pattern Signals
+
+Future pattern signals such as VCP, Adam & Eve, or divergence must not be trusted based on visual appeal alone.
+
+Before promotion into scanner scoring, each signal requires:
+
+- deterministic definition;
+- test fixtures;
+- false-positive review;
+- historical backtesting;
+- forward testing or manual review;
+- documented caution flags;
+- clear explanation output.
+
 ---
 
-## 14.2 First Backtesting Version
+## 14.3 First Backtesting Version
 
 The first backtesting version should be simple.
 
@@ -915,6 +929,7 @@ This planning area is complete when:
 | RISK-D-008 | Broker automation requires kill switch, risk limits, audit logs, and monitoring | Prevents unsafe live execution |
 | RISK-D-009 | AI must not make risk or trade decisions in MVP | Keeps output deterministic and explainable |
 | RISK-D-010 | Scanner quality should be reviewed for 2–4 weeks before increasing data/AI spend | Spending should follow evidence |
+| RISK-D-011 | Future pattern signals require deterministic rules and validation before entering scoring | Visual chart patterns can be subjective and overfit-prone |
 
 ---
 
@@ -939,4 +954,5 @@ This planning area is complete when:
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-14 | v0.2 | Added validation requirement for future pattern signals | Jesse + AI |
 | 2026-04-30 | v0.1 | Created initial risk and backtesting document | Jesse + AI |

@@ -329,6 +329,30 @@ The MVP should detect three setup families:
 
 These are simple enough to implement, explain, visualize, and validate.
 
+### 7.1 Future Signal Taxonomy
+
+Future versions may expand beyond the first three MVP setup families into a structured signal taxonomy:
+
+- trend signals;
+- breakout signals;
+- pullback/support signals;
+- volume confirmation signals;
+- pattern signals;
+- caution/divergence signals;
+- risk-quality signals.
+
+Examples to evaluate later:
+
+- volume breakout;
+- resistance breakout;
+- support breakdown;
+- VCP pattern;
+- Adam & Eve bottom/top;
+- bearish divergence;
+- bullish/bearish trend markers.
+
+Each future signal must have deterministic rules, test fixtures, and validation before being trusted.
+
 ---
 
 ## 8. Setup 1 — Breakout
@@ -967,4 +991,5 @@ The strategy layer is MVP-complete when:
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-14 | v0.2 | Added future signal taxonomy and validation boundary for external signal ideas | Jesse + AI |
 | 2026-04-30 | v0.1 | Created initial trading strategy requirements document | Jesse + AI |

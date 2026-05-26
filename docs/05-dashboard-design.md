@@ -428,7 +428,7 @@ Header actions:
 | Action | MVP |
 | --- | --- |
 | Back to dashboard | Yes |
-| Open external chart | Maybe |
+| Open external chart | MVP+ |
 | Add to watchlist | MVP+ |
 | Export note | MVP+ |
 
@@ -451,6 +451,19 @@ MVP chart requirements:
 | MACD panel | Maybe | Optional |
 | EMA 8/21 | Maybe | Optional |
 | VWAP | No | Intraday/post-MVP |
+
+### 7.4.1 Future Chart Signal Markers
+
+Candidate Detail may eventually show signal markers directly on the chart, such as:
+
+- breakout level;
+- volume breakout;
+- pullback support;
+- trend warning;
+- invalidation marker;
+- caution marker.
+
+Each marker must be generated from structured rule output.
 
 Chart time ranges:
 
@@ -832,7 +845,27 @@ Show:
 
 The following should be deferred unless trivial.
 
-## 12.1 Watchlist
+## 12.1 External-Inspired MVP+ UI Ideas
+
+From OpenStock-style product references:
+
+- command palette / global search;
+- scanner-aware watchlist;
+- external TradingView chart link;
+- market regime panel.
+
+From Spring Duck-style signal dashboard references:
+
+- chart signal markers;
+- detected-signal cards;
+- sector/theme scanner grid;
+- AI candidate insight panel after deterministic scanner output exists.
+
+These are visual/product references only and should not expand MVP scope.
+
+---
+
+## 12.2 Watchlist
 
 Purpose:
 
@@ -854,7 +887,7 @@ Reason to defer:
 
 ---
 
-## 12.2 Exports
+## 12.3 Exports
 
 Possible exports:
 
@@ -870,7 +903,7 @@ Reason to defer:
 
 ---
 
-## 12.3 Alerts
+## 12.4 Alerts
 
 Possible alert types:
 
@@ -888,7 +921,7 @@ Reason to defer:
 
 ---
 
-## 12.4 Cost / Usage Dashboard
+## 12.5 Cost / Usage Dashboard
 
 Possible metrics:
 
@@ -905,7 +938,7 @@ Reason to defer:
 
 ---
 
-## 12.5 News / Catalyst Feed
+## 12.6 News / Catalyst Feed
 
 Post-MVP context layer.
 
@@ -1085,7 +1118,7 @@ Needs:
 | Q-UI-003 | Should MACD appear on candidate detail MVP? | Optional, not required | Open |
 | Q-UI-004 | Should entry/stop/target lines appear on MVP chart? | Preferred if simple | Open |
 | Q-UI-005 | Should user settings be UI-editable in first build? | Yes if simple; config file acceptable first | Open |
-| Q-UI-006 | Should external TradingView chart links be included? | Maybe useful | Open |
+| Q-UI-006 | Should external TradingView chart links be included? | MVP+ unless trivial | Open |
 | Q-UI-007 | Should glossary tooltips be included in MVP? | MVP+ unless trivial | Open |
 | Q-UI-008 | Should Dashboard and Candidates be separate pages? | Not necessary for MVP | Open |
 | Q-UI-009 | Should table support column customization? | No, later | Open |
@@ -1124,4 +1157,5 @@ The dashboard MVP is complete when:
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-14 | v0.2 | Added external-inspired MVP+ UI ideas and future chart signal marker guidance | Jesse + AI |
 | 2026-04-30 | v0.1 | Created initial dashboard design document | Jesse + AI |

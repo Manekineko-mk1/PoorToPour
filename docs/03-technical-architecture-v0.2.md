@@ -538,6 +538,18 @@ Examples:
 | Scan History | Scan run status and completion time |
 | Settings | Last config update if applicable |
 
+## 7.5 Future Command Palette
+
+MVP+ may include a command palette for:
+
+- ticker search;
+- opening candidate details;
+- navigating to scans/settings;
+- opening manual scan modal;
+- jumping to watchlist items.
+
+This is a UX enhancement, not an MVP dependency.
+
 ---
 
 ## 8. Database Architecture
@@ -932,6 +944,14 @@ Cons:
 Post-MVP:
 
 Move to Celery/RQ + Redis if jobs become slow, require retries, or need stronger isolation.
+
+### 11.2.1 Future Job System Upgrade
+
+APScheduler remains the MVP scheduler.
+
+If PoorToPour adds alerts, AI summaries, paper-trading checks, scan briefings, or more frequent provider refreshes, migrate to a more durable job system such as Celery + Redis, RQ + Redis, Temporal, or another workflow engine.
+
+The upgrade should happen only when APScheduler becomes a real limitation.
 
 ---
 
@@ -1429,6 +1449,10 @@ Add:
 - watchlist;
 - exports;
 - better filters;
+- command palette / global ticker search;
+- scanner-aware watchlist;
+- chart signal markers and detected-signal cards;
+- market regime panel;
 - limited AI summaries;
 - cost logging;
 - improved job UI.
@@ -1443,8 +1467,10 @@ Add:
 - earnings enrichment;
 - backtesting UI;
 - improved provider abstraction;
-- possible Redis/job queue;
-- alerting.
+- possible Redis/job queue or workflow engine;
+- alerting;
+- daily/weekly scan briefings;
+- sector/theme scanner grid.
 
 ---
 
@@ -1540,3 +1566,4 @@ The architecture is MVP-ready when:
 | --- | --- | --- | --- |
 | 2026-04-30 | v0.1 | Created initial technical architecture document | Jesse + AI |
 | 2026-04-30 | v0.2 | Added indicator build-vs-buy decision, `IndicatorService` boundary, and dependency testing rules | Jesse + AI |
+| 2026-05-14 | v0.3 | Added MVP+ command palette and future job-system upgrade path from external review | Jesse + AI |

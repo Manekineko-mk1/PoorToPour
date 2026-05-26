@@ -1057,6 +1057,15 @@ Rules:
 - Jobs should fail safely if data is stale or unavailable.
 - Jobs should support dry-run mode.
 
+MVP+ and post-MVP job ideas from external product review:
+
+- alert engine after scanner quality is proven;
+- daily/weekly scan briefing email after scan output is stable;
+- AI candidate insight job only for top candidates, with caps and caching;
+- durable job/event system only if APScheduler becomes insufficient.
+
+These should not increase MVP job scope.
+
 ---
 
 ## 12. Monitoring and Alerts
@@ -1269,4 +1278,5 @@ Initial references used for this draft:
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-14 | v0.2 | Added post-MVP job and briefing ideas from external review without expanding MVP costs | Jesse + AI |
 | 2026-04-30 | v0.1 | Created initial cost and operations document | Jesse + AI |

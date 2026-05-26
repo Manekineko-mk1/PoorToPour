@@ -197,6 +197,29 @@ The first MVP should cover:
 
 Everything after Phase 3 should be treated as post-MVP.
 
+### 6.2 External Inspiration Parking Lot
+
+Ideas observed from OpenStock and Spring Duck are parked for MVP+ or later unless they directly support the existing MVP flow:
+
+```text
+scan -> rank -> inspect -> learn
+```
+
+Potential future additions:
+
+- command palette / global ticker search;
+- scanner-aware watchlist;
+- chart signal markers;
+- detected-signal cards;
+- sector/theme scanner grid;
+- market regime panel;
+- alert engine;
+- daily/weekly scan briefing;
+- AI candidate insight panel;
+- richer chart pattern detection such as VCP or Adam & Eve patterns.
+
+These ideas must not expand the MVP unless explicitly re-approved.
+
 ---
 
 ## 7. First Trading Scope
@@ -471,8 +494,14 @@ This project plan keeps only a short decision snapshot. Add new major decisions 
 | 2026-04-29 | Add `08-execution-tracker.md`, `09-decision-log.md`, and `10-ai-working-guidelines.md` | Gives the project lightweight execution tracking, decision memory, and future-session AI continuity. |
 | 2026-04-30 | Add `07-cost-and-operations.md` to the documentation plan | Cost discipline is a product and architecture constraint for a personal project. |
 | 2026-04-30 | Create `01-product-requirements.md` | Defines the MVP product workflows, screens, scope, and cost constraints. |
+| 2026-05-14 | Keep external-project inspiration out of MVP unless it supports the existing scan-review flow | Preserves the MVP boundary after reviewing OpenStock and Spring Duck references. |
 
 ## 15. Progress Log
+
+### v0.4 - 2026-05-14
+
+- Added external inspiration parking lot for OpenStock and Spring Duck ideas.
+- Reconfirmed that external references should not expand MVP scope without explicit approval.
 
 ### v0.3 - 2026-04-30
 
