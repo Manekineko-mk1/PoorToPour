@@ -663,11 +663,11 @@ The following ideas were captured from OpenStock-style market portal references 
 - Market regime panel.
 - AI candidate insight panel after deterministic scanner output exists.
 
-The v0.2 mock renders in `/docs/Mock_UI_Renders` show these ideas as visual direction. They should not be treated as a commitment to implement every visible panel in MVP.
+The v0.2 mock renders in `/docs/references/Mock_UI_Renders` show these ideas as visual direction. They should not be treated as a commitment to implement every visible panel in MVP.
 
 ### 14.2 Spring Duck-Inspired MVP+ Feature Cluster
 
-The Spring Duck screenshots in `/docs/Research_Docs/Screenshots` inspired the v0.2 mock render direction. These ideas should be treated as MVP+ candidates after the deterministic MVP scanner exists:
+The Spring Duck screenshots in `/docs/references/Research_Docs/Screenshots` inspired the v0.2 mock render direction. These ideas should be treated as MVP+ candidates after the deterministic MVP scanner exists:
 
 - candlestick chart signal markers;
 - moving average and volume evidence around each signal;

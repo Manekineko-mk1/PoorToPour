@@ -156,29 +156,29 @@ The MVP dashboard should feel like a compact dark-mode trading research cockpit:
 
 These mockups are visual references, not strict pixel-perfect implementation specs.
 
-The v0.2 renders are inspired by the Spring Duck screenshots in `docs/Research_Docs/Screenshots`. Those signal-dashboard ideas are planned for MVP+ unless they directly support the first scan, rank, inspect, learn workflow.
+The v0.2 renders are inspired by the Spring Duck screenshots in `docs/references/Research_Docs/Screenshots`. Those signal-dashboard ideas are planned for MVP+ unless they directly support the first scan, rank, inspect, learn workflow.
 
 ### Dashboard Home
 
-![PoorToPour Dashboard Home](docs/Mock_UI_Renders/Mock_UI_PoorToPour_01_MainScreen_v0.2.png)
+![PoorToPour Dashboard Home](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_01_MainScreen_v0.2.png)
 
 ### Scan History
 
-![PoorToPour Scan History](docs/Mock_UI_Renders/Mock_UI_PoorToPour_02_ScanHistory_v0.2.png)
+![PoorToPour Scan History](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_02_ScanHistory_v0.2.png)
 
 ### Settings
 
-![PoorToPour Settings](docs/Mock_UI_Renders/Mock_UI_PoorToPour_03_Settings_v0.2.png)
+![PoorToPour Settings](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_03_Settings_v0.2.png)
 
 ### Sector Scanner / Market Regime
 
 MVP+ visual reference only. The MVP remains focused on scan, rank, inspect, and learn.
 
-![PoorToPour Sector Scanner](docs/Mock_UI_Renders/Mock_UI_PoorToPour_04_SectorScanner.png)
+![PoorToPour Sector Scanner](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_04_SectorScanner.png)
 
 ### Run Manual Scan
 
-![PoorToPour Run Manual Scan](docs/Mock_UI_Renders/Mock_UI_PoorToPour_04_RunManualScan.png)
+![PoorToPour Run Manual Scan](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_04_RunManualScan.png)
 
 ## Project Documentation
 
@@ -196,7 +196,9 @@ MVP+ visual reference only. The MVP remains focused on scan, rank, inspect, and 
 | [`docs/08-execution-tracker.md`](docs/08-execution-tracker.md) | Current phase, active tasks, risks, and next steps |
 | [`docs/09-decision-log.md`](docs/09-decision-log.md) | Accepted decisions and trade-offs |
 | [`docs/10-ai-working-guidelines.md`](docs/10-ai-working-guidelines.md) | AI collaboration workflow and engineering standards |
-| [`docs/11-phase-1-review.md`](docs/11-phase-1-review.md) | Phase 1 code, security, and trading-safety review results |
+| [`docs/README.md`](docs/README.md) | Documentation folder structure |
+| [`docs/phases/phase-1-data-foundation/review.md`](docs/phases/phase-1-data-foundation/review.md) | Phase 1 code, security, and trading-safety review results |
+| [`docs/phases/phase-1-data-foundation/pull-request-draft.md`](docs/phases/phase-1-data-foundation/pull-request-draft.md) | Phase 1 pull request draft |
 
 ## Safety Principles
 

@@ -61,7 +61,7 @@ Legend: `⬜ Not Started` | `🟨 In Progress` | `✅ Done` | `⛔ Blocked`
 | P1-L | First deterministic setup detector | ✅ Done | Bootstrap trend/momentum scanner uses stored bars and indicator snapshots |
 | P1-M | Persist generated scanner output | ✅ Done | Scanner writes a new `scan_run` and ranked `scan_candidates` |
 | P1-N | Scanner API handoff | ✅ Done | Latest scan endpoint returns generated scanner output after scanner run |
-| P1-O | Phase 1 review checkpoint | ✅ Done | Code review, security review, and trading-safety review completed in `/docs/11-phase-1-review.md`; fixes applied before commit/push |
+| P1-O | Phase 1 review checkpoint | ✅ Done | Code review, security review, and trading-safety review completed in `/docs/phases/phase-1-data-foundation/review.md`; fixes applied before commit/push |
 
 Current simple mental model:
 
@@ -265,7 +265,7 @@ Next recommended Phase 1 work:
 
 Review checkpoint completed:
 
-Full review notes are saved in `/docs/11-phase-1-review.md`.
+Full review notes are saved in `/docs/phases/phase-1-data-foundation/review.md`.
 
 | Review | Status | Notes |
 | --- | --- | --- |

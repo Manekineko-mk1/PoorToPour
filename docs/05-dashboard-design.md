@@ -123,7 +123,7 @@ Avoid cramming everything into one screen.
 
 ## 3.4 Current Mock Render Set
 
-The `/docs/Mock_UI_Renders` folder contains visual references for the current dashboard direction. These renders are not pixel-perfect implementation specs.
+The `/docs/references/Mock_UI_Renders` folder contains visual references for the current dashboard direction. These renders are not pixel-perfect implementation specs.
 
 | Render | Scope | Notes |
 | --- | --- | --- |
