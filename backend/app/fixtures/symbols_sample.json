@@ -1,0 +1,50 @@
+[
+  {
+    "symbol": "NVDA",
+    "company_name": "NVIDIA Corporation",
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "exchange": "NASDAQ",
+    "is_active": true
+  },
+  {
+    "symbol": "MSFT",
+    "company_name": "Microsoft Corporation",
+    "sector": "Technology",
+    "industry": "Software",
+    "exchange": "NASDAQ",
+    "is_active": true
+  },
+  {
+    "symbol": "AAPL",
+    "company_name": "Apple Inc.",
+    "sector": "Technology",
+    "industry": "Consumer Electronics",
+    "exchange": "NASDAQ",
+    "is_active": true
+  },
+  {
+    "symbol": "META",
+    "company_name": "Meta Platforms, Inc.",
+    "sector": "Communication Services",
+    "industry": "Internet Content",
+    "exchange": "NASDAQ",
+    "is_active": true
+  },
+  {
+    "symbol": "AMD",
+    "company_name": "Advanced Micro Devices, Inc.",
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "exchange": "NASDAQ",
+    "is_active": true
+  },
+  {
+    "symbol": "AMZN",
+    "company_name": "Amazon.com, Inc.",
+    "sector": "Consumer Discretionary",
+    "industry": "Internet Retail",
+    "exchange": "NASDAQ",
+    "is_active": true
+  }
+]

@@ -110,6 +110,7 @@ MVP summary:
 | Risk/reward estimate | Yes | Research estimate only |
 | Data freshness labels | Yes | Show timestamps and stale/missing data states |
 | Watchlist | No | MVP+ unless trivial |
+| Sector scanner / market regime page | No | MVP+ unless explicitly re-approved |
 | Alerts | No | Post-MVP |
 | Intraday social/news scanning | No | Post-MVP |
 | Broker execution | No | Later only after validation |
@@ -640,7 +641,7 @@ Checklist:
 | Product Phase | Features |
 | --- | --- |
 | MVP | Daily/weekly scanner, dashboard, candidate detail, scan history, settings |
-| MVP+ | Watchlist, exports, improved filters, saved views, global ticker search, scanner-aware watchlist, chart signal markers, detected-signal panel, market regime panel |
+| MVP+ | Watchlist, exports, improved filters, saved views, global ticker search, scanner-aware watchlist, chart signal markers, detected-signal panel, market regime panel, sector/theme scanner |
 | Phase 2 | Company, earnings, and news/catalyst feed improvements |
 | Phase 3 | Backtesting UI and strategy validation |
 | Phase 4 | Alerts, notifications, and daily/weekly scan briefing |
@@ -662,6 +663,25 @@ The following ideas were captured from OpenStock-style market portal references 
 - Market regime panel.
 - AI candidate insight panel after deterministic scanner output exists.
 
+The v0.2 mock renders in `/docs/Mock_UI_Renders` show these ideas as visual direction. They should not be treated as a commitment to implement every visible panel in MVP.
+
+### 14.2 Spring Duck-Inspired MVP+ Feature Cluster
+
+The Spring Duck screenshots in `/docs/Research_Docs/Screenshots` inspired the v0.2 mock render direction. These ideas should be treated as MVP+ candidates after the deterministic MVP scanner exists:
+
+- candlestick chart signal markers;
+- moving average and volume evidence around each signal;
+- structured Detected Signals panel;
+- market signal cards;
+- sector/theme scanner grid;
+- scanner-aware watchlist;
+- ticker chips/search;
+- AI insight panel that explains deterministic scanner output;
+- tabbed views such as Overview, Scanner, and Tasks;
+- visual signal taxonomy for richer future setup review.
+
+AI insights and visual signal taxonomy must remain explainability layers over deterministic rule output, not independent trade-decision engines.
+
 ---
 
 ## 15. Open Product Questions
@@ -682,5 +702,7 @@ The following ideas were captured from OpenStock-style market portal references 
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-25 | v0.4 | Added Spring Duck-inspired MVP+ feature cluster from v0.2 mock direction | Jesse + AI |
+| 2026-05-25 | v0.3 | Clarified v0.2 render scope and kept Sector Scanner / market regime as MVP+ | Jesse + AI |
 | 2026-05-14 | v0.2 | Added MVP+ external-review candidate features without expanding MVP scope | Jesse + AI |
 | 2026-04-30 | v0.1 | Created initial product requirements document | Jesse + AI |

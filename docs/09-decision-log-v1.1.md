@@ -3,7 +3,7 @@
 **Project:** PoorToPour  
 **Description:** From broke to pouring champagne.  
 **Date created:** 2026-04-29  
-**Last updated:** 2026-04-30
+**Last updated:** 2026-05-26
 
 ---
 
@@ -89,6 +89,16 @@ Use this file to preserve why decisions were made, not just what was chosen. Fut
 | D-057 | 2026-05-14 | Accepted | Add OpenStock-inspired ideas such as command palette, scanner-aware watchlist, alerts, and scan briefings to MVP+ or later roadmap | These are useful product patterns but not required for MVP scanner validation | Delays convenience features | Keeps MVP focused while preserving good ideas |
 | D-058 | 2026-05-14 | Accepted | Add Spring Duck-inspired ideas such as chart signal markers, detected-signal cards, sector scanner grid, and AI insight panel to MVP+ or later roadmap | These strengthen the future signal UX but could create scope drift if added now | Delays visually attractive features | Preserves MVP simplicity while improving final vision |
 | D-059 | 2026-05-14 | Accepted | Future pattern signals require deterministic rules and validation before entering scoring | Visual chart patterns can be subjective and overfit-prone | Slower feature expansion | Protects scanner credibility and backtesting quality |
+| D-060 | 2026-05-25 | Accepted | Treat v0.2 mock UI renders as visual direction, not MVP scope expansion | The renders clarify the desired product feel while showing several MVP+ ideas | Some visible panels may not be built immediately | Keeps implementation focused on scan-rank-inspect-learn |
+| D-061 | 2026-05-25 | Accepted | Treat Spring Duck-inspired signal UX as a deliberate MVP+ feature cluster | The reference aligns well with PoorToPour's future scanner experience after deterministic rules exist | Adds a visible backlog of attractive UI ideas | Captures the desired direction while preserving MVP scope |
+| D-062 | 2026-05-25 | Accepted | Start Phase 1 implementation with a fixture-backed mock provider before wiring a real market-data provider | Mock data keeps backend, frontend, Docker, and provider interfaces testable without API keys or rate limits | First data is not real market data | Enables deterministic development while preserving the provider abstraction |
+| D-063 | 2026-05-25 | Accepted | Use Alembic migrations and PostgreSQL persistence before adding a real provider adapter | Persisted normalized data gives future provider adapters a stable target schema | Adds migration and repository maintenance | Keeps real-provider integration clean and testable |
+| D-064 | 2026-05-25 | Accepted | Use the `datasets/s-and-p-500-companies` CSV as the versioned local S&P 500 universe seed for MVP bootstrapping | It is simple, reviewable, and adequate for local universe setup before provider-backed listing metadata exists | It is Wikipedia-derived and not a licensed trading-grade index membership feed | Keeps Phase 1 moving while making the data-source caveat explicit |
+| D-065 | 2026-05-25 | Accepted | Use yfinance as a Phase 1 OHLCV bootstrap adapter only | It lets the project validate ingestion, normalization, and storage with real daily bars before choosing a paid/provider-backed source | yfinance is unofficial and should not be treated as final trading-grade data | Speeds up local development while preserving the final provider decision |
+| D-066 | 2026-05-25 | Accepted | Build scanner inputs through a deterministic internal `IndicatorService` | Scanner inputs need to be explainable, testable, and independent from provider-specific objects | Adds project-owned calculation code and tests to maintain | Creates a stable bridge from stored bars to setup detection and scoring |
+| D-067 | 2026-05-25 | Accepted | Persist scan runs and candidates before building the first generated scanner pass | Scanner output needs a durable target before setup-detection logic starts producing candidates | Requires flexible JSON fields while the score schema is still evolving | Lets mock, bootstrap, and future generated scans share one API shape |
+| D-068 | 2026-05-26 | Accepted | Make the first generated scanner a narrow bootstrap trend/momentum detector | It proves the end-to-end path from stored bars to indicators to persisted candidates without pretending to be the full strategy | The first generated candidate logic is intentionally simple and may produce few candidates | Marks Phase 1 ready for review before expanding scanner sophistication |
+| D-069 | 2026-05-26 | Accepted | Keep mock UI renders and research screenshots under `/docs` | Visual references are project documentation and should live beside the planning docs | Asset paths need updates when references move | Keeps the repository root focused on runnable application code and top-level setup files |
 
 ---
 
@@ -139,3 +149,13 @@ Use the next available `D-###` ID.
 | 2026-04-30 | Added decisions from dashboard design planning | Jesse + AI |
 | 2026-04-30 | Added decisions from risk and backtesting planning | Jesse + AI |
 | 2026-05-14 | Added external-reference scope decisions for OpenStock and Spring Duck ideas | Jesse + AI |
+| 2026-05-25 | Added decision for v0.2 mock UI render scope | Jesse + AI |
+| 2026-05-25 | Added decision for Spring Duck-inspired MVP+ signal UX cluster | Jesse + AI |
+| 2026-05-25 | Added decision to start Phase 1 with a fixture-backed mock provider | Jesse + AI |
+| 2026-05-25 | Added decision to use Alembic/PostgreSQL persistence before real provider adapter | Jesse + AI |
+| 2026-05-25 | Added decision to use the datasets S&P 500 CSV as the local MVP universe seed | Jesse + AI |
+| 2026-05-25 | Added decision to use yfinance only as a Phase 1 OHLCV bootstrap adapter | Jesse + AI |
+| 2026-05-25 | Added decision to build scanner inputs through a deterministic internal IndicatorService | Jesse + AI |
+| 2026-05-25 | Added decision to persist scan runs and candidates before building generated scanner output | Jesse + AI |
+| 2026-05-26 | Added decision for the first generated scanner to remain a narrow bootstrap trend/momentum detector | Jesse + AI |
+| 2026-05-26 | Added decision to keep visual/research reference assets under `/docs` | Jesse + AI |
