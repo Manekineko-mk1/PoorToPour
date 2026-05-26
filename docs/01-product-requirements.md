@@ -35,7 +35,7 @@ Related documents:
 | `/docs/05-dashboard-design.md` | Dashboard layout and UI behavior |
 | `/docs/06-risk-and-backtesting.md` | Risk controls and validation methods |
 | `/docs/07-cost-and-operations.md` | Cost estimates, operating modes, hosting, and budget controls |
-| `/docs/08-execution-tracker.md` | Current project progress |
+| `/docs/08-execution-tracker-v1.0.md` | Current project progress |
 | `/docs/09-decision-log.md` | Accepted project decisions |
 | `/docs/10-ai-working-guidelines.md` | AI workflow and engineering standards |
 
@@ -688,7 +688,7 @@ AI insights and visual signal taxonomy must remain explainability layers over de
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-PRD-001 | Should MVP universe be S&P 500 only or S&P 500 plus Nasdaq 100? | S&P 500 only | Open |
+| Q-PRD-001 | Should MVP universe be S&P 500 only or S&P 500 plus Nasdaq 100? | S&P 500 plus Nasdaq 100 | Resolved |
 | Q-PRD-002 | Should market snapshot cards appear on Dashboard Home MVP? | Maybe, if easy | Open |
 | Q-PRD-003 | Should MACD be shown on the first candidate detail page? | Maybe, not required | Open |
 | Q-PRD-004 | Should watchlist be included if trivial? | MVP+ unless trivial | Open |
@@ -702,6 +702,7 @@ AI insights and visual signal taxonomy must remain explainability layers over de
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-26 | v0.5 | Resolved MVP universe as S&P 500 plus Nasdaq 100 | Jesse + AI |
 | 2026-05-25 | v0.4 | Added Spring Duck-inspired MVP+ feature cluster from v0.2 mock direction | Jesse + AI |
 | 2026-05-25 | v0.3 | Clarified v0.2 render scope and kept Sector Scanner / market regime as MVP+ | Jesse + AI |
 | 2026-05-14 | v0.2 | Added MVP+ external-review candidate features without expanding MVP scope | Jesse + AI |

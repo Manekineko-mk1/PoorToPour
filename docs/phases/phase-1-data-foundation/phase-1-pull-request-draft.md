@@ -75,7 +75,7 @@ Phase 1 is local-first and remains inside MVP scope:
 
 - Updated tracker and decision log for Phase 1 completion status.
 - Added dedicated review document:
-  - `/docs/phases/phase-1-data-foundation/review.md`
+  - `/docs/phases/phase-1-data-foundation/phase-1-code-security-trading-review.md`
 - Moved visual/reference assets under `/docs`:
   - `/docs/references/Mock_UI_Renders`
   - `/docs/references/Research_Docs`
@@ -122,7 +122,7 @@ Observed results:
 
 Phase 1 review is complete and documented in:
 
-- `/docs/phases/phase-1-data-foundation/review.md`
+- `/docs/phases/phase-1-data-foundation/phase-1-code-security-trading-review.md`
 
 Highlights:
 

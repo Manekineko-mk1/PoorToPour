@@ -49,7 +49,7 @@ Before meaningful work, review the relevant docs:
 | File | Purpose |
 | --- | --- |
 | `/docs/00-project-plan.md` | Project vision, MVP boundary, roadmap |
-| `/docs/08-execution-tracker.md` | Current work status and active tasks |
+| `/docs/08-execution-tracker-v1.0.md` | Current work status and active tasks |
 | `/docs/09-decision-log.md` | Accepted project decisions |
 | `/docs/10-ai-working-guidelines.md` | AI workflow and engineering rules |
 
@@ -121,7 +121,7 @@ Before considering work complete, perform:
 
 After meaningful progress:
 
-- Update `/docs/08-execution-tracker.md`.
+- Update `/docs/08-execution-tracker-v1.0.md`.
 - Add important decisions to `/docs/09-decision-log.md`.
 - Update any affected specification docs.
 - Record unresolved questions and risks.
@@ -345,7 +345,7 @@ Examples:
 | Change | Update |
 | --- | --- |
 | New major decision | `/docs/09-decision-log.md` |
-| Phase/task progress | `/docs/08-execution-tracker.md` |
+| Phase/task progress | `/docs/08-execution-tracker-v1.0.md` |
 | Product behavior | `/docs/01-product-requirements.md` |
 | Trading logic | `/docs/02-trading-strategy-requirements.md` |
 | Architecture | `/docs/03-technical-architecture.md` |
@@ -365,7 +365,7 @@ If the implementation differs from the documentation:
 
 ## 10. Execution Tracker Rules
 
-Use `/docs/08-execution-tracker.md` as the living project status board.
+Use `/docs/08-execution-tracker-v1.0.md` as the living project status board.
 
 Update it when:
 
@@ -501,7 +501,7 @@ At the start of a new meaningful PoorToPour session, AI should:
 
 1. Identify the user's requested task.
 2. Check the relevant docs.
-3. Check `/docs/08-execution-tracker.md` for current status.
+3. Check `/docs/08-execution-tracker-v1.0.md` for current status.
 4. Check `/docs/09-decision-log.md` for accepted decisions.
 5. Confirm whether the work is MVP or post-MVP.
 6. Propose an approach before coding.

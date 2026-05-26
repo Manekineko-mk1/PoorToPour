@@ -1222,10 +1222,10 @@ Recommended ceiling:
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-COST-001 | What is Jesse's preferred monthly MVP budget ceiling? | $50/month | Open |
-| Q-COST-002 | Should the first hosted version use Railway, Render, or DigitalOcean? | Local first; decide later | Open |
-| Q-COST-003 | Which market data provider should be used first? | TBD in `/docs/04-data-sources.md` | Open |
-| Q-COST-004 | Should AI summaries be added in MVP+? | Yes, only if capped and cached | Open |
+| Q-COST-001 | What is Jesse's preferred monthly MVP budget ceiling? | Under $50/month if possible; hard review before exceeding $100/month | Resolved |
+| Q-COST-002 | Should the first hosted version use Railway, Render, or DigitalOcean? | Local Docker Compose for MVP development; cloud deployment for MVP+ and later | Resolved |
+| Q-COST-003 | Which market data provider should be used first? | Alpha Vantage | Resolved |
+| Q-COST-004 | Should AI summaries be added in MVP+? | Post-MVP only, disabled by default, capped/cached before enablement, and reviewed again after MVP+ | Resolved |
 | Q-COST-005 | Should the dashboard include cost visibility in MVP? | Basic backend logging only | Open |
 | Q-COST-006 | Should we pay for market data before the scanner proves useful? | No | Open |
 | Q-COST-007 | What is the maximum acceptable AI budget before paper trading? | $10–$25/month | Open |

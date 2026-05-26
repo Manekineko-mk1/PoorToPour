@@ -33,10 +33,10 @@ Use this file to preserve why decisions were made, not just what was chosen. Fut
 | D-001 | 2026-04-29 | Accepted | Project name is **PoorToPour** | Memorable personal-project identity with humorous ambition | Less professional than a fintech-style name | Sets README, repo, and documentation tone |
 | D-002 | 2026-04-29 | Accepted | Project description is **From broke to pouring champagne.** | Captures the long-term dream in a funny, concise way | Not suitable as formal investment product language | Used as repo/project tagline |
 | D-003 | 2026-04-29 | Accepted | Keep the high-level roadmap inside `/docs/00-project-plan.md` | Avoids duplicating roadmap information across docs | Roadmap is less isolated than a standalone file | Section 6 of project plan is the canonical roadmap |
-| D-004 | 2026-04-29 | Accepted | Add `/docs/08-execution-tracker.md` | Provides a living tracker for current work and phase status | Requires periodic maintenance | Future sessions should update it after meaningful progress |
+| D-004 | 2026-04-29 | Accepted | Add `/docs/08-execution-tracker-v1.0.md` | Provides a living tracker for current work and phase status | Requires periodic maintenance | Future sessions should update it after meaningful progress |
 | D-005 | 2026-04-29 | Accepted | Add `/docs/09-decision-log.md` | Keeps durable memory of important project choices | Requires discipline to update | Prevents repeated debates and context loss |
 | D-006 | 2026-04-29 | Accepted | Add `/docs/10-ai-working-guidelines.md` | Gives future AI sessions a project-specific workflow and engineering standard | Another doc to keep current | Improves continuity and implementation quality |
-| D-007 | 2026-04-29 | Accepted | MVP starts with **S&P 500** universe by default | Clean, liquid, manageable starting universe | Misses small-cap momentum and broader market opportunities | Simplifies first scanner and data validation |
+| D-007 | 2026-04-29 | Replaced | MVP starts with **S&P 500** universe by default | Clean, liquid, manageable starting universe | Misses small-cap momentum and broader market opportunities | Replaced by D-071: MVP universe is S&P 500 plus Nasdaq 100 |
 | D-008 | 2026-04-29 | Accepted | MVP is **long-only** | Lower complexity and risk than supporting shorts immediately | No short-side setups in first version | Simplifies scoring, risk, and backtesting |
 | D-009 | 2026-04-29 | Accepted | MVP focuses on **daily and weekly swing scans** | Easier to validate than intraday/day-trading scans | Delays real-time day-trading features | Reduces data, latency, and false-positive complexity |
 | D-010 | 2026-04-29 | Accepted | Automated trading is excluded from MVP | Avoids unsafe execution before strategy validation | Slower path to final automation dream | Broker integration requires backtesting and paper-trading evidence first |
@@ -71,7 +71,7 @@ Use this file to preserve why decisions were made, not just what was chosen. Fut
 | D-039 | 2026-04-30 | Accepted | Create `/docs/04-data-sources.md` to define data-source strategy before implementation | Data quality, provider limits, freshness, and cost shape the scanner architecture | Adds another planning document | Establishes MVP data needs and provider abstraction rules |
 | D-040 | 2026-04-30 | Accepted | Use a local S&P 500 seed file for MVP universe bootstrapping | Keeps the MVP reproducible and avoids early provider dependency | Manual updates needed until automated refresh exists | Simplifies Phase 1 data foundation |
 | D-041 | 2026-04-30 | Accepted | Use daily OHLCV as the first required market data layer | Supports daily/weekly swing scans while keeping cost and complexity low | Intraday/day-trading features are delayed | Aligns data needs with MVP trading scope |
-| D-042 | 2026-04-30 | Accepted | Defer final market data provider selection until implementation testing | Provider pricing, rate limits, adjusted data quality, and endpoint behavior need hands-on validation | Requires a provider experiment step before full implementation | Avoids premature vendor lock-in |
+| D-042 | 2026-04-30 | Replaced | Defer final market data provider selection until implementation testing | Provider pricing, rate limits, adjusted data quality, and endpoint behavior need hands-on validation | Requires a provider experiment step before full implementation | Replaced by D-070: use Alpha Vantage as the first real provider adapter |
 | D-043 | 2026-04-30 | Accepted | Treat missing required price data as candidate-blocking and missing context data as warning-only | Price data is essential for strategy safety, while company/earnings context is useful but not always available | Some candidates may appear with incomplete context | Balances scanner reliability with practical MVP provider limits |
 | D-044 | 2026-04-30 | Accepted | MVP data sourcing will use Tier 1 provider-backed data only for core scanner inputs | Keeps MVP implementation simple, reliable, and easier to validate before adding hybrid data complexity | Tier 2 official public APIs and Tier 3 scraping are delayed | Reduces early data-quality, terms, normalization, and maintenance risks |
 | D-045 | 2026-04-30 | Accepted | Tier 2 official public APIs and Tier 3 scraping are deferred to MVP+ or later | The scanner should first prove useful on clean provider-backed data before adding supplemental context sources | Delays richer fundamentals/filings/scraped context | Creates a clear re-evaluation point after MVP |
@@ -99,12 +99,22 @@ Use this file to preserve why decisions were made, not just what was chosen. Fut
 | D-067 | 2026-05-25 | Accepted | Persist scan runs and candidates before building the first generated scanner pass | Scanner output needs a durable target before setup-detection logic starts producing candidates | Requires flexible JSON fields while the score schema is still evolving | Lets mock, bootstrap, and future generated scans share one API shape |
 | D-068 | 2026-05-26 | Accepted | Make the first generated scanner a narrow bootstrap trend/momentum detector | It proves the end-to-end path from stored bars to indicators to persisted candidates without pretending to be the full strategy | The first generated candidate logic is intentionally simple and may produce few candidates | Marks Phase 1 ready for review before expanding scanner sophistication |
 | D-069 | 2026-05-26 | Accepted | Keep mock UI renders and research screenshots under `/docs` | Visual references are project documentation and should live beside the planning docs | Asset paths need updates when references move | Keeps the repository root focused on runnable application code and top-level setup files |
+| D-070 | 2026-05-26 | Accepted | Use Alpha Vantage as the first real market-data provider adapter | Jesse already has an Alpha Vantage key, and it is good enough to test the provider abstraction after yfinance bootstrap | API limits may constrain full-universe refreshes and require batching, caching, and rate-limit handling | Gives Phase 2/Phase 3 a concrete provider target without committing to it forever |
+| D-071 | 2026-05-26 | Accepted | MVP universe is S&P 500 plus Nasdaq 100 | Adds major liquid growth/technology names while staying manageable | Larger universe increases provider calls, deduping work, and scan runtime | Requires universe seeding to merge duplicate symbols across indexes |
+| D-072 | 2026-05-26 | Accepted | Build the Dashboard MVP before full backtesting | The scanner needs an inspectable user workflow before deeper validation tools | Full statistical validation comes later | Keeps near-term work focused on scan, rank, inspect, and learn |
+| D-073 | 2026-05-26 | Accepted | Alerts are dashboard-only at first | Keeps early alerts visible but non-intrusive and avoids urgency-inducing notifications | No email, push, SMS, or broker-triggered alert actions initially | Preserves manual review and trading-safety boundaries |
+| D-074 | 2026-05-26 | Accepted | MVP development runs on local Docker Compose; MVP+ and later should support cloud deployment | Local development keeps iteration cheap, while the project should eventually be reachable beyond one machine | Cloud deployment work is deferred until the scanner/dashboard prove useful | Sets a local-to-cloud path without adding cloud complexity to the current phase |
+| D-075 | 2026-05-26 | Accepted | Hosted MVP should stay under $50/month if possible, with hard review before exceeding $100/month | Keeps the personal project financially sustainable | May limit hosting, provider, and AI choices | Creates a budget gate before paid infrastructure grows |
+| D-076 | 2026-05-26 | Accepted | AI must not make trade decisions; AI summaries are post-MVP, disabled by default, and reviewed again after MVP+ | Preserves deterministic and auditable scanner behavior | Delays AI insight panels until the deterministic scanner exists | Keeps AI as an explanation layer, not a trading brain |
 
 ---
 
 ## Replaced Decisions
 
-No replaced decisions yet.
+| ID | Date Replaced | Replaced By | Reason |
+| --- | --- | --- | --- |
+| D-007 | 2026-05-26 | D-071 | MVP universe expanded from S&P 500 only to S&P 500 plus Nasdaq 100 |
+| D-042 | 2026-05-26 | D-070 | First real provider adapter selected as Alpha Vantage |
 
 ---
 
@@ -159,3 +169,4 @@ Use the next available `D-###` ID.
 | 2026-05-25 | Added decision to persist scan runs and candidates before building generated scanner output | Jesse + AI |
 | 2026-05-26 | Added decision for the first generated scanner to remain a narrow bootstrap trend/momentum detector | Jesse + AI |
 | 2026-05-26 | Added decision to keep visual/research reference assets under `/docs` | Jesse + AI |
+| 2026-05-26 | Resolved standing MVP direction questions for provider, universe, dashboard/backtesting order, alerts, deployment path, budget, and AI boundaries | Jesse + AI |

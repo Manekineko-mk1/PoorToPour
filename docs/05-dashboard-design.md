@@ -37,7 +37,7 @@ Related documents:
 | `/docs/04-data-sources.md` | Data providers, limits, and freshness rules |
 | `/docs/06-risk-and-backtesting.md` | Risk controls and validation methods |
 | `/docs/07-cost-and-operations.md` | Cost estimates and operating constraints |
-| `/docs/08-execution-tracker.md` | Current project progress |
+| `/docs/08-execution-tracker-v1.0.md` | Current project progress |
 | `/docs/09-decision-log.md` | Accepted project decisions |
 | `/docs/10-ai-working-guidelines.md` | AI workflow and engineering standards |
 

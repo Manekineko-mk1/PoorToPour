@@ -946,7 +946,7 @@ Required controls:
 | Provider call logging | Track provider, endpoint, symbol, status |
 | Rate limit handling | Backoff or stop when limits are reached |
 | Batch requests | Use batch endpoints if available |
-| Universe limits | MVP scans S&P 500 only |
+| Universe limits | MVP scans S&P 500 plus Nasdaq 100, with duplicated symbols merged |
 | Manual scan guard | Prevent repeated expensive manual scans |
 | Cache reuse | Do not refetch unchanged data unnecessarily |
 | Feature toggles | Disable expensive providers/context layers |
@@ -1003,7 +1003,7 @@ Important:
 | DATA-D-006 | Do not include news/social/Polymarket/politician trades in MVP | Keeps scanner focused and cheaper |
 | DATA-D-007 | Treat SEC EDGAR as a later official fundamentals source | Useful but normalization-heavy |
 | DATA-D-008 | Missing price data blocks candidates; missing context data warns | Keeps trading safety high without blocking technical scans unnecessarily |
-| DATA-D-009 | Final provider selection is deferred | Implementation needs and provider limits must be tested first |
+| DATA-D-009 | First real provider adapter will use Alpha Vantage | Jesse has an Alpha Vantage key and wants it as the first provider after yfinance bootstrap |
 | DATA-D-010 | Provider raw payloads should be optional and short-retention | Avoids database bloat and provider-shape coupling |
 | DATA-D-011 | MVP uses Tier 1 provider-backed data only for core scanner inputs | Keeps implementation simple, reliable, and easier to validate |
 | DATA-D-012 | Tier 2 official public APIs are deferred to MVP+ or later | Avoids normalization-heavy sources before scanner value is proven |
@@ -1016,8 +1016,8 @@ Important:
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-DATA-001 | Which market data provider should be used first? | Compare FMP, Twelve Data, Finnhub, Alpha Vantage, Polygon/Massive | Open |
-| Q-DATA-002 | Should S&P 500 universe be manually seeded first? | Yes | Open |
+| Q-DATA-001 | Which market data provider should be used first? | Alpha Vantage | Resolved |
+| Q-DATA-002 | Should S&P 500 universe be manually seeded first? | Yes; extend MVP universe with Nasdaq 100 as well | Resolved |
 | Q-DATA-003 | Should company profiles be required for MVP candidates? | Warn if missing, do not block | Open |
 | Q-DATA-004 | Which provider has the best earnings-date coverage for MVP? | TBD | Open |
 | Q-DATA-005 | Should adjusted close be required? | Preferred, but depends on provider | Open |

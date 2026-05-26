@@ -193,12 +193,14 @@ MVP+ visual reference only. The MVP remains focused on scan, rank, inspect, and 
 | [`docs/05-dashboard-design.md`](docs/05-dashboard-design.md) | Dashboard screens, UI flow, and visual requirements |
 | [`docs/06-risk-and-backtesting.md`](docs/06-risk-and-backtesting.md) | Risk model, backtesting, paper-trading gates, and automation safety |
 | [`docs/07-cost-and-operations.md`](docs/07-cost-and-operations.md) | Cost targets, hosting modes, AI budget controls, and operations |
-| [`docs/08-execution-tracker.md`](docs/08-execution-tracker.md) | Current phase, active tasks, risks, and next steps |
+| [`docs/08-execution-tracker-v1.0.md`](docs/08-execution-tracker-v1.0.md) | Current phase, active tasks, risks, and next steps |
 | [`docs/09-decision-log.md`](docs/09-decision-log.md) | Accepted decisions and trade-offs |
 | [`docs/10-ai-working-guidelines.md`](docs/10-ai-working-guidelines.md) | AI collaboration workflow and engineering standards |
 | [`docs/README.md`](docs/README.md) | Documentation folder structure |
-| [`docs/phases/phase-1-data-foundation/review.md`](docs/phases/phase-1-data-foundation/review.md) | Phase 1 code, security, and trading-safety review results |
-| [`docs/phases/phase-1-data-foundation/pull-request-draft.md`](docs/phases/phase-1-data-foundation/pull-request-draft.md) | Phase 1 pull request draft |
+| [`docs/phases/phase-1-data-foundation/phase-1-execution-tracker.md`](docs/phases/phase-1-data-foundation/phase-1-execution-tracker.md) | Phase 1 detailed execution tracker |
+| [`docs/phases/phase-1-data-foundation/phase-1-code-security-trading-review.md`](docs/phases/phase-1-data-foundation/phase-1-code-security-trading-review.md) | Phase 1 code, security, and trading review results |
+| [`docs/phases/phase-1-data-foundation/phase-1-pull-request-draft.md`](docs/phases/phase-1-data-foundation/phase-1-pull-request-draft.md) | Phase 1 pull request draft |
+| [`docs/phases/phase-2-technical-scanner/phase-2-execution-tracker.md`](docs/phases/phase-2-technical-scanner/phase-2-execution-tracker.md) | Phase 2 detailed execution tracker |
 
 ## Safety Principles
 
