@@ -1,0 +1,32 @@
+{
+  "NVDA": {
+    "last_earnings_date": "2025-02-26",
+    "next_earnings_date": "2025-05-28",
+    "source": "mock"
+  },
+  "MSFT": {
+    "last_earnings_date": "2025-04-24",
+    "next_earnings_date": "2025-07-24",
+    "source": "mock"
+  },
+  "AAPL": {
+    "last_earnings_date": "2025-05-01",
+    "next_earnings_date": "2025-08-01",
+    "source": "mock"
+  },
+  "META": {
+    "last_earnings_date": "2025-04-30",
+    "next_earnings_date": "2025-07-30",
+    "source": "mock"
+  },
+  "AMD": {
+    "last_earnings_date": "2025-05-06",
+    "next_earnings_date": "2025-08-05",
+    "source": "mock"
+  },
+  "AMZN": {
+    "last_earnings_date": "2025-04-29",
+    "next_earnings_date": "2025-07-31",
+    "source": "mock"
+  }
+}

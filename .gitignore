@@ -1,3 +1,28 @@
-# Unrelated docs
-/research_docs
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Docker / local data
+postgres_data/
+
+# OS / editor
+.DS_Store
+Thumbs.db
 

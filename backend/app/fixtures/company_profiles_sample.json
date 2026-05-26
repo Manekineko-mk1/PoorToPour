@@ -1,0 +1,56 @@
+{
+  "NVDA": {
+    "symbol": "NVDA",
+    "company_name": "NVIDIA Corporation",
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "market_cap": 2280000000000,
+    "average_volume": 42000000,
+    "exchange": "NASDAQ"
+  },
+  "MSFT": {
+    "symbol": "MSFT",
+    "company_name": "Microsoft Corporation",
+    "sector": "Technology",
+    "industry": "Software",
+    "market_cap": 3110000000000,
+    "average_volume": 21000000,
+    "exchange": "NASDAQ"
+  },
+  "AAPL": {
+    "symbol": "AAPL",
+    "company_name": "Apple Inc.",
+    "sector": "Technology",
+    "industry": "Consumer Electronics",
+    "market_cap": 2890000000000,
+    "average_volume": 58000000,
+    "exchange": "NASDAQ"
+  },
+  "META": {
+    "symbol": "META",
+    "company_name": "Meta Platforms, Inc.",
+    "sector": "Communication Services",
+    "industry": "Internet Content",
+    "market_cap": 1260000000000,
+    "average_volume": 14500000,
+    "exchange": "NASDAQ"
+  },
+  "AMD": {
+    "symbol": "AMD",
+    "company_name": "Advanced Micro Devices, Inc.",
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "market_cap": 238000000000,
+    "average_volume": 52000000,
+    "exchange": "NASDAQ"
+  },
+  "AMZN": {
+    "symbol": "AMZN",
+    "company_name": "Amazon.com, Inc.",
+    "sector": "Consumer Discretionary",
+    "industry": "Internet Retail",
+    "market_cap": 1910000000000,
+    "average_volume": 37000000,
+    "exchange": "NASDAQ"
+  }
+}
