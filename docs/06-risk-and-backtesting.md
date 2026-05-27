@@ -1,10 +1,10 @@
 # PoorToPour Risk and Backtesting
 
-**Project:** PoorToPour  
-**Description:** From broke to pouring champagne.  
-**Document:** `/docs/06-risk-and-backtesting.md`  
-**Date created:** 2026-04-30  
-**Last updated:** 2026-04-30  
+**Project:** PoorToPour
+**Description:** From broke to pouring champagne.
+**Document:** `/docs/06-risk-and-backtesting.md`
+**Date created:** 2026-04-30
+**Last updated:** 2026-04-30
 **Status:** Draft v0.1
 
 ---
@@ -937,16 +937,16 @@ This planning area is complete when:
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-RISK-001 | Should position sizing appear in MVP? | Maybe, only if account-size config is simple | Open |
-| Q-RISK-002 | What exact ATR buffer should be used for stops? | TBD during implementation/testing | Open |
-| Q-RISK-003 | What exact overextension threshold should be used? | TBD during implementation/testing | Open |
-| Q-RISK-004 | Should earnings within 3 days force Watch/Avoid? | Likely yes | Open |
-| Q-RISK-005 | Should Actionable require 2R minimum? | Yes by default | Open |
-| Q-RISK-006 | Should first backtest use current S&P 500 membership? | Yes, with survivorship-bias warning | Open |
-| Q-RISK-007 | Should scanner quality review be manual first? | Yes | Open |
-| Q-RISK-008 | What is the minimum paper-trading period before automation? | TBD later, likely months not days | Open |
-| Q-RISK-009 | What max daily loss should future automation use? | TBD much later | Open |
-| Q-RISK-010 | Should future paper trading support partial exits? | Later | Open |
+| Q-RISK-001 | Should position sizing appear in MVP? | Maybe, only if account-size config is simple | 🟦 Open |
+| Q-RISK-002 | What exact ATR buffer should be used for stops? | TBD during implementation/testing | 🟦 Open |
+| Q-RISK-003 | What exact overextension threshold should be used? | TBD during implementation/testing | 🟦 Open |
+| Q-RISK-004 | Should earnings within 3 days force Watch/Avoid? | Likely yes | 🟦 Open |
+| Q-RISK-005 | Should Actionable require 2R minimum? | Yes by default | 🟦 Open |
+| Q-RISK-006 | Should first backtest use current S&P 500 membership? | Yes, with survivorship-bias warning | 🟦 Open |
+| Q-RISK-007 | Should scanner quality review be manual first? | Yes | 🟦 Open |
+| Q-RISK-008 | What is the minimum paper-trading period before automation? | TBD later, likely months not days | 🟦 Open |
+| Q-RISK-009 | What max daily loss should future automation use? | TBD much later | 🟦 Open |
+| Q-RISK-010 | Should future paper trading support partial exits? | Later | 🟦 Open |
 
 ---
 

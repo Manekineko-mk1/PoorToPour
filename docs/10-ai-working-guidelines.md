@@ -3,7 +3,7 @@
 **Project:** PoorToPour  
 **Description:** From broke to pouring champagne.  
 **Date created:** 2026-04-29  
-**Last updated:** 2026-04-29
+**Last updated:** 2026-05-27
 
 ---
 
@@ -32,7 +32,7 @@ The long-term vision is to build a system that can:
 
 The MVP is intentionally smaller:
 
-- S&P 500 universe by default.
+- S&P 500 plus Nasdaq 100 universe.
 - Long-only.
 - Daily and weekly swing-trade scans.
 - Deterministic technical setup detection.
@@ -112,6 +112,7 @@ When implementation begins:
 Before considering work complete, perform:
 
 - Code review.
+- Coding standards review.
 - Security review.
 - Trading safety review.
 - Test review.
@@ -141,7 +142,37 @@ After meaningful progress:
 - Keep scope tight to the current work item.
 - Avoid unrelated reformatting or drive-by refactors.
 
-### 5.2 Separation of Concerns
+### 5.2 Style Standards
+
+PoorToPour should follow tool-enforced style first, then use external style guides as references.
+
+Backend Python:
+
+- Follow PEP 8 as the baseline Python style guide.
+- Prefer Black-compatible formatting.
+- Prefer Ruff-compatible linting when lint tooling is added.
+- Use Google Python Style Guide conventions as a supplemental reference for readability, naming, imports, and docstrings.
+- Keep type hints on public functions, service boundaries, repositories, providers, and trading/risk logic.
+
+Frontend React + TypeScript:
+
+- Follow ESLint recommended and `typescript-eslint` recommended rules when lint tooling is added.
+- Follow React Hooks lint rules for hook usage and dependency safety.
+- Prefer Prettier-compatible formatting when formatter tooling is added.
+- Treat Airbnb JavaScript/React guidance as a useful reference, not a strict project law.
+- Prefer explicit TypeScript types at API boundaries, shared models, and component props.
+
+Project-specific rules override generic style preferences when trading safety is involved:
+
+- deterministic scanner logic must remain explainable;
+- data freshness and provider limitations must stay visible;
+- trading assumptions should be named, documented, and configurable when practical;
+- no AI-generated trade decisions in MVP;
+- no broker automation before backtesting, paper trading, and risk controls.
+
+Tooling should be introduced incrementally. Once formatter/linter/type-check commands are added, record them in README and phase trackers, and include them in PR verification.
+
+### 5.3 Separation of Concerns
 
 Put code in the right place.
 
@@ -159,7 +190,7 @@ Suggested boundaries:
 | Job/worker | Scheduled or background processing |
 | Strategy module | Trading setup detection and scoring logic |
 
-### 5.3 SOLID, DRY, and KISS
+### 5.4 SOLID, DRY, and KISS
 
 Apply SOLID pragmatically.
 
@@ -169,7 +200,7 @@ Apply SOLID pragmatically.
 - Centralize repeated logic.
 - Do not over-engineer speculative future flexibility.
 
-### 5.4 Defensive Programming
+### 5.5 Defensive Programming
 
 - Validate inputs early.
 - Fail loudly for invalid internal assumptions.
@@ -178,7 +209,7 @@ Apply SOLID pragmatically.
 - Treat third-party data as unreliable until validated.
 - Always label stale or delayed data clearly.
 
-### 5.5 Naming
+### 5.6 Naming
 
 - Use clear descriptive names.
 - Avoid unexplained abbreviations.
@@ -186,7 +217,7 @@ Apply SOLID pragmatically.
 - Boolean names should generally start with `is`, `has`, `can`, or `should`.
 - File names should use `kebab-case`.
 
-### 5.6 Function Design
+### 5.7 Function Design
 
 - Keep functions focused.
 - Separate validation, transformation, side effects, and formatting when practical.
@@ -195,7 +226,7 @@ Apply SOLID pragmatically.
 - Avoid hidden side effects.
 - Do not mutate input parameters unless clearly intentional and documented.
 
-### 5.7 Comments
+### 5.8 Comments
 
 Use comments sparingly.
 
@@ -209,6 +240,49 @@ Example style:
 # EN: Guard against stale market data before scoring.
 ```
 
+### 5.9 Coding Standards Checklist
+
+For meaningful code changes, include a coding-standards pass before marking the work complete.
+
+Check for:
+
+- duplicated string literals, magic numbers, and repeated condition blocks;
+- hardcoded defaults that should be named constants, configuration values, fixtures, or documented development fallbacks;
+- large methods with mixed responsibilities;
+- hidden business rules inside scripts, UI components, or data access code;
+- duplicated provider, repository, or symbol-resolution logic;
+- unclear names that hide trading assumptions or data freshness assumptions;
+- side effects mixed with validation, scoring, formatting, or persistence;
+- code that is difficult to unit test without a live provider or database;
+- comments explaining what code does instead of extracting clearer functions.
+
+Prefer:
+
+- named constants for repeated user-facing warnings and thresholds;
+- shared helpers for provider-neutral script behavior;
+- small functions that separate validation, signal detection, scoring, status assignment, and persistence;
+- configuration for strategy assumptions that may need review later;
+- deterministic fixtures and unit tests around shared helpers.
+
+Do not remove all hardcoded values blindly. Some values are acceptable when they are intentionally local, test-only, or bootstrap-only. In those cases:
+
+- give the value a clear name;
+- keep it close to the boundary where it is used;
+- document why it exists;
+- avoid letting it become a hidden production rule.
+
+### 5.10 Complexity and Refactoring Triggers
+
+Treat these as prompts to refactor or explain the choice:
+
+- a function or method is hard to summarize in one sentence;
+- a detector, scorer, or service method mixes data validation, rule detection, scoring, status assignment, and output formatting;
+- the same warning text, provider default, threshold, or fallback list appears in multiple files;
+- tests need awkward setup because responsibilities are tangled;
+- a code-quality tool or reviewer flags high cognitive complexity.
+
+For trading-sensitive code, prefer extraction over clever compression. Helper names should preserve the business meaning, for example `price_data_fresh`, `confirmed_breakout`, or `relative_strength_signal_state`.
+
 ---
 
 ## 6. Trading-System Safety Rules
@@ -217,7 +291,29 @@ PoorToPour is not just a normal dashboard. It may eventually influence real trad
 
 Any feature that affects signals, scoring, risk, alerts, paper trades, or live execution must be treated as trading-risk-sensitive.
 
-### 6.1 Required Safety Questions
+### 6.1 Trading Strategy Standards
+
+There is no single universal coding-style equivalent for trading strategy design, so PoorToPour uses a process standard inspired by investment ethics and automated-trading control practices.
+
+Use these as references:
+
+- CFA Institute Code of Ethics and Standards of Professional Conduct for diligence, reasonable basis, clear communication, and record retention.
+- FINRA algorithmic-trading guidance for development, testing, supervision, change control, and operational risk awareness.
+- SEC Market Access Rule 15c3-5 as a future broker-automation control model for pre-trade controls, access controls, erroneous-order prevention, review, and audit.
+
+PoorToPour strategy rules:
+
+- Every strategy or setup family must have a written hypothesis.
+- Every signal must be deterministic and explainable before AI summaries or narrative layers use it.
+- Every candidate must expose reasons, caution flags, source date, data freshness, and risk context.
+- Every scoring rule should be traceable to a named indicator, threshold, or documented assumption.
+- Strategy assumptions should be configurable when they may materially affect output.
+- Backtests must account for look-ahead bias, survivorship bias, slippage, fees, data freshness, and realistic execution assumptions.
+- Paper trading should come before any broker automation.
+- No broker automation until kill switch, position limits, max-loss controls, order validation, access controls, and audit logs exist.
+- Trade-related outputs must distinguish evidence from recommendation.
+
+### 6.2 Required Safety Questions
 
 Ask:
 
@@ -232,7 +328,7 @@ Ask:
 - Are source timestamps visible?
 - Are assumptions documented?
 
-### 6.2 No Black-Box Trade Decisions in MVP
+### 6.3 No Black-Box Trade Decisions in MVP
 
 The MVP must use deterministic, explainable rules.
 
@@ -246,7 +342,7 @@ AI may assist with:
 
 AI must not be the source of final trade decisions in MVP.
 
-### 6.3 Data Freshness
+### 6.4 Data Freshness
 
 Every important market or context record should eventually expose:
 
@@ -256,7 +352,7 @@ Every important market or context record should eventually expose:
 - Freshness/staleness status.
 - Provider limitations.
 
-### 6.4 Risk Controls Before Automation
+### 6.5 Risk Controls Before Automation
 
 Broker automation must not be added until the system has:
 
@@ -295,6 +391,8 @@ Prefer tests early for:
 - Use deterministic fixtures.
 - Avoid tests that depend on live external market data.
 - Mock third-party providers.
+- Add regression tests for bugs found during review before or alongside the fix.
+- Add focused tests for newly extracted shared helpers.
 
 ### 7.3 Financial Calculation Tests
 
@@ -332,6 +430,37 @@ Rules:
 - Avoid logging secrets or sensitive account details.
 - Treat future broker integration as high-risk.
 
+### 8.1 Security Standards
+
+PoorToPour should use industry security guidance as a checklist, not as ceremonial compliance.
+
+Use these as references:
+
+- OWASP ASVS for application-security verification. For local MVP, use ASVS Level 1 concepts; for hosted MVP+ and later, review Level 2 controls where practical.
+- OWASP Cheat Sheet Series for topic-specific implementation guidance, especially secrets management, API security, input validation, logging, authentication, and session management if added later.
+- NIST Secure Software Development Framework, SP 800-218, for secure development lifecycle practices such as dependency review, vulnerability handling, secure build habits, and release review.
+- CIS Docker Benchmark for container and host hardening before cloud deployment.
+
+Minimum security expectations for MVP:
+
+- No real secrets in tracked files.
+- `.env` stays local and gitignored.
+- Provider keys stay backend-only.
+- Local development credentials are clearly marked as local-only.
+- External provider payloads are validated before use.
+- Security-relevant errors avoid leaking secrets.
+- Dependency checks are part of review before merge.
+- Secret scans are run before review closeout.
+
+Additional expectations before hosted MVP/MVP+:
+
+- Replace local database credentials with managed secrets.
+- Add production-safe CORS and network boundaries.
+- Add authentication before exposing non-local dashboards.
+- Review Docker image/container posture.
+- Define backup, restore, and incident response basics.
+- Document how keys are rotated.
+
 ---
 
 ## 9. Documentation Rules
@@ -360,6 +489,42 @@ If the implementation differs from the documentation:
 1. Call out the mismatch.
 2. Recommend which side should change.
 3. Update the affected doc after the decision is made.
+
+### 9.3 Status Marker Convention
+
+When adding or updating status tables, trackers, review docs, open-question tables, or decision logs, use the project's colored emoji status labels consistently.
+
+General task and phase statuses:
+
+| Status | Meaning |
+| --- | --- |
+| ⬜ Not Started | Work has not begun |
+| 🟨 In Progress | Work is actively underway |
+| ✅ Done | Work is complete |
+| ⛔ Blocked | Work cannot continue until a blocker is resolved |
+
+Acceptance and test statuses:
+
+| Status | Meaning |
+| --- | --- |
+| ✅ Pass | Acceptance criterion or test passed |
+| 🟨 Partial | Partially complete or partially passing |
+| ⬜ Not Started | Not yet verified |
+| ⛔ Blocked | Cannot be verified due to a blocker |
+
+Question, risk, and decision statuses:
+
+| Status | Meaning |
+| --- | --- |
+| 🟦 Open | Question or risk is still open |
+| 🟩 Resolved | Question has been answered |
+| 🟧 Watching | Risk is known and being monitored |
+| ✅ Closed | Risk or issue is closed |
+| 🟩 Accepted | Decision is current project direction |
+| 🟧 Replaced | Decision was superseded by a newer decision |
+| ⛔ Rejected | Option was considered and intentionally not chosen |
+
+Use the full label in tables, for example `🟨 In Progress`, not just the emoji. This keeps the docs readable in plain text and searchable by status name.
 
 ---
 
@@ -470,7 +635,7 @@ Avoid:
 Current MVP:
 
 - Local-first dashboard.
-- S&P 500 by default.
+- S&P 500 plus Nasdaq 100 universe.
 - Long-only.
 - Daily and weekly swing scans.
 - Technical setup detection.
@@ -516,3 +681,6 @@ At the start of a new meaningful PoorToPour session, AI should:
 | Date | Update | Author |
 | --- | --- | --- |
 | 2026-04-29 | Created initial AI working guidelines from project discussion and reusable engineering/workflow patterns | Jesse + AI |
+| 2026-05-27 | Added coding-standards checklist, complexity/refactoring triggers, and review/test expectations from Phase 2 cleanup | Jesse + AI |
+| 2026-05-27 | Added Python and React/TypeScript style-standard hierarchy for PEP 8, Black/Ruff, ESLint, React Hooks, and Prettier | Jesse + AI |
+| 2026-05-27 | Added security and trading-strategy standards based on OWASP, NIST SSDF, CIS Docker, CFA, FINRA, and SEC control guidance | Jesse + AI |

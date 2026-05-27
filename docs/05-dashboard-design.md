@@ -1,10 +1,10 @@
 # PoorToPour Dashboard Design
 
-**Project:** PoorToPour  
-**Description:** From broke to pouring champagne.  
-**Document:** `/docs/05-dashboard-design.md`  
-**Date created:** 2026-04-30  
-**Last updated:** 2026-05-25  
+**Project:** PoorToPour
+**Description:** From broke to pouring champagne.
+**Document:** `/docs/05-dashboard-design.md`
+**Date created:** 2026-04-30
+**Last updated:** 2026-05-25
 **Status:** Draft v0.3
 
 ---
@@ -918,6 +918,7 @@ From Spring Duck-style signal dashboard references and the v0.2 mock render dire
 
 - candlestick chart with signal markers;
 - moving averages and volume bars around the selected candidate;
+- richer per-candidate visual presentation with annotated chart evidence;
 - chart signal markers;
 - detected-signal cards;
 - market signal cards;
@@ -1203,17 +1204,17 @@ Needs:
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-UI-001 | Should MVP use a left sidebar or top navigation? | Left sidebar for desktop | Open |
-| Q-UI-002 | Which chart library should be used first? | TradingView Lightweight Charts or similar | Open |
-| Q-UI-003 | Should MACD appear on candidate detail MVP? | Optional, not required | Open |
-| Q-UI-004 | Should entry/stop/target lines appear on MVP chart? | Preferred if simple | Open |
-| Q-UI-005 | Should user settings be UI-editable in first build? | Yes if simple; config file acceptable first | Open |
-| Q-UI-006 | Should external TradingView chart links be included? | MVP+ unless trivial | Open |
-| Q-UI-007 | Should glossary tooltips be included in MVP? | MVP+ unless trivial | Open |
-| Q-UI-008 | Should Dashboard and Candidates be separate pages? | Not necessary for MVP | Open |
-| Q-UI-009 | Should table support column customization? | No, later | Open |
-| Q-UI-010 | Should scan results be exportable? | MVP+ | Open |
-| Q-UI-011 | Should Sector Scanner be promoted from MVP+ to MVP? | No, keep MVP+ until core scanner is proven | Open |
+| Q-UI-001 | Should MVP use a left sidebar or top navigation? | Left sidebar for desktop | 🟦 Open |
+| Q-UI-002 | Which chart library should be used first? | TradingView Lightweight Charts or similar | 🟦 Open |
+| Q-UI-003 | Should MACD appear on candidate detail MVP? | Optional, not required | 🟦 Open |
+| Q-UI-004 | Should entry/stop/target lines appear on MVP chart? | Preferred if simple | 🟦 Open |
+| Q-UI-005 | Should user settings be UI-editable in first build? | Yes if simple; config file acceptable first | 🟦 Open |
+| Q-UI-006 | Should external TradingView chart links be included? | MVP+ unless trivial | 🟦 Open |
+| Q-UI-007 | Should glossary tooltips be included in MVP? | MVP+ unless trivial | 🟦 Open |
+| Q-UI-008 | Should Dashboard and Candidates be separate pages? | Not necessary for MVP | 🟦 Open |
+| Q-UI-009 | Should table support column customization? | No, later | 🟦 Open |
+| Q-UI-010 | Should scan results be exportable? | MVP+ | 🟦 Open |
+| Q-UI-011 | Should Sector Scanner be promoted from MVP+ to MVP? | No, keep MVP+ until core scanner is proven | 🟦 Open |
 
 ---
 
