@@ -4,6 +4,75 @@ from uuid import uuid4
 from app.models.market_data import DailyBar, SymbolProfile
 from app.models.scans import ScanCandidate, ScanRun
 from app.services.indicators import IndicatorService
+from app.services.setup_detectors import BreakoutDetector, PullbackContinuationDetector, RelativeStrengthLeaderDetector
+
+
+STATUS_RANK = {
+    "Actionable": 0,
+    "Watch": 1,
+    "Avoid": 2,
+    "Blocked": 3,
+}
+
+
+class TechnicalScanner:
+    """Phase 2 deterministic scanner that composes setup detectors."""
+
+    def __init__(
+        self,
+        detectors: list | None = None,
+        include_blocked: bool = False,
+    ) -> None:
+        self.detectors = detectors or [
+            BreakoutDetector(),
+            PullbackContinuationDetector(),
+            RelativeStrengthLeaderDetector(),
+        ]
+        self.include_blocked = include_blocked
+
+    def scan(
+        self,
+        symbols: list[SymbolProfile],
+        bars_by_symbol: dict[str, list[DailyBar]],
+        provider: str,
+        universe: str,
+        scan_id: str | None = None,
+        now: datetime | None = None,
+    ) -> ScanRun:
+        completed_at = now or datetime.now(UTC)
+        candidates = []
+
+        for symbol in symbols:
+            bars = bars_by_symbol.get(symbol.symbol.upper(), [])
+            for detector in self.detectors:
+                candidate = detector.detect(symbol, bars, now=completed_at)
+                if candidate is not None and (self.include_blocked or candidate.status != "Blocked"):
+                    candidates.append(candidate)
+
+        ranked_candidates = sorted(candidates, key=_candidate_sort_key)
+        for index, candidate in enumerate(ranked_candidates, start=1):
+            candidate.rank = index
+
+        data_dates = [
+            candidate.indicator_snapshot["latest_date"]
+            for candidate in ranked_candidates
+            if candidate.indicator_snapshot and candidate.indicator_snapshot.get("latest_date")
+        ]
+
+        return ScanRun(
+            scan_id=scan_id or f"technical_scan_{completed_at.strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}",
+            scan_type="Technical Scanner MVP",
+            universe=universe,
+            status="completed",
+            provider=provider,
+            data_date=max(data_dates) if data_dates else None,
+            started_at=_format_datetime(completed_at),
+            completed_at=_format_datetime(completed_at),
+            symbols_processed=len(symbols),
+            candidates_found=len(ranked_candidates),
+            warning="Research-only deterministic scanner output. Not a trading recommendation.",
+            candidates=ranked_candidates,
+        )
 
 
 class MomentumScanner:
@@ -135,3 +204,12 @@ def _status_for_score(score: int) -> str:
 
 def _format_datetime(value: datetime) -> str:
     return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
+
+
+def _candidate_sort_key(candidate: ScanCandidate) -> tuple[int, int, str, str]:
+    return (
+        STATUS_RANK.get(candidate.status, 99),
+        -candidate.score,
+        candidate.symbol,
+        candidate.setup,
+    )

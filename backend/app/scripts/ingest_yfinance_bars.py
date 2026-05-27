@@ -2,10 +2,8 @@ import argparse
 
 from app.db.base import SessionLocal
 from app.providers.yfinance_provider import YFinanceProvider
-from app.repositories.market_data import list_symbols, upsert_daily_bar
-
-
-DEFAULT_SYMBOLS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
+from app.repositories.market_data import upsert_daily_bar
+from app.scripts.symbol_resolution import resolve_symbols
 
 
 def ingest_yfinance_bars(symbols: list[str], period: str) -> dict[str, int]:
@@ -22,24 +20,6 @@ def ingest_yfinance_bars(symbols: list[str], period: str) -> dict[str, int]:
         return counts
     finally:
         db.close()
-
-
-def resolve_symbols(requested_symbols: list[str] | None, limit: int | None) -> list[str]:
-    if requested_symbols:
-        symbols = [symbol.upper() for symbol in requested_symbols]
-    else:
-        db = SessionLocal()
-        try:
-            symbols = [symbol.symbol for symbol in list_symbols(db)]
-        finally:
-            db.close()
-        if not symbols:
-            symbols = DEFAULT_SYMBOLS
-
-    if limit is not None:
-        symbols = symbols[:limit]
-    return symbols
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Ingest daily OHLCV bars from yfinance into PostgreSQL.")

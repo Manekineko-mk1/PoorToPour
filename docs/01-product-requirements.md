@@ -1,11 +1,11 @@
 # PoorToPour Product Requirements
 
-**Project:** PoorToPour  
-**Description:** From broke to pouring champagne.  
-**Document:** `/docs/01-product-requirements.md`  
-**Date created:** 2026-04-30  
-**Last updated:** 2026-04-30  
-**Status:** Draft v0.1
+**Project:** PoorToPour
+**Description:** From broke to pouring champagne.
+**Document:** `/docs/01-product-requirements.md`
+**Date created:** 2026-04-30
+**Last updated:** 2026-05-27
+**Status:** Draft v0.6
 
 ---
 
@@ -35,7 +35,7 @@ Related documents:
 | `/docs/05-dashboard-design.md` | Dashboard layout and UI behavior |
 | `/docs/06-risk-and-backtesting.md` | Risk controls and validation methods |
 | `/docs/07-cost-and-operations.md` | Cost estimates, operating modes, hosting, and budget controls |
-| `/docs/08-execution-tracker.md` | Current project progress |
+| `/docs/08-execution-tracker-v1.0.md` | Current project progress |
 | `/docs/09-decision-log.md` | Accepted project decisions |
 | `/docs/10-ai-working-guidelines.md` | AI workflow and engineering standards |
 
@@ -640,8 +640,8 @@ Checklist:
 
 | Product Phase | Features |
 | --- | --- |
-| MVP | Daily/weekly scanner, dashboard, candidate detail, scan history, settings |
-| MVP+ | Watchlist, exports, improved filters, saved views, global ticker search, scanner-aware watchlist, chart signal markers, detected-signal panel, market regime panel, sector/theme scanner |
+| MVP | Daily/weekly scanner, dashboard, candidate detail, basic per-candidate visual evidence, scan history, settings |
+| MVP+ | Watchlist, exports, improved filters, saved views, global ticker search, scanner-aware watchlist, benchmark-relative strength inputs, richer per-candidate visual presentation, chart signal markers, detected-signal panel, market regime panel, sector/theme scanner |
 | Phase 2 | Company, earnings, and news/catalyst feed improvements |
 | Phase 3 | Backtesting UI and strategy validation |
 | Phase 4 | Alerts, notifications, and daily/weekly scan briefing |
@@ -656,6 +656,8 @@ The following ideas were captured from OpenStock-style market portal references 
 
 - Command palette / global ticker search.
 - Scanner-aware watchlist.
+- Benchmark-relative strength inputs using SPY/QQQ return comparison.
+- Richer per-candidate visual presentation with annotated chart evidence.
 - External TradingView chart link.
 - Chart signal markers.
 - Detected Signals panel.
@@ -663,11 +665,11 @@ The following ideas were captured from OpenStock-style market portal references 
 - Market regime panel.
 - AI candidate insight panel after deterministic scanner output exists.
 
-The v0.2 mock renders in `/docs/Mock_UI_Renders` show these ideas as visual direction. They should not be treated as a commitment to implement every visible panel in MVP.
+The v0.2 mock renders in `/docs/references/Mock_UI_Renders` show these ideas as visual direction. They should not be treated as a commitment to implement every visible panel in MVP.
 
 ### 14.2 Spring Duck-Inspired MVP+ Feature Cluster
 
-The Spring Duck screenshots in `/docs/Research_Docs/Screenshots` inspired the v0.2 mock render direction. These ideas should be treated as MVP+ candidates after the deterministic MVP scanner exists:
+The Spring Duck screenshots in `/docs/references/Research_Docs/Screenshots` inspired the v0.2 mock render direction. These ideas should be treated as MVP+ candidates after the deterministic MVP scanner exists:
 
 - candlestick chart signal markers;
 - moving average and volume evidence around each signal;
@@ -688,13 +690,13 @@ AI insights and visual signal taxonomy must remain explainability layers over de
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-PRD-001 | Should MVP universe be S&P 500 only or S&P 500 plus Nasdaq 100? | S&P 500 only | Open |
-| Q-PRD-002 | Should market snapshot cards appear on Dashboard Home MVP? | Maybe, if easy | Open |
-| Q-PRD-003 | Should MACD be shown on the first candidate detail page? | Maybe, not required | Open |
-| Q-PRD-004 | Should watchlist be included if trivial? | MVP+ unless trivial | Open |
-| Q-PRD-005 | Should scan results be exportable in MVP? | No | Open |
-| Q-PRD-006 | Should settings be editable from UI or config file first? | UI if simple, config file acceptable for first internal build | Open |
-| Q-PRD-007 | What is the first acceptable monthly operating budget? | TBD in `/docs/07-cost-and-operations.md` | Open |
+| Q-PRD-001 | Should MVP universe be S&P 500 only or S&P 500 plus Nasdaq 100? | S&P 500 plus Nasdaq 100 | 🟩 Resolved |
+| Q-PRD-002 | Should market snapshot cards appear on Dashboard Home MVP? | Maybe, if easy | 🟦 Open |
+| Q-PRD-003 | Should MACD be shown on the first candidate detail page? | Maybe, not required | 🟦 Open |
+| Q-PRD-004 | Should watchlist be included if trivial? | MVP+ unless trivial | 🟦 Open |
+| Q-PRD-005 | Should scan results be exportable in MVP? | No | 🟦 Open |
+| Q-PRD-006 | Should settings be editable from UI or config file first? | UI if simple, config file acceptable for first internal build | 🟦 Open |
+| Q-PRD-007 | What is the first acceptable monthly operating budget? | TBD in `/docs/07-cost-and-operations.md` | 🟦 Open |
 
 ---
 
@@ -702,6 +704,8 @@ AI insights and visual signal taxonomy must remain explainability layers over de
 
 | Date | Version | Update | Author |
 | --- | --- | --- | --- |
+| 2026-05-26 | v0.5 | Resolved MVP universe as S&P 500 plus Nasdaq 100 | Jesse + AI |
+| 2026-05-27 | v0.6 | Added benchmark-relative strength inputs to durable MVP+ feature list | Jesse + AI |
 | 2026-05-25 | v0.4 | Added Spring Duck-inspired MVP+ feature cluster from v0.2 mock direction | Jesse + AI |
 | 2026-05-25 | v0.3 | Clarified v0.2 render scope and kept Sector Scanner / market regime as MVP+ | Jesse + AI |
 | 2026-05-14 | v0.2 | Added MVP+ external-review candidate features without expanding MVP scope | Jesse + AI |

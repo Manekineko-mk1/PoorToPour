@@ -1,10 +1,10 @@
 # PoorToPour Technical Architecture
 
-**Project:** PoorToPour  
-**Description:** From broke to pouring champagne.  
-**Document:** `/docs/03-technical-architecture.md`  
-**Date created:** 2026-04-30  
-**Last updated:** 2026-04-30  
+**Project:** PoorToPour
+**Description:** From broke to pouring champagne.
+**Document:** `/docs/03-technical-architecture.md`
+**Date created:** 2026-04-30
+**Last updated:** 2026-04-30
 **Status:** Draft v0.2
 
 ---
@@ -39,7 +39,7 @@ Related documents:
 | `/docs/05-dashboard-design.md` | Dashboard layout and UI behavior |
 | `/docs/06-risk-and-backtesting.md` | Risk controls and validation methods |
 | `/docs/07-cost-and-operations.md` | Cost estimates and operating constraints |
-| `/docs/08-execution-tracker.md` | Current project progress |
+| `/docs/08-execution-tracker-v1.0.md` | Current project progress |
 | `/docs/09-decision-log.md` | Accepted project decisions |
 | `/docs/10-ai-working-guidelines.md` | AI workflow and engineering standards |
 
@@ -1523,17 +1523,17 @@ Only after validation:
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-ARCH-001 | Should backend and frontend live in one repo or separate repos? | One repo | Open |
-| Q-ARCH-002 | Should PostgreSQL run locally only at first? | Yes | Open |
-| Q-ARCH-003 | Should APScheduler run inside FastAPI or separate process? | Inside backend for MVP | Open |
-| Q-ARCH-004 | Should strategy outputs store full rule details or summaries only? | Full rule details | Open |
-| Q-ARCH-005 | Should indicator snapshots be stored or recomputed on demand? | Store scan-time snapshots | Open |
-| Q-ARCH-006 | Should scan settings be DB-backed in MVP or config-file based first? | DB-backed if easy, config file acceptable first | Open |
-| Q-ARCH-007 | Should frontend use TanStack Query? | Yes, likely | Open |
-| Q-ARCH-008 | Should we include Redis in MVP? | No | Open |
-| Q-ARCH-009 | Should we include auth in local MVP? | No | Open |
-| Q-ARCH-010 | Should hosted MVP require simple auth immediately? | Yes | Open |
-| Q-ARCH-011 | Which indicator library should be used first? | Leaning `ta`, confirm during implementation | Open |
+| Q-ARCH-001 | Should backend and frontend live in one repo or separate repos? | One repo | 🟦 Open |
+| Q-ARCH-002 | Should PostgreSQL run locally only at first? | Yes | 🟦 Open |
+| Q-ARCH-003 | Should APScheduler run inside FastAPI or separate process? | Inside backend for MVP | 🟦 Open |
+| Q-ARCH-004 | Should strategy outputs store full rule details or summaries only? | Full rule details | 🟦 Open |
+| Q-ARCH-005 | Should indicator snapshots be stored or recomputed on demand? | Store scan-time snapshots | 🟦 Open |
+| Q-ARCH-006 | Should scan settings be DB-backed in MVP or config-file based first? | DB-backed if easy, config file acceptable first | 🟦 Open |
+| Q-ARCH-007 | Should frontend use TanStack Query? | Yes, likely | 🟦 Open |
+| Q-ARCH-008 | Should we include Redis in MVP? | No | 🟦 Open |
+| Q-ARCH-009 | Should we include auth in local MVP? | No | 🟦 Open |
+| Q-ARCH-010 | Should hosted MVP require simple auth immediately? | Yes | 🟦 Open |
+| Q-ARCH-011 | Which indicator library should be used first? | Leaning `ta`, confirm during implementation | 🟦 Open |
 
 ---
 

@@ -5,6 +5,7 @@ import pandas as pd
 import yfinance as yf
 
 from app.models.market_data import DailyBar, ProviderStatus
+from app.providers.validation import is_valid_daily_bar_values
 
 
 class YFinanceProvider:
@@ -57,16 +58,33 @@ def daily_bars_from_frame(symbol: str, frame: pd.DataFrame) -> list[DailyBar]:
         if any(pd.isna(value) for value in [open_value, high_value, low_value, close_value, adjusted_close]):
             continue
 
+        open_float = float(open_value)
+        high_float = float(high_value)
+        low_float = float(low_value)
+        close_float = float(close_value)
+        adjusted_close_float = float(adjusted_close)
+        volume_int = int(volume) if not pd.isna(volume) else 0
+
+        if not is_valid_daily_bar_values(
+            open_float,
+            high_float,
+            low_float,
+            close_float,
+            adjusted_close_float,
+            volume_int,
+        ):
+            continue
+
         bars.append(
             DailyBar(
                 symbol=symbol.upper(),
                 date=timestamp.date().isoformat(),
-                open=float(open_value),
-                high=float(high_value),
-                low=float(low_value),
-                close=float(close_value),
-                adjusted_close=float(adjusted_close),
-                volume=int(volume) if not pd.isna(volume) else 0,
+                open=open_float,
+                high=high_float,
+                low=low_float,
+                close=close_float,
+                adjusted_close=adjusted_close_float,
+                volume=volume_int,
             )
         )
     return bars

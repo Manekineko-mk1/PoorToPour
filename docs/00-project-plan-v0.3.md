@@ -209,11 +209,13 @@ Potential future additions:
 
 - command palette / global ticker search;
 - scanner-aware watchlist;
+- richer per-candidate visual presentation;
 - chart signal markers;
 - detected-signal cards;
 - market signal cards;
 - sector/theme scanner grid;
 - ticker chips/search;
+- benchmark-relative strength inputs using SPY/QQQ return comparison;
 - market regime panel;
 - alert engine;
 - daily/weekly scan briefing;

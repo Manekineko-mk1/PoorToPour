@@ -51,3 +51,31 @@ def test_daily_bars_from_multiindex_frame() -> None:
     assert len(bars) == 1
     assert bars[0].close == 108.0
     assert bars[0].adjusted_close == 108.0
+
+
+def test_daily_bars_from_frame_skips_inconsistent_ohlc_rows() -> None:
+    frame = pd.DataFrame(
+        [
+            {
+                "Open": 100.0,
+                "High": 99.0,
+                "Low": 98.0,
+                "Close": 100.5,
+                "Adj Close": 100.5,
+                "Volume": 123456,
+            },
+            {
+                "Open": 100.0,
+                "High": 101.0,
+                "Low": 99.0,
+                "Close": 100.5,
+                "Adj Close": 100.5,
+                "Volume": 123456,
+            },
+        ],
+        index=pd.to_datetime(["2026-05-21", "2026-05-22"]),
+    )
+
+    bars = daily_bars_from_frame("AAPL", frame)
+
+    assert [bar.date for bar in bars] == ["2026-05-22"]

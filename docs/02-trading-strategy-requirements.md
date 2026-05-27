@@ -1,10 +1,10 @@
 # PoorToPour Trading Strategy Requirements
 
-**Project:** PoorToPour  
-**Description:** From broke to pouring champagne.  
-**Document:** `/docs/02-trading-strategy-requirements.md`  
-**Date created:** 2026-04-30  
-**Last updated:** 2026-04-30  
+**Project:** PoorToPour
+**Description:** From broke to pouring champagne.
+**Document:** `/docs/02-trading-strategy-requirements.md`
+**Date created:** 2026-04-30
+**Last updated:** 2026-04-30
 **Status:** Draft v0.1
 
 ---
@@ -37,7 +37,7 @@ Related documents:
 | `/docs/05-dashboard-design.md` | Dashboard layout and UI behavior |
 | `/docs/06-risk-and-backtesting.md` | Detailed risk controls and validation methodology |
 | `/docs/07-cost-and-operations.md` | Cost estimates and operating constraints |
-| `/docs/08-execution-tracker.md` | Current project progress |
+| `/docs/08-execution-tracker-v1.0.md` | Current project progress |
 | `/docs/09-decision-log.md` | Accepted project decisions |
 | `/docs/10-ai-working-guidelines.md` | AI workflow and engineering standards |
 
@@ -612,6 +612,10 @@ Volume score should consider:
 
 Relative strength should compare stock performance against SPY.
 
+Phase 2 note:
+
+The first implemented relative strength leader detector uses a deterministic price-leadership proxy only. True benchmark-relative strength should be added in MVP/MVP+ once SPY/QQQ benchmark bars are part of scanner input.
+
 Suggested calculations:
 
 | Metric | Purpose |
@@ -957,16 +961,16 @@ The strategy layer is MVP-complete when:
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-STRAT-001 | Should MVP use S&P 500 only or include Nasdaq 100? | S&P 500 only | Open |
-| Q-STRAT-002 | Should MACD be computed in MVP? | Optional, not required | Open |
-| Q-STRAT-003 | Should Bollinger Bands be included in MVP? | Optional, not required | Open |
-| Q-STRAT-004 | What exact overextension threshold should be used? | TBD during implementation/backtesting | Open |
-| Q-STRAT-005 | What exact earnings warning window should be used? | 1–3 trading days | Open |
-| Q-STRAT-006 | Should position sizing be shown in MVP? | Only if account size setting is simple | Open |
-| Q-STRAT-007 | Should weekly scans use different thresholds than daily scans? | Likely yes later | Open |
-| Q-STRAT-008 | Should sector relative strength be included in MVP? | Post-MVP | Open |
-| Q-STRAT-009 | Should candidates below score 50 be stored or discarded? | Store scan metadata, hide by default | Open |
-| Q-STRAT-010 | What minimum risk/reward should be required for Actionable? | 2:1 | Open |
+| Q-STRAT-001 | Should MVP use S&P 500 only or include Nasdaq 100? | S&P 500 only | 🟦 Open |
+| Q-STRAT-002 | Should MACD be computed in MVP? | Optional, not required | 🟦 Open |
+| Q-STRAT-003 | Should Bollinger Bands be included in MVP? | Optional, not required | 🟦 Open |
+| Q-STRAT-004 | What exact overextension threshold should be used? | TBD during implementation/backtesting | 🟦 Open |
+| Q-STRAT-005 | What exact earnings warning window should be used? | 1–3 trading days | 🟦 Open |
+| Q-STRAT-006 | Should position sizing be shown in MVP? | Only if account size setting is simple | 🟦 Open |
+| Q-STRAT-007 | Should weekly scans use different thresholds than daily scans? | Likely yes later | 🟦 Open |
+| Q-STRAT-008 | Should sector relative strength be included in MVP? | Post-MVP | 🟦 Open |
+| Q-STRAT-009 | Should candidates below score 50 be stored or discarded? | Store scan metadata, hide by default | 🟦 Open |
+| Q-STRAT-010 | What minimum risk/reward should be required for Actionable? | 2:1 | 🟦 Open |
 
 ---
 

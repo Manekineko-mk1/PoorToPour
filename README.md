@@ -4,14 +4,14 @@ From broke to pouring champagne.
 
 PoorToPour is a personal trading research dashboard for scanning U.S. equities, identifying explainable technical trade setups, and reviewing candidate trade ideas with chart evidence, score breakdowns, caution flags, and risk/reward context.
 
-The long-term vision is to grow this into a controlled trading assistant, but the MVP is intentionally simple: a local-first, long-only swing-trade scanner for the S&P 500 using daily and weekly data.
+The long-term vision is to grow this into a controlled trading assistant, but the MVP is intentionally simple: a local-first, long-only swing-trade scanner for the S&P 500 plus Nasdaq 100 using daily and weekly data.
 
 ## Current Status
 
-**Phase:** Phase 1 — Data Foundation  
+**Phase:** Phase 2 — Technical Scanner
 **MVP Direction:** Local-first research dashboard  
 **Trading Scope:** Long-only, daily/weekly swing scans  
-**Universe:** S&P 500 first  
+**Universe:** S&P 500 plus Nasdaq 100
 **Execution:** Manual review only  
 **Automation:** Not included in MVP
 
@@ -95,13 +95,30 @@ python -m app.scripts.seed_mock_data
 
 The seed command is idempotent and loads mock symbols, company profiles, earnings events, daily bars, and one persisted mock scan run into PostgreSQL.
 
-To load the versioned S&P 500 universe seed:
+To load the combined MVP universe seed:
 
 ```powershell
-docker compose run --rm backend python -m app.scripts.seed_sp500_universe
+docker compose run --rm backend python -m app.scripts.seed_mvp_universe
 ```
 
-The S&P 500 seed lives at `data/seeds/sp500_seed.csv`. Source notes and caveats are recorded in `data/seeds/sp500_seed_metadata.md`.
+The S&P 500 seed lives at `data/seeds/sp500_seed.csv`, and the Nasdaq 100 seed lives at `data/seeds/nasdaq100_seed.csv`. Source notes and caveats are recorded in `data/seeds/sp500_seed_metadata.md` and `data/seeds/nasdaq100_seed_metadata.md`.
+
+The combined seed currently imports 516 unique symbols after merging S&P 500 and Nasdaq 100 overlaps.
+
+To ingest a small Alpha Vantage daily OHLCV sample after setting `POORTOPOUR_ALPHA_VANTAGE_API_KEY` in your local `.env`:
+
+```powershell
+docker compose run --rm backend python -m app.scripts.ingest_alpha_vantage_bars --symbols AAPL MSFT NVDA
+```
+
+The adapter defaults to `TIME_SERIES_DAILY`. Set `POORTOPOUR_ALPHA_VANTAGE_DAILY_FUNCTION=TIME_SERIES_DAILY_ADJUSTED` only if the adjusted endpoint is available for your key.
+
+Scanner risk/reward assumptions are configurable through local environment values. Defaults are intentionally conservative for Phase 2:
+
+```text
+POORTOPOUR_SCANNER_RISK_REWARD_ATR_BUFFER_MULTIPLIER=0.5
+POORTOPOUR_SCANNER_RISK_REWARD_TARGET_MULTIPLE=2.0
+```
 
 Database UI login:
 
@@ -133,6 +150,14 @@ docker compose run --rm backend python -m app.scripts.run_momentum_scan --limit 
 
 The scanner currently detects a narrow trend/momentum setup using stored daily bars and indicator snapshots. It is for Phase 1 validation only and is not a trading recommendation.
 
+To run the Phase 2 deterministic technical scanner and persist generated candidates:
+
+```powershell
+docker compose run --rm backend python -m app.scripts.run_technical_scan --limit 25
+```
+
+The Phase 2 scanner composes breakout, pullback continuation, and relative strength leader detectors. It stores research-only candidates with setup labels, score breakdowns, caution flags, and risk/reward context.
+
 Run checks:
 
 ```powershell
@@ -156,29 +181,29 @@ The MVP dashboard should feel like a compact dark-mode trading research cockpit:
 
 These mockups are visual references, not strict pixel-perfect implementation specs.
 
-The v0.2 renders are inspired by the Spring Duck screenshots in `docs/Research_Docs/Screenshots`. Those signal-dashboard ideas are planned for MVP+ unless they directly support the first scan, rank, inspect, learn workflow.
+The v0.2 renders are inspired by the Spring Duck screenshots in `docs/references/Research_Docs/Screenshots`. Those signal-dashboard ideas are planned for MVP+ unless they directly support the first scan, rank, inspect, learn workflow.
 
 ### Dashboard Home
 
-![PoorToPour Dashboard Home](docs/Mock_UI_Renders/Mock_UI_PoorToPour_01_MainScreen_v0.2.png)
+![PoorToPour Dashboard Home](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_01_MainScreen_v0.2.png)
 
 ### Scan History
 
-![PoorToPour Scan History](docs/Mock_UI_Renders/Mock_UI_PoorToPour_02_ScanHistory_v0.2.png)
+![PoorToPour Scan History](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_02_ScanHistory_v0.2.png)
 
 ### Settings
 
-![PoorToPour Settings](docs/Mock_UI_Renders/Mock_UI_PoorToPour_03_Settings_v0.2.png)
+![PoorToPour Settings](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_03_Settings_v0.2.png)
 
 ### Sector Scanner / Market Regime
 
 MVP+ visual reference only. The MVP remains focused on scan, rank, inspect, and learn.
 
-![PoorToPour Sector Scanner](docs/Mock_UI_Renders/Mock_UI_PoorToPour_04_SectorScanner.png)
+![PoorToPour Sector Scanner](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_04_SectorScanner.png)
 
 ### Run Manual Scan
 
-![PoorToPour Run Manual Scan](docs/Mock_UI_Renders/Mock_UI_PoorToPour_04_RunManualScan.png)
+![PoorToPour Run Manual Scan](docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_04_RunManualScan.png)
 
 ## Project Documentation
 
@@ -193,10 +218,15 @@ MVP+ visual reference only. The MVP remains focused on scan, rank, inspect, and 
 | [`docs/05-dashboard-design.md`](docs/05-dashboard-design.md) | Dashboard screens, UI flow, and visual requirements |
 | [`docs/06-risk-and-backtesting.md`](docs/06-risk-and-backtesting.md) | Risk model, backtesting, paper-trading gates, and automation safety |
 | [`docs/07-cost-and-operations.md`](docs/07-cost-and-operations.md) | Cost targets, hosting modes, AI budget controls, and operations |
-| [`docs/08-execution-tracker.md`](docs/08-execution-tracker.md) | Current phase, active tasks, risks, and next steps |
+| [`docs/08-execution-tracker-v1.0.md`](docs/08-execution-tracker-v1.0.md) | Current phase, active tasks, risks, and next steps |
 | [`docs/09-decision-log.md`](docs/09-decision-log.md) | Accepted decisions and trade-offs |
 | [`docs/10-ai-working-guidelines.md`](docs/10-ai-working-guidelines.md) | AI collaboration workflow and engineering standards |
-| [`docs/11-phase-1-review.md`](docs/11-phase-1-review.md) | Phase 1 code, security, and trading-safety review results |
+| [`docs/README.md`](docs/README.md) | Documentation folder structure |
+| [`docs/phases/phase-1-data-foundation/phase-1-execution-tracker.md`](docs/phases/phase-1-data-foundation/phase-1-execution-tracker.md) | Phase 1 detailed execution tracker |
+| [`docs/phases/phase-1-data-foundation/phase-1-code-security-trading-review.md`](docs/phases/phase-1-data-foundation/phase-1-code-security-trading-review.md) | Phase 1 code, security, and trading review results |
+| [`docs/phases/phase-1-data-foundation/phase-1-pull-request-draft.md`](docs/phases/phase-1-data-foundation/phase-1-pull-request-draft.md) | Phase 1 pull request draft |
+| [`docs/phases/phase-2-technical-scanner/phase-2-execution-tracker.md`](docs/phases/phase-2-technical-scanner/phase-2-execution-tracker.md) | Phase 2 detailed execution tracker |
+| [`docs/phases/phase-2-technical-scanner/phase-2-implementation-plan.md`](docs/phases/phase-2-technical-scanner/phase-2-implementation-plan.md) | Phase 2 implementation plan |
 
 ## Safety Principles
 
