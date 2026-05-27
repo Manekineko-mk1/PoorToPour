@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,6 +9,10 @@ class Settings(BaseSettings):
     provider: str = "mock"
     database_url: str = "postgresql://poortopour:poortopour@db:5432/poortopour"
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    alpha_vantage_api_key: str = ""
+    alpha_vantage_daily_function: str = "TIME_SERIES_DAILY"
+    scanner_risk_reward_atr_buffer_multiplier: float = Field(default=0.5, gt=0)
+    scanner_risk_reward_target_multiple: float = Field(default=2.0, gt=0)
 
     model_config = SettingsConfigDict(
         env_file=".env",
