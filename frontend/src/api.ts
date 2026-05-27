@@ -5,12 +5,14 @@ export type Candidate = {
   symbol: string;
   company_name: string;
   setup: string;
-  status: "Actionable" | "Watch" | "Avoid";
+  status: "Actionable" | "Watch" | "Avoid" | "Blocked";
   score: number;
   price: number | null;
   relative_volume: number | null;
   rsi: number | null;
   risk_reward: string | null;
+  indicator_snapshot?: Record<string, unknown> | null;
+  score_breakdown?: Record<string, unknown> | null;
   reasons?: string[];
   caution_flags: string[];
   last_updated: string | null;
