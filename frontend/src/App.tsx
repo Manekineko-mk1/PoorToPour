@@ -8,7 +8,6 @@ import {
   Search,
   Settings,
   TrendingUp,
-  Wine,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -73,7 +72,9 @@ function App() {
           {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
         </button>
         <div className="brand">
-          <span className="brand-icon" aria-hidden="true"><Wine size={24} strokeWidth={2.4} /></span>
+          <span className="brand-icon" aria-hidden="true">
+            <img src="/poortopour-champagne-icon.png" alt="" />
+          </span>
           <div className="brand-copy">
             <h1>PoorToPour</h1>
             <p>From broke to pouring champagne.</p>

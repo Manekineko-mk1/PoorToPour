@@ -65,20 +65,22 @@ button {
 
 .brand-icon {
   align-items: center;
-  background: #f2a900;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 219, 118, 0.22), rgba(242, 169, 0, 0.08) 58%, transparent 70%);
   border-radius: 50%;
-  color: #08131f;
   display: inline-flex;
   flex: 0 0 auto;
   height: 42px;
   justify-content: center;
   line-height: 1;
+  overflow: hidden;
   width: 42px;
 }
 
-.brand-icon svg {
-  color: currentColor;
-  transform: rotate(-12deg);
+.brand-icon img {
+  display: block;
+  height: 38px;
+  object-fit: contain;
+  width: 38px;
 }
 
 .brand h1,
