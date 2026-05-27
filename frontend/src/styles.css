@@ -69,10 +69,16 @@ button {
   border-radius: 50%;
   color: #08131f;
   display: inline-flex;
-  font-weight: 800;
+  flex: 0 0 auto;
   height: 42px;
   justify-content: center;
+  line-height: 1;
   width: 42px;
+}
+
+.brand-icon svg {
+  color: currentColor;
+  transform: rotate(-12deg);
 }
 
 .brand h1,
