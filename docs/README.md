@@ -10,6 +10,7 @@ This folder holds project planning, execution tracking, phase artifacts, and ref
 | `/docs/phases/` | Phase-specific artifacts such as reviews, PR drafts, release notes, and closeout summaries. |
 | `/docs/phases/phase-1-data-foundation/` | Phase 1 tracker, review, and pull request draft. |
 | `/docs/phases/phase-2-technical-scanner/` | Phase 2 tracker, implementation plan, review, and pull request draft. |
+| `/docs/phases/phase-3-dashboard-mvp/` | Phase 3 tracker, implementation plan, review, and pull request draft. |
 | `/docs/references/` | Supporting visual and research references. |
 | `/docs/references/Mock_UI_Renders/` | PoorToPour mock UI renders. |
 | `/docs/references/Research_Docs/` | External inspiration screenshots and research references. |

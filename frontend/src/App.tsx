@@ -1,14 +1,25 @@
 import {
   Activity,
   AlertTriangle,
+  Bell,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  Cloud,
   Database,
+  FileText,
+  Grid2X2,
+  History,
   PanelLeftClose,
   PanelLeftOpen,
   Play,
+  Rocket,
   Search,
   Settings,
+  Star,
   TrendingUp,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 import { Candidate, LatestScan, fetchLatestScan } from "./api";
@@ -58,9 +69,33 @@ function App() {
   const selected = candidates.find((candidate) => candidateKey(candidate) === selectedKey) ?? candidates[0];
   const riskDetails = selected ? riskRewardDetails(selected) : null;
   const scoreEntries = selected ? numericEntries(selected.score_breakdown) : [];
+  const health = getDataHealth(scan, error);
 
   return (
     <main className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
+      <header className="global-header">
+        <div className="brand">
+          <span className="brand-icon" aria-hidden="true">
+            <img src="/poortopour-champagne-icon.png" alt="" />
+          </span>
+          <div className="brand-copy">
+            <h1>PoorToPour</h1>
+            <p>From broke to pouring champagne.</p>
+          </div>
+          <span className="environment-pill">Local</span>
+        </div>
+
+        <div className="header-status">
+          <HeaderStatus icon={<Clock size={18} />} label="Last Successful Scan" value={formatTimestamp(scan?.completed_at ?? scan?.started_at)} />
+          <HeaderStatus icon={<CalendarDays size={18} />} label="Data Date" value={scan?.data_date ?? "--"} />
+          <HeaderStatus icon={<Cloud size={18} />} label="Provider Status" value={`${formatProvider(scan?.provider)} - ${health.label}`} accent={health.tone === "healthy"} />
+        </div>
+
+        <div className="header-actions">
+          <button><Play size={16} /> Run Manual Scan</button>
+        </div>
+      </header>
+
       <aside className="sidebar">
         <button
           aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -71,22 +106,38 @@ function App() {
         >
           {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
         </button>
-        <div className="brand">
-          <span className="brand-icon" aria-hidden="true">
-            <img src="/poortopour-champagne-icon.png" alt="" />
-          </span>
-          <div className="brand-copy">
-            <h1>PoorToPour</h1>
-            <p>From broke to pouring champagne.</p>
-          </div>
-        </div>
         <nav>
-          <a className="active">Dashboard</a>
-          <a>Scan History</a>
-          <a>Settings</a>
-          <a className="muted">Watchlist MVP+</a>
-          <a className="muted">Sector Scanner MVP+</a>
+          <a className="active"><Grid2X2 size={18} /> <span>Dashboard</span></a>
+          <a><History size={18} /> <span>Scan History</span></a>
+          <a className="muted"><Star size={18} /> <span>Watchlist</span><em>42</em></a>
+          <a className="muted"><TrendingUp size={18} /> <span>Backtesting</span><em>Soon</em></a>
+          <a className="muted"><Bell size={18} /> <span>Alerts</span><em>7</em></a>
+          <a className="muted"><FileText size={18} /> <span>Reports</span><em>Soon</em></a>
+          <a><Settings size={18} /> <span>Settings</span></a>
         </nav>
+
+        <section className="scanner-status-card">
+          <div>
+            <span>Scanner Status</span>
+            <strong><CheckCircle2 size={13} /> Real-time</strong>
+          </div>
+          <div>
+            <span>Next scan in</span>
+            <strong>04:17:38</strong>
+          </div>
+          <div className="progress-track"><span /></div>
+          <div>
+            <span>Auto scan (Daily)</span>
+            <strong>On</strong>
+          </div>
+        </section>
+
+        <section className="sidebar-note">
+          <Rocket size={22} />
+          <strong>Keep scanning.</strong>
+          <span>Stay disciplined.</span>
+          <b>Focus compound.</b>
+        </section>
       </aside>
 
       <section className="workspace">
@@ -96,18 +147,20 @@ function App() {
             <h2>Dashboard</h2>
           </div>
           <div className="topbar-actions">
-            <div className="search"><Search size={16} /> Search tickers...</div>
-            <button><Play size={16} /> Run Manual Scan</button>
+            <div className="search"><Search size={16} /> Search tickers, companies, or press Ctrl+K</div>
           </div>
         </header>
 
         {error && <section className="panel warning"><AlertTriangle /> {error}</section>}
+        {scan?.warning && !error && <section className="panel warning"><AlertTriangle /> {scan.warning}</section>}
 
         <section className="summary-grid">
-          <div className="panel metric"><Activity /><span>Scan Status</span><strong>{scan?.status ?? "Loading"}</strong></div>
-          <div className="panel metric"><Database /><span>Provider</span><strong>{formatProvider(scan?.provider)}</strong></div>
-          <div className="panel metric"><TrendingUp /><span>Candidates</span><strong>{scan?.candidates_found ?? "--"}</strong></div>
-          <div className="panel metric"><Settings /><span>Universe</span><strong>{scan?.universe ?? "S&P 500"}</strong></div>
+          <MetricCard icon={<Activity />} label="Scan Status" value={formatStatus(scan?.status)} detail={formatTimestamp(scan?.completed_at ?? scan?.started_at)} />
+          <MetricCard icon={<Database />} label="Scan Type" value={formatScanType(scan?.scan_type)} detail={`Provider: ${formatProvider(scan?.provider)}`} />
+          <MetricCard icon={<Settings />} label="Universe" value={scan?.universe ?? "--"} detail="Active scan scope" />
+          <MetricCard icon={<Grid2X2 />} label="Symbols Processed" value={formatCount(scan?.symbols_processed)} detail={scan?.symbols_processed ? "Coverage recorded" : "Waiting for scan"} />
+          <MetricCard icon={<TrendingUp />} label="Candidates Found" value={formatCount(scan?.candidates_found)} detail="Pass filters" />
+          <MetricCard icon={<CheckCircle2 />} label="Data Health" value={health.label} detail={health.detail} tone={health.tone} />
         </section>
 
         <section className="content-grid">
@@ -115,7 +168,7 @@ function App() {
             <div className="panel-header">
               <div>
                 <h3>Top Candidates</h3>
-                <p>{scan?.warning ?? "Fixture data only."}</p>
+                <p>{scan?.warning ?? "Research-only deterministic scanner output. Not a trading recommendation."}</p>
               </div>
               <span>{scan?.data_date ?? ""}</span>
             </div>
@@ -217,6 +270,51 @@ function App() {
 
 export default App;
 
+function HeaderStatus({
+  icon,
+  label,
+  value,
+  accent = false,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="header-status-item">
+      {icon}
+      <div>
+        <span>{label}</span>
+        <strong className={accent ? "accent" : ""}>{value}</strong>
+      </div>
+    </div>
+  );
+}
+
+function MetricCard({
+  icon,
+  label,
+  value,
+  detail,
+  tone = "neutral",
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  detail: string;
+  tone?: "healthy" | "warning" | "error" | "neutral";
+}) {
+  return (
+    <div className={`panel metric metric-${tone}`}>
+      {icon}
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <small>{detail}</small>
+    </div>
+  );
+}
+
 function EvidenceList({ title, items, empty }: { title: string; items: string[]; empty: string }) {
   return (
     <div className="evidence-block">
@@ -238,4 +336,59 @@ function candidateKey(candidate: Candidate) {
 
 function formatRiskNumber(value: unknown) {
   return typeof value === "number" ? value.toFixed(2) : "--";
+}
+
+function formatTimestamp(value: string | null | undefined) {
+  if (!value) {
+    return "Loading";
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(parsed);
+}
+
+function formatStatus(value: string | undefined) {
+  return value ? formatLabel(value) : "Loading";
+}
+
+function formatScanType(value: string | undefined) {
+  return value ? formatLabel(value) : "--";
+}
+
+function formatCount(value: number | null | undefined) {
+  return value == null ? "--" : value.toLocaleString();
+}
+
+function getDataHealth(scan: LatestScan | null, error: string | null): {
+  label: string;
+  detail: string;
+  tone: "healthy" | "warning" | "error" | "neutral";
+} {
+  if (error) {
+    return { label: "Failed", detail: "Latest scan unavailable", tone: "error" };
+  }
+
+  if (!scan) {
+    return { label: "Loading", detail: "Waiting for scan data", tone: "neutral" };
+  }
+
+  const normalizedStatus = scan.status.toLowerCase();
+  if (normalizedStatus.includes("fail")) {
+    return { label: "Failed", detail: "Review scan errors", tone: "error" };
+  }
+
+  if (normalizedStatus.includes("partial") || scan.warning) {
+    return { label: "Warning", detail: scan.warning ?? "Partial scan output", tone: "warning" };
+  }
+
+  return { label: "Healthy", detail: "All systems operational", tone: "healthy" };
 }

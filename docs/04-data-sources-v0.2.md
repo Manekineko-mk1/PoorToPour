@@ -4,8 +4,8 @@
 **Description:** From broke to pouring champagne.
 **Document:** `/docs/04-data-sources.md`
 **Date created:** 2026-04-30
-**Last updated:** 2026-04-30
-**Status:** Draft v0.2
+**Last updated:** 2026-05-28
+**Status:** Draft v0.3
 
 ---
 
@@ -57,8 +57,11 @@ Core principles:
    - Use official public data where it fits, especially SEC EDGAR for filings/fundamental context later.
    - Do not let raw public data normalization delay the MVP.
 
-7. **Tier 1 only for MVP**
-   - MVP should use one primary provider-backed data source for core scanner inputs.
+7. **Provider-flexible MVP scan data**
+   - MVP should use one primary normalized data path for core scanner inputs.
+   - Phase 3 accepts yfinance as the practical MVP scan data source because it is cost-effective for S&P 500 plus Nasdaq 100 iteration.
+   - yfinance is unofficial and not trading-grade; source, retrieval time, and data freshness must be visible.
+   - Alpha Vantage remains an implemented provider adapter and future stable-source candidate.
    - Tier 2 official public APIs and Tier 3 scraping are deferred to MVP+ or later.
    - Re-evaluate provider upgrades or hybrid sourcing only after the MVP scanner proves useful.
 
@@ -117,7 +120,7 @@ PoorToPour should classify data sources into three tiers.
 
 ## 4.2 MVP Data Strategy
 
-MVP should use **Tier 1 provider-backed data only** for core scanner inputs.
+MVP should prefer provider-backed data for core scanner inputs, but Phase 3 accepts a pragmatic yfinance-first path for cost-constrained iteration.
 
 MVP core scanner inputs include:
 
@@ -130,7 +133,7 @@ MVP core scanner inputs include:
 - average volume;
 - earnings date if available.
 
-Reasons:
+Reasons to preserve a provider-backed upgrade path:
 
 - simpler implementation;
 - fewer provider adapters;
@@ -139,6 +142,10 @@ Reasons:
 - easier debugging;
 - lower risk of mixing inconsistent sources;
 - enough to answer whether the scanner can produce useful candidates.
+
+Phase 3 caveat:
+
+> yfinance is acceptable for MVP scan iteration because Alpha Vantage's free call limit is too restrictive for the S&P 500 plus Nasdaq 100 universe. It should be labelled as the active source, treated as unofficial, and replaced or supplemented by Alpha Vantage or another stable provider once scanner and strategy value are proven.
 
 MVP rule:
 
@@ -1003,9 +1010,9 @@ Important:
 | DATA-D-006 | Do not include news/social/Polymarket/politician trades in MVP | Keeps scanner focused and cheaper |
 | DATA-D-007 | Treat SEC EDGAR as a later official fundamentals source | Useful but normalization-heavy |
 | DATA-D-008 | Missing price data blocks candidates; missing context data warns | Keeps trading safety high without blocking technical scans unnecessarily |
-| DATA-D-009 | First real provider adapter will use Alpha Vantage | Jesse has an Alpha Vantage key and wants it as the first provider after yfinance bootstrap |
+| DATA-D-009 | First real provider adapter uses Alpha Vantage, but MVP scan data defaults to yfinance for now | Alpha Vantage exists as a tested adapter, but its free call limit is too restrictive for S&P 500 plus Nasdaq 100 iteration |
 | DATA-D-010 | Provider raw payloads should be optional and short-retention | Avoids database bloat and provider-shape coupling |
-| DATA-D-011 | MVP uses Tier 1 provider-backed data only for core scanner inputs | Keeps implementation simple, reliable, and easier to validate |
+| DATA-D-011 | MVP scan data may use yfinance while preserving provider abstraction and source/freshness labelling | Keeps the side-project MVP practical under cost constraints without hiding data-source limitations |
 | DATA-D-012 | Tier 2 official public APIs are deferred to MVP+ or later | Avoids normalization-heavy sources before scanner value is proven |
 | DATA-D-013 | Tier 3 web scraping is deferred to MVP+ or later and only for supplemental non-critical context | Avoids fragile, legally ambiguous, or unreliable data in core scanner logic |
 | DATA-D-014 | Re-evaluate provider upgrade versus hybrid sourcing after MVP scanner proves useful | Data cost and quality trade-offs need evidence before committing |
@@ -1016,7 +1023,7 @@ Important:
 
 | ID | Question | Default / Current Leaning | Status |
 | --- | --- | --- | --- |
-| Q-DATA-001 | Which market data provider should be used first? | Alpha Vantage | 🟩 Resolved |
+| Q-DATA-001 | Which market data provider should be used first for MVP scan data? | yfinance for MVP iteration; Alpha Vantage retained as first real adapter/future stable-source candidate | 🟩 Resolved |
 | Q-DATA-002 | Should S&P 500 universe be manually seeded first? | Yes; extend MVP universe with Nasdaq 100 as well | 🟩 Resolved |
 | Q-DATA-003 | Should company profiles be required for MVP candidates? | Warn if missing, do not block | 🟦 Open |
 | Q-DATA-004 | Which provider has the best earnings-date coverage for MVP? | TBD | 🟦 Open |
@@ -1055,14 +1062,14 @@ Before selecting a provider, evaluate:
 
 ## 18. Recommended Next Steps
 
-1. Keep provider selection deferred until implementation.
-2. Treat Tier 1 provider-backed data as the only MVP source category for core scanner inputs.
+1. Keep provider selection flexible behind internal interfaces.
+2. Use yfinance pragmatically for MVP scan iteration, with visible source/freshness labels and data-quality caveats.
 3. Start implementation with provider interfaces and local fixtures.
-4. Create a local S&P 500 seed file.
-5. Prototype one or two Tier 1 providers with 5–10 symbols.
+4. Keep local S&P 500 plus Nasdaq 100 universe seeds versioned and reviewable.
+5. Keep Alpha Vantage as the first real provider adapter and future stable-source candidate.
 6. Measure rate limits, data quality, adjusted close behavior, and response shape.
-7. Choose the first MVP provider after testing.
-8. Document the final provider choice in `/docs/09-decision-log.md`.
+7. Revisit paid or more stable providers after scanner and strategy value are proven.
+8. Document provider direction changes in `/docs/09-decision-log.md`.
 9. Re-evaluate Tier 2 official public APIs, Tier 3 scraping, or higher-quality paid providers only after MVP scanner quality is demonstrated.
 10. Update this file once provider experiments produce evidence.
 
@@ -1097,3 +1104,4 @@ Initial references used for this draft:
 | --- | --- | --- | --- |
 | 2026-04-30 | v0.1 | Created initial data sources document | Jesse + AI |
 | 2026-04-30 | v0.2 | Added Tier 1-only MVP data policy, MVP+ re-evaluation path, and web scraping policy | Jesse + AI |
+| 2026-05-28 | v0.3 | Updated MVP scan-data direction to yfinance-first for cost-constrained iteration while retaining Alpha Vantage as a provider adapter and future stable-source candidate | Jesse + AI |
