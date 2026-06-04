@@ -82,20 +82,15 @@ def test_hosted_fail_closed_when_api_key_empty(monkeypatch) -> None:
     assert response.status_code == 401  # key required but not configured — deny
 
 
-def test_hosted_scan_disabled_passes_auth_without_key(monkeypatch) -> None:
+def test_hosted_fail_closed_when_api_key_empty_and_scan_disabled(monkeypatch) -> None:
     monkeypatch.setattr(
         security,
         "get_settings",
         lambda: Settings(environment="production", allow_hosted_manual_scan=False, manual_scan_api_key=""),
     )
-    monkeypatch.setattr(
-        scans,
-        "get_settings",
-        lambda: Settings(environment="production", allow_hosted_manual_scan=False, manual_scan_api_key=""),
-    )
 
     response = TestClient(create_app()).post("/api/scans/manual")
-    assert response.status_code == 403  # scan disabled — not 401
+    assert response.status_code == 401  # empty key in non-local always denies
 
 
 # --- rate limiting ---
