@@ -131,6 +131,42 @@ def test_rate_limit_skipped_in_local_environment(monkeypatch) -> None:
         assert client.post("/api/scans/manual").status_code == 400  # never 429
 
 
+def test_rate_limit_is_per_client_not_global(monkeypatch) -> None:
+    hosted_settings = Settings(
+        environment="production",
+        allow_hosted_manual_scan=True,
+        manual_scan_api_key="",  # no key configured — IP-based
+        manual_scan_rate_limit=1,
+    )
+    # Bypass auth (key empty + scan enabled = fail-closed), so configure a key
+    hosted_settings = Settings(
+        environment="production",
+        allow_hosted_manual_scan=True,
+        manual_scan_api_key="key-a",
+        manual_scan_rate_limit=1,
+    )
+    monkeypatch.setattr(security, "get_settings", lambda: hosted_settings)
+    monkeypatch.setattr(scans, "get_settings", lambda: hosted_settings)
+    _no_symbols(monkeypatch)
+
+    client = TestClient(create_app())
+    # key-a exhausts its own bucket
+    assert client.post("/api/scans/manual", headers={"X-API-Key": "key-a"}).status_code == 400
+    assert client.post("/api/scans/manual", headers={"X-API-Key": "key-a"}).status_code == 429
+
+    # key-b still has a fresh bucket — but auth rejects it (wrong key), so patch
+    # auth to accept any key for this check by swapping the configured key
+    hosted_settings_b = Settings(
+        environment="production",
+        allow_hosted_manual_scan=True,
+        manual_scan_api_key="key-b",
+        manual_scan_rate_limit=1,
+    )
+    monkeypatch.setattr(security, "get_settings", lambda: hosted_settings_b)
+    monkeypatch.setattr(scans, "get_settings", lambda: hosted_settings_b)
+    assert client.post("/api/scans/manual", headers={"X-API-Key": "key-b"}).status_code == 400  # not 429
+
+
 def test_rate_limit_429_response_includes_limit(monkeypatch) -> None:
     hosted_settings = Settings(
         environment="production",

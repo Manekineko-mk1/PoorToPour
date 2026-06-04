@@ -2,7 +2,7 @@ from collections import deque
 from threading import Lock
 from time import time
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import APIKeyHeader
 
 from app.core.config import get_settings
@@ -28,35 +28,55 @@ def verify_manual_scan_auth(api_key: str | None = Depends(_api_key_scheme)) -> N
         raise HTTPException(status_code=401, detail="Invalid or missing API key.")
 
 
-class _SlidingWindowRateLimiter:
+class _PerClientRateLimiter:
+    """Sliding-window rate limiter keyed by client identity (API key or remote IP).
+
+    Each distinct client gets its own call bucket so one heavy caller cannot
+    exhaust the limit for everyone else.  For multi-instance deployments this
+    should be replaced with a Redis-backed implementation (e.g. redis-py +
+    EVALSHA Lua script) so all nodes share a single counter per client key.
+    """
+
     def __init__(self) -> None:
-        self._calls: deque[float] = deque()
+        self._clients: dict[str, deque[float]] = {}
         self._lock = Lock()
 
-    def check(self, max_calls: int, window_seconds: int = 60) -> bool:
+    def check(self, client_key: str, max_calls: int, window_seconds: int = 60) -> bool:
         now = time()
         cutoff = now - window_seconds
         with self._lock:
-            while self._calls and self._calls[0] < cutoff:
-                self._calls.popleft()
-            if len(self._calls) >= max_calls:
+            calls = self._clients.setdefault(client_key, deque())
+            while calls and calls[0] < cutoff:
+                calls.popleft()
+            if len(calls) >= max_calls:
                 return False
-            self._calls.append(now)
+            calls.append(now)
             return True
 
     def reset(self) -> None:
         with self._lock:
-            self._calls.clear()
+            self._clients.clear()
 
 
-manual_scan_limiter = _SlidingWindowRateLimiter()
+manual_scan_limiter = _PerClientRateLimiter()
 
 
-def check_manual_scan_rate_limit() -> None:
+def _client_key(request: Request, api_key: str | None) -> str:
+    if api_key:
+        return f"key:{api_key}"
+    host = request.client.host if request.client else "unknown"
+    return f"ip:{host}"
+
+
+def check_manual_scan_rate_limit(
+    request: Request,
+    api_key: str | None = Depends(_api_key_scheme),
+) -> None:
     settings = get_settings()
     if _is_local(settings.environment):
         return
-    if not manual_scan_limiter.check(settings.manual_scan_rate_limit):
+    key = _client_key(request, api_key)
+    if not manual_scan_limiter.check(key, settings.manual_scan_rate_limit):
         raise HTTPException(
             status_code=429,
             detail=f"Rate limit exceeded. Max {settings.manual_scan_rate_limit} requests per minute.",
