@@ -15,13 +15,13 @@ indicator_service = IndicatorService()
 
 @router.get("/provider/status")
 def provider_status() -> dict:
-    return provider.get_status().model_dump()
+    return provider.get_status().model_dump(mode="json")
 
 
 @router.get("/symbols")
 def list_symbols(db: Session = Depends(get_db)) -> list[dict]:
     symbols = market_data.list_symbols(db)
-    return [symbol.model_dump() for symbol in symbols]
+    return [symbol.model_dump(mode="json") for symbol in symbols]
 
 
 @router.get("/symbols/{symbol}/bars")
@@ -63,7 +63,7 @@ def get_indicator_snapshot(symbol: str, db: Session = Depends(get_db)) -> dict:
     bars = market_data.get_daily_bars(db, symbol.upper())
     if not bars:
         raise HTTPException(status_code=404, detail=f"No persisted bars found for {symbol.upper()}")
-    return indicator_service.build_snapshot(symbol, bars).model_dump()
+    return indicator_service.build_snapshot(symbol, bars).model_dump(mode="json")
 
 
 @router.get("/profiles/{symbol}")
@@ -71,7 +71,7 @@ def get_company_profile(symbol: str, db: Session = Depends(get_db)) -> dict:
     profile = market_data.get_company_profile(db, symbol.upper())
     if profile is None:
         raise HTTPException(status_code=404, detail=f"No persisted profile found for {symbol.upper()}")
-    return profile.model_dump()
+    return profile.model_dump(mode="json")
 
 
 @router.get("/earnings/{symbol}")
@@ -79,4 +79,4 @@ def get_earnings(symbol: str, db: Session = Depends(get_db)) -> dict:
     event = market_data.get_earnings_event(db, symbol.upper())
     if event is None:
         raise HTTPException(status_code=404, detail=f"No persisted earnings event found for {symbol.upper()}")
-    return event.model_dump()
+    return event.model_dump(mode="json")

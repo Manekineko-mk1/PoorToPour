@@ -20,12 +20,12 @@ def latest_scan(db: Session = Depends(get_db)) -> dict:
     scan = scans.get_latest_scan(db)
     if scan is None:
         raise HTTPException(status_code=404, detail="No scan results found")
-    return scan.model_dump()
+    return scan.model_dump(mode="json")
 
 
 @router.get("/scans")
 def list_scan_runs(db: Session = Depends(get_db), limit: int = 20) -> list[dict]:
-    return [scan.model_dump() for scan in scans.list_scan_runs(db, limit=limit)]
+    return [scan.model_dump(mode="json") for scan in scans.list_scan_runs(db, limit=limit)]
 
 
 @router.get("/scans/{scan_id}")
@@ -33,7 +33,7 @@ def get_scan(scan_id: str, db: Session = Depends(get_db)) -> dict:
     scan = scans.get_scan(db, scan_id)
     if scan is None:
         raise HTTPException(status_code=404, detail=f"No persisted scan found for {scan_id}")
-    return scan.model_dump()
+    return scan.model_dump(mode="json")
 
 
 RefreshPeriod = Literal["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
@@ -90,9 +90,9 @@ def run_manual_scan(
         db.rollback()
         raise
 
-    payload = scan.model_dump()
+    payload = scan.model_dump(mode="json")
     if refresh_summary is not None:
-        payload["market_data_refresh"] = refresh_summary.model_dump()
+        payload["market_data_refresh"] = refresh_summary.model_dump(mode="json")
     return payload
 
 
