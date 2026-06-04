@@ -1,3 +1,5 @@
+import logging
+import uuid
 from collections.abc import Iterable
 
 from sqlalchemy.orm import Session
@@ -5,6 +7,8 @@ from sqlalchemy.orm import Session
 from app.models.market_data import MarketDataRefreshSummary, SymbolProfile
 from app.providers.yfinance_provider import YFinanceProvider
 from app.repositories.market_data import upsert_daily_bar
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_REFRESH_CHUNK_SIZE = 50
 MAX_FAILURE_MESSAGES = 12
@@ -19,6 +23,9 @@ def refresh_yfinance_daily_bars(
     chunk_size: int = DEFAULT_REFRESH_CHUNK_SIZE,
 ) -> MarketDataRefreshSummary:
     provider = provider or YFinanceProvider()
+    # Correlation id for this refresh run. It is safe to surface to clients and lets an
+    # operator tie a redacted API failure message back to the full log entry.
+    trace_id = uuid.uuid4().hex[:12]
     summary = MarketDataRefreshSummary(
         provider=YFINANCE_PROVIDER_LABEL,
         period=period,
@@ -28,15 +35,30 @@ def refresh_yfinance_daily_bars(
     for symbol_chunk in _chunks([symbol.symbol for symbol in symbols], chunk_size):
         try:
             bars_by_symbol = provider.get_daily_bars_for_symbols(symbol_chunk, period=period)
-        except Exception as exc:
+        except Exception:
+            # Full exception context (type + traceback) is recorded only in the logs.
+            # The client-facing summary stays redacted and references the trace id so the
+            # exception details and provider internals are never exposed in API responses.
+            logger.exception(
+                "yfinance batch download failed (trace_id=%s, period=%s, symbols=%s)",
+                trace_id,
+                period,
+                symbol_chunk,
+            )
             for symbol in symbol_chunk:
-                _record_failure(summary, f"{symbol}: {exc}")
+                _record_failure(summary, f"{symbol}: refresh failed (trace {trace_id})")
             continue
 
         for symbol in symbol_chunk:
             normalized_symbol = symbol.upper()
             bars = bars_by_symbol.get(normalized_symbol, [])
             if not bars:
+                logger.info(
+                    "yfinance returned no daily bars (trace_id=%s, symbol=%s, period=%s)",
+                    trace_id,
+                    normalized_symbol,
+                    period,
+                )
                 _record_failure(summary, f"{normalized_symbol}: no daily bars returned")
                 continue
 

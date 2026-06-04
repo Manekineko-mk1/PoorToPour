@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from typing import Any
 
@@ -6,6 +7,8 @@ import yfinance as yf
 
 from app.models.market_data import DailyBar, ProviderStatus
 from app.providers.validation import is_valid_daily_bar_values
+
+logger = logging.getLogger(__name__)
 
 
 class YFinanceProvider:
@@ -26,6 +29,7 @@ class YFinanceProvider:
 
     def get_daily_bars(self, symbol: str, period: str = "1y") -> list[DailyBar]:
         yf_symbol = to_yfinance_symbol(symbol)
+        logger.debug("yfinance single download", extra={"yf_symbol": yf_symbol, "period": period})
         frame = yf.download(
             yf_symbol,
             period=period,
@@ -46,6 +50,10 @@ class YFinanceProvider:
             return {symbol: self.get_daily_bars(symbol, period=period)}
 
         yfinance_symbols = [to_yfinance_symbol(symbol) for symbol in normalized_symbols]
+        logger.debug(
+            "yfinance batch download",
+            extra={"symbol_count": len(yfinance_symbols), "period": period},
+        )
         frame = yf.download(
             tickers=yfinance_symbols,
             period=period,
@@ -140,7 +148,11 @@ def _frame_for_downloaded_symbol(frame: pd.DataFrame, yf_symbol: str) -> pd.Data
         if actual_label is not None:
             try:
                 return frame.xs(actual_label, axis=1, level=level, drop_level=True)
-            except (KeyError, TypeError, ValueError):
+            except (KeyError, TypeError, ValueError) as exc:
+                logger.debug(
+                    "yfinance frame cross-section failed, trying next level",
+                    extra={"yf_symbol": yf_symbol, "level": level, "exc_type": type(exc).__name__},
+                )
                 continue
 
     return pd.DataFrame(index=frame.index)
