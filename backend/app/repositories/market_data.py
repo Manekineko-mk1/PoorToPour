@@ -33,7 +33,7 @@ def get_daily_bars(db: Session, symbol: str) -> list[DailyBar]:
     return [
         DailyBar(
             symbol=row.symbol,
-            date=row.date.isoformat(),
+            date=row.date,
             open=_to_float(row.open),
             high=_to_float(row.high),
             low=_to_float(row.low),
@@ -121,7 +121,6 @@ def upsert_earnings_event(db: Session, event: EarningsEvent) -> None:
 
 def upsert_daily_bar(db: Session, bar: DailyBar, source: str = "mock") -> None:
     values = bar.model_dump()
-    values["date"] = date.fromisoformat(values["date"])
     values["source"] = source
     statement = pg_insert(DailyBarRow).values(**values)
     statement = statement.on_conflict_do_update(

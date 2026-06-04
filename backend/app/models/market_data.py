@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel, Field
 
 
@@ -37,7 +39,7 @@ class EarningsEvent(BaseModel):
 
 class DailyBar(BaseModel):
     symbol: str
-    date: str
+    date: date
     open: float = Field(gt=0)
     high: float = Field(gt=0)
     low: float = Field(gt=0)
@@ -76,7 +78,7 @@ class SymbolChartPayload(BaseModel):
     symbol: str
     company_name: str | None = None
     exchange: str | None = None
-    data_date: str | None = None
+    data_date: date | None = None
     bars: list[ChartIndicatorBar] = Field(default_factory=list)
     candidate: ChartCandidateContext | None = None
     warnings: list[str] = Field(default_factory=list)

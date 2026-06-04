@@ -86,7 +86,7 @@ def _bars(
     first_date = datetime(2026, 1, 1, tzinfo=UTC)
     bars = []
     for index in range(count):
-        bar_date = (first_date + timedelta(days=index)).date().isoformat()
+        bar_date = (first_date + timedelta(days=index)).date()
         close = 100.0
         high = 120.0
         low = 98.0

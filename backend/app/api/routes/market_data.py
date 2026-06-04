@@ -29,7 +29,7 @@ def get_daily_bars(symbol: str, db: Session = Depends(get_db)) -> list[dict]:
     bars = market_data.get_daily_bars(db, symbol.upper())
     if not bars:
         raise HTTPException(status_code=404, detail=f"No persisted bars found for {symbol.upper()}")
-    return [bar.model_dump() for bar in bars]
+    return [bar.model_dump(mode="json") for bar in bars]
 
 
 @router.get("/symbols/{symbol}/chart")
@@ -55,7 +55,7 @@ def get_symbol_chart(
             scan_id=scan_id,
         ),
     )
-    return payload.model_dump()
+    return payload.model_dump(mode="json")
 
 
 @router.get("/symbols/{symbol}/indicators")

@@ -59,7 +59,7 @@ def test_chart_payload_includes_indicator_bars_and_candidate_context() -> None:
     assert payload.symbol == "AAPL"
     assert payload.company_name == "Apple Inc."
     assert payload.exchange == "NASDAQ"
-    assert payload.data_date == "2026-03-01"
+    assert payload.data_date == date(2026, 3, 1)
     assert len(payload.bars) == 60
     assert payload.bars[-1].sma_20 == 90.5
     assert payload.bars[-1].sma_50 == 75.5
@@ -148,7 +148,7 @@ def _bar(index: int) -> DailyBar:
     close = float(index + 40)
     return DailyBar(
         symbol="AAPL",
-        date=(date(2026, 1, 1) + timedelta(days=index - 1)).isoformat(),
+        date=date(2026, 1, 1) + timedelta(days=index - 1),
         open=close,
         high=close + 1,
         low=close - 1,

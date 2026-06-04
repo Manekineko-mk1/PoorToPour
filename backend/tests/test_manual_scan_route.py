@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi.testclient import TestClient
 
 from app.api.routes import scans
@@ -278,7 +280,7 @@ def test_manual_scan_rolls_back_on_scanner_exception(monkeypatch) -> None:
 def _bar(symbol: str) -> DailyBar:
     return DailyBar(
         symbol=symbol,
-        date="2026-05-22",
+        date=date(2026, 5, 22),
         open=100,
         high=101,
         low=99,

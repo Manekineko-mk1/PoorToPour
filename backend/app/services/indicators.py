@@ -40,7 +40,7 @@ class IndicatorService:
 
         return IndicatorSnapshot(
             symbol=symbol.upper(),
-            latest_date=latest.date,
+            latest_date=latest.date.isoformat(),
             close=round(latest.close, 4),
             volume=latest.volume,
             data_points=len(ordered_bars),

@@ -106,7 +106,7 @@ def _bar(index: int) -> DailyBar:
     close = float(index)
     return DailyBar(
         symbol="AAPL",
-        date=bar_date.isoformat(),
+        date=bar_date,
         open=max(close - 0.25, 0.01),
         high=close + 1,
         low=max(close - 0.5, 0.01),

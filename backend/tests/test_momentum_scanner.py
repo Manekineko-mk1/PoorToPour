@@ -75,7 +75,7 @@ def _bars(
     bars = []
     for index in range(count):
         close = float(start + index)
-        bar_date = (first_date + timedelta(days=index)).date().isoformat()
+        bar_date = (first_date + timedelta(days=index)).date()
         bars.append(
             DailyBar(
                 symbol=symbol,

@@ -102,7 +102,7 @@ def daily_bars_from_frame(symbol: str, frame: pd.DataFrame) -> list[DailyBar]:
         bars.append(
             DailyBar(
                 symbol=symbol.upper(),
-                date=timestamp.date().isoformat(),
+                date=timestamp.date(),
                 open=open_float,
                 high=high_float,
                 low=low_float,

@@ -1,3 +1,5 @@
+from datetime import date
+
 import pandas as pd
 
 from app.providers import yfinance_provider
@@ -27,7 +29,7 @@ def test_daily_bars_from_single_level_frame() -> None:
 
     assert len(bars) == 1
     assert bars[0].symbol == "AAPL"
-    assert bars[0].date == "2026-05-22"
+    assert bars[0].date == date(2026, 5, 22)
     assert bars[0].adjusted_close == 107.5
     assert bars[0].volume == 123456
 
@@ -79,7 +81,7 @@ def test_daily_bars_from_frame_skips_inconsistent_ohlc_rows() -> None:
 
     bars = daily_bars_from_frame("AAPL", frame)
 
-    assert [bar.date for bar in bars] == ["2026-05-22"]
+    assert [bar.date for bar in bars] == [date(2026, 5, 22)]
 
 
 def test_provider_parses_batch_download_frame(monkeypatch) -> None:

@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 
 from app.providers.alpha_vantage_provider import (
@@ -24,7 +26,7 @@ def test_daily_bars_from_standard_daily_payload() -> None:
 
     assert len(bars) == 1
     assert bars[0].symbol == "AAPL"
-    assert bars[0].date == "2026-05-24"
+    assert bars[0].date == date(2026, 5, 24)
     assert bars[0].close == 108.25
     assert bars[0].adjusted_close == 108.25
     assert bars[0].volume == 123456
@@ -73,7 +75,7 @@ def test_daily_bars_are_sorted_oldest_first() -> None:
 
     bars = daily_bars_from_alpha_vantage_payload("NVDA", payload)
 
-    assert [bar.date for bar in bars] == ["2026-05-24", "2026-05-25"]
+    assert [bar.date for bar in bars] == [date(2026, 5, 24), date(2026, 5, 25)]
 
 
 def test_daily_bars_skip_invalid_dates_and_inconsistent_ohlc_rows() -> None:
@@ -105,7 +107,7 @@ def test_daily_bars_skip_invalid_dates_and_inconsistent_ohlc_rows() -> None:
 
     bars = daily_bars_from_alpha_vantage_payload("NVDA", payload)
 
-    assert [bar.date for bar in bars] == ["2026-05-25"]
+    assert [bar.date for bar in bars] == [date(2026, 5, 25)]
 
 
 def test_daily_bars_raise_on_rate_limit_message() -> None:
