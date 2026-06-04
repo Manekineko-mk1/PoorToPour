@@ -82,12 +82,17 @@ class _SizedTimedRotatingFileHandler(TimedRotatingFileHandler):
         return stale
 
 
-def configure_logging(log_dir: str, log_retention_days: int, log_max_bytes: int) -> None:
+def configure_logging(
+    log_dir: str,
+    log_retention_days: int,
+    log_max_bytes: int,
+    log_level: int | str = logging.INFO,
+) -> None:
     os.makedirs(log_dir, exist_ok=True)
     log_path = os.path.join(log_dir, "app.log")
 
     root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
+    root.setLevel(log_level)
 
     if not root.handlers:
         root.addHandler(logging.StreamHandler())

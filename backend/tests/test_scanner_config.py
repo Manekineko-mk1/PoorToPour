@@ -44,6 +44,19 @@ def test_scanner_risk_reward_settings_reject_non_positive_values(field: str, val
         Settings(**{field: value}, _env_file=None)
 
 
+def test_log_level_defaults_to_info() -> None:
+    assert Settings(_env_file=None).log_level == "INFO"
+
+
+def test_log_level_is_normalized_to_upper_case() -> None:
+    assert Settings(log_level="debug", _env_file=None).log_level == "DEBUG"
+
+
+def test_log_level_rejects_unknown_values() -> None:
+    with pytest.raises(ValidationError):
+        Settings(log_level="verbose", _env_file=None)
+
+
 def test_legacy_env_var_migrates_to_environment(
     monkeypatch: pytest.MonkeyPatch,
     caplog: pytest.LogCaptureFixture,

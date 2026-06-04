@@ -1,7 +1,7 @@
 import logging
 from functools import lru_cache
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger(__name__)
@@ -35,8 +35,24 @@ class Settings(BaseSettings):
     manual_scan_api_key: str = ""
     manual_scan_rate_limit: int = Field(default=5, gt=0)
     log_dir: str = "logs"
+    log_level: str = "INFO"
     log_retention_days: int = Field(default=3, gt=0)
     log_max_bytes: int = Field(default=10 * 1024 * 1024, gt=0)
+
+    @field_validator("log_level", mode="before")
+    @classmethod
+    def _normalize_log_level(cls, value: object) -> str:
+        # Accept any case (e.g. "debug", "Info") and reject unknown levels up
+        # front so a typo fails fast at startup instead of silently defaulting.
+        if not isinstance(value, str):
+            raise ValueError("log_level must be a string")
+        normalized = value.strip().upper()
+        if normalized not in logging.getLevelNamesMapping():
+            raise ValueError(
+                f"Unknown log_level {value!r}; expected one of "
+                f"{', '.join(sorted(logging.getLevelNamesMapping()))}"
+            )
+        return normalized
 
     # Legacy alias for ``environment``. Read through the settings sources (via the
     # explicit validation alias) so the migration does not touch os.environ

@@ -121,3 +121,38 @@ def test_configure_logging_is_idempotent(tmp_path) -> None:
         for handler in root.handlers:
             handler.close()
         root.handlers = original
+
+
+def test_configure_logging_defaults_to_info_level(tmp_path) -> None:
+    root = logging.getLogger()
+    original_handlers = list(root.handlers)
+    original_level = root.level
+    try:
+        root.handlers = []
+        configure_logging(str(tmp_path), log_retention_days=3, log_max_bytes=1024)
+        assert root.level == logging.INFO
+    finally:
+        for handler in root.handlers:
+            handler.close()
+        root.handlers = original_handlers
+        root.setLevel(original_level)
+
+
+def test_configure_logging_honors_requested_level(tmp_path) -> None:
+    root = logging.getLogger()
+    original_handlers = list(root.handlers)
+    original_level = root.level
+    try:
+        root.handlers = []
+        configure_logging(
+            str(tmp_path),
+            log_retention_days=3,
+            log_max_bytes=1024,
+            log_level=logging.WARNING,
+        )
+        assert root.level == logging.WARNING
+    finally:
+        for handler in root.handlers:
+            handler.close()
+        root.handlers = original_handlers
+        root.setLevel(original_level)

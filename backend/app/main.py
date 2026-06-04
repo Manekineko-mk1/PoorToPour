@@ -12,6 +12,7 @@ def create_app() -> FastAPI:
         log_dir=settings.log_dir,
         log_retention_days=settings.log_retention_days,
         log_max_bytes=settings.log_max_bytes,
+        log_level=settings.log_level,
     )
     app = FastAPI(title="PoorToPour API", version="0.1.0")
 
