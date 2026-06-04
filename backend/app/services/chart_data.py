@@ -24,9 +24,7 @@ def build_symbol_chart_payload(
     ordered_bars = sorted(bars, key=lambda bar: bar.date)
     closes = [bar.close for bar in ordered_bars]
 
-    sma_20s = _rolling_sma(closes, 20)
-    sma_50s = _rolling_sma(closes, 50)
-    sma_200s = _rolling_sma(closes, 200)
+    sma_series = {period: _rolling_sma(closes, period) for period in CHART_SMA_PERIODS}
     rsi_14s = _rolling_rsi(closes, RSI_PERIOD)
 
     return SymbolChartPayload(
@@ -37,9 +35,7 @@ def build_symbol_chart_payload(
         bars=[
             ChartIndicatorBar(
                 **bar.model_dump(),
-                sma_20=_round_optional(sma_20s[i]),
-                sma_50=_round_optional(sma_50s[i]),
-                sma_200=_round_optional(sma_200s[i]),
+                **{f"sma_{p}": _round_optional(sma_series[p][i]) for p in CHART_SMA_PERIODS},
                 rsi_14=_round_optional(rsi_14s[i]),
             )
             for i, bar in enumerate(ordered_bars)
@@ -60,13 +56,6 @@ def _rolling_sma(closes: list[float], period: int) -> list[float | None]:
     return results
 
 
-def _rsi_from_averages(avg_gain: float, avg_loss: float) -> float:
-    if avg_loss == 0:
-        return 100.0
-    rs = avg_gain / avg_loss
-    return 100 - (100 / (1 + rs))
-
-
 def _relative_strength_index(closes: Sequence[float], period: int) -> float | None:
     # Wilder's RSI. Seed with a simple average of the first `period` changes,
     # then apply Wilder's smoothing so values match standard charting platforms.
@@ -83,7 +72,10 @@ def _relative_strength_index(closes: Sequence[float], period: int) -> float | No
         average_gain = (average_gain * (period - 1) + gain) / period
         average_loss = (average_loss * (period - 1) + loss) / period
 
-    return _rsi_from_averages(average_gain, average_loss)
+    if average_loss == 0:
+        return 100.0
+    rs = average_gain / average_loss
+    return 100 - (100 / (1 + rs))
 
 
 def _rolling_rsi(closes: list[float], period: int) -> list[float | None]:
