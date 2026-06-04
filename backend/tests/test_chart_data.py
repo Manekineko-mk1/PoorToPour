@@ -7,7 +7,7 @@ from app.api.routes import market_data
 from app.main import create_app
 from app.models.market_data import CompanyProfile, DailyBar
 from app.models.scans import ScanCandidate, ScanRun
-from app.services.chart_data import _relative_strength_index, build_symbol_chart_payload
+from app.services.chart_data import _relative_strength_index, _rolling_rsi, build_symbol_chart_payload
 
 
 def test_chart_payload_includes_indicator_bars_and_candidate_context() -> None:
@@ -142,6 +142,15 @@ def test_relative_strength_index_uses_wilder_smoothing() -> None:
 
 def test_relative_strength_index_requires_more_than_period_closes() -> None:
     assert _relative_strength_index([10.0, 11.0], 2) is None
+
+
+def test_rolling_rsi_produces_none_until_enough_history_then_matches_single_rsi() -> None:
+    closes = [10.0, 11.0, 10.0, 11.0]
+    result = _rolling_rsi(closes, 2)
+    assert result[0] is None
+    assert result[1] is None
+    assert result[2] == pytest.approx(50.0)
+    assert result[3] == pytest.approx(75.0)
 
 
 def _bar(index: int) -> DailyBar:

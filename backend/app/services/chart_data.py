@@ -60,32 +60,34 @@ def _rolling_sma(closes: list[float], period: int) -> list[float | None]:
     return results
 
 
-def _rolling_rsi(closes: list[float], period: int) -> list[float | None]:
-    results: list[float | None] = [None] * len(closes)
-    if len(closes) <= period:
-        return results
-
-    changes = [closes[i] - closes[i - 1] for i in range(1, len(closes))]
-    gains = [max(c, 0.0) for c in changes]
-    losses = [abs(min(c, 0.0)) for c in changes]
-
-    avg_gain = sum(gains[:period]) / period
-    avg_loss = sum(losses[:period]) / period
-    results[period] = _rsi_from_averages(avg_gain, avg_loss)
-
-    for i in range(period, len(changes)):
-        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
-        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
-        results[i + 1] = _rsi_from_averages(avg_gain, avg_loss)
-
-    return results
-
-
 def _rsi_from_averages(avg_gain: float, avg_loss: float) -> float:
     if avg_loss == 0:
         return 100.0
     rs = avg_gain / avg_loss
     return 100 - (100 / (1 + rs))
+
+
+def _relative_strength_index(closes: Sequence[float], period: int) -> float | None:
+    # Wilder's RSI. Seed with a simple average of the first `period` changes,
+    # then apply Wilder's smoothing so values match standard charting platforms.
+    if len(closes) <= period:
+        return None
+
+    changes = [current - previous for previous, current in zip(closes, closes[1:])]
+    gains = [max(change, 0.0) for change in changes]
+    losses = [abs(min(change, 0.0)) for change in changes]
+
+    average_gain = sum(gains[:period]) / period
+    average_loss = sum(losses[:period]) / period
+    for gain, loss in zip(gains[period:], losses[period:]):
+        average_gain = (average_gain * (period - 1) + gain) / period
+        average_loss = (average_loss * (period - 1) + loss) / period
+
+    return _rsi_from_averages(average_gain, average_loss)
+
+
+def _rolling_rsi(closes: list[float], period: int) -> list[float | None]:
+    return [_relative_strength_index(closes[: i + 1], period) for i in range(len(closes))]
 
 
 def _candidate_context(
@@ -129,25 +131,6 @@ def _chart_warnings(bars: Sequence[DailyBar]) -> list[str]:
     if len(bars) <= RSI_PERIOD:
         warnings.append(f"Only {len(bars)} bars available; RSI {RSI_PERIOD} is incomplete.")
     return warnings
-
-
-def _relative_strength_index(closes: Sequence[float], period: int) -> float | None:
-    # EN: Wilder's RSI. Seed with a simple average of the first `period` changes,
-    # then apply Wilder's smoothing so values match standard charting platforms.
-    if len(closes) <= period:
-        return None
-
-    changes = [current - previous for previous, current in zip(closes, closes[1:])]
-    gains = [max(change, 0.0) for change in changes]
-    losses = [abs(min(change, 0.0)) for change in changes]
-
-    average_gain = sum(gains[:period]) / period
-    average_loss = sum(losses[:period]) / period
-    for gain, loss in zip(gains[period:], losses[period:]):
-        average_gain = (average_gain * (period - 1) + gain) / period
-        average_loss = (average_loss * (period - 1) + loss) / period
-
-    return _rsi_from_averages(average_gain, average_loss)
 
 
 def _to_float_or_none(value: object) -> float | None:
