@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     hosted_manual_scan_max_symbols: int = Field(default=25, gt=0)
     manual_scan_api_key: str = ""
     manual_scan_rate_limit: int = Field(default=5, gt=0)
+    log_dir: str = "logs"
+    log_retention_days: int = Field(default=3, gt=0)
+    log_max_bytes: int = Field(default=10 * 1024 * 1024, gt=0)
 
     @model_validator(mode="before")
     @classmethod
