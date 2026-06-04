@@ -108,8 +108,11 @@ export type DisplaySettings = {
   };
 };
 
-export async function fetchLatestScan(): Promise<LatestScan> {
+export async function fetchLatestScan(): Promise<LatestScan | null> {
   const response = await fetch(`${API_BASE_URL}/api/scans/latest`);
+  if (response.status === 404) {
+    return null;
+  }
   if (!response.ok) {
     throw new Error(await responseErrorMessage(response, "Unable to load latest scan"));
   }

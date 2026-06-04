@@ -49,7 +49,7 @@ import {
 type SortKey = "rank" | "score" | "riskReward";
 type SortDirection = "asc" | "desc";
 type NoticeTone = "success" | "info" | "warning" | "error";
-type DashboardState = "loading" | "error" | "empty" | "filtered-empty" | "ready";
+type DashboardState = "loading" | "no-data" | "error" | "empty" | "filtered-empty" | "ready";
 type ChartTimeframe = "1D" | "5D" | "1M" | "3M" | "6M" | "YTD" | "1Y" | "2Y" | "5Y";
 
 type CandidateRoute = {
@@ -95,6 +95,7 @@ function riskRewardDetails(candidate: Candidate) {
 
 function App() {
   const [scan, setScan] = useState<LatestScan | null>(null);
+  const [scanLoadComplete, setScanLoadComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -111,6 +112,7 @@ function App() {
     fetchLatestScan()
       .then((latestScan) => {
         setScan(latestScan);
+        setScanLoadComplete(true);
         setError(null);
       })
       .catch((err: Error) => setError(err.message));
@@ -162,7 +164,7 @@ function App() {
   const isScanHistoryRoute = path === "/scans";
   const isSettingsRoute = path === "/settings";
   const isDashboardRoute = !isDetailRoute && !isScanHistoryRoute && !isSettingsRoute;
-  const dashboardState = getDashboardState(scan, error, displayedCandidates.length, candidates.length);
+  const dashboardState = getDashboardState(scan, scanLoadComplete, error, displayedCandidates.length, candidates.length);
   const showManualScanNotice = manualScanMessage && (manualScanState !== "success" || isDashboardRoute);
 
   function navigateTo(nextPath: string) {
@@ -1582,6 +1584,7 @@ function getVisibleScanWarning(scan: LatestScan | null): string | null {
 
 function getDashboardState(
   scan: LatestScan | null,
+  scanLoadComplete: boolean,
   error: string | null,
   displayedCandidateCount: number,
   candidateCount: number,
@@ -1590,8 +1593,12 @@ function getDashboardState(
     return "error";
   }
 
-  if (!scan) {
+  if (!scanLoadComplete) {
     return "loading";
+  }
+
+  if (!scan) {
+    return "no-data";
   }
 
   if (candidateCount === 0) {
@@ -1617,6 +1624,13 @@ function dashboardStateCopy(state: DashboardState) {
     return {
       title: "Loading latest scan",
       detail: "Waiting for persisted scanner output.",
+    };
+  }
+
+  if (state === "no-data") {
+    return {
+      title: "No scans have run yet",
+      detail: "Run a manual scan to generate the first scan results.",
     };
   }
 
