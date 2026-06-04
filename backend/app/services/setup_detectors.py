@@ -22,6 +22,8 @@ class BreakoutDetector:
     status rules after setup evidence, scoring, and risk/reward are computed.
     """
 
+    SETUP_NAME = "Breakout"
+
     def __init__(self, indicator_service: IndicatorService | None = None, settings: Settings | None = None) -> None:
         self.indicator_service = indicator_service or IndicatorService()
         self.settings = settings or get_settings()
@@ -130,6 +132,8 @@ class BreakoutDetector:
 
 class PullbackContinuationDetector:
     """Deterministic pullback-continuation setup detector."""
+
+    SETUP_NAME = "Pullback Continuation"
 
     def __init__(self, indicator_service: IndicatorService | None = None, settings: Settings | None = None) -> None:
         self.indicator_service = indicator_service or IndicatorService()
@@ -245,6 +249,8 @@ class RelativeStrengthLeaderDetector:
     part of scanner input.
     """
 
+    SETUP_NAME = "Relative Strength Leader"
+
     def __init__(self, indicator_service: IndicatorService | None = None, settings: Settings | None = None) -> None:
         self.indicator_service = indicator_service or IndicatorService()
         self.settings = settings or get_settings()
@@ -334,6 +340,13 @@ class RelativeStrengthLeaderDetector:
             caution_flags=caution_flags,
             completed_at=completed_at,
         )
+
+
+ENABLED_SETUP_NAMES: tuple[str, ...] = (
+    BreakoutDetector.SETUP_NAME,
+    PullbackContinuationDetector.SETUP_NAME,
+    RelativeStrengthLeaderDetector.SETUP_NAME,
+)
 
 
 def _missing_required_fields(snapshot: dict) -> list[str]:
