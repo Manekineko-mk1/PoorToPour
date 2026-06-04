@@ -124,7 +124,10 @@ def _normalize_columns(frame: pd.DataFrame, symbol: str) -> pd.DataFrame:
 
 
 def _frame_for_downloaded_symbol(frame: pd.DataFrame, yf_symbol: str) -> pd.DataFrame:
-    if frame.empty or not isinstance(frame.columns, pd.MultiIndex):
+    if frame.empty:
+        return frame
+    if not isinstance(frame.columns, pd.MultiIndex):
+        # Single-symbol download: columns are already flat OHLCV fields.
         return frame
 
     target = yf_symbol.upper()
@@ -135,7 +138,10 @@ def _frame_for_downloaded_symbol(frame: pd.DataFrame, yf_symbol: str) -> pd.Data
             None,
         )
         if actual_label is not None:
-            return frame.xs(actual_label, axis=1, level=level, drop_level=True)
+            try:
+                return frame.xs(actual_label, axis=1, level=level, drop_level=True)
+            except (KeyError, TypeError, ValueError):
+                continue
 
     return pd.DataFrame(index=frame.index)
 
