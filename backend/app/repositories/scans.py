@@ -56,9 +56,24 @@ def get_latest_candidate_for_symbol(
     if scan_id:
         statement = statement.where(ScanCandidateRow.scan_run_id == scan_id)
 
+    if scan_id:
+        # The run is pinned, so recency ordering is irrelevant. Select the
+        # best-ranked matching candidate explicitly; rank is unique per run
+        # (uq_scan_candidates_run_rank), with id as a final stable tiebreaker.
+        ordering = (ScanCandidateRow.rank.asc(), ScanCandidateRow.id.asc())
+    else:
+        # Prefer the most recent run, then the best-ranked candidate within it.
+        # id is the final deterministic tiebreaker if every prior key ties.
+        ordering = (
+            ScanRunRow.completed_at.desc().nullslast(),
+            ScanRunRow.created_at.desc(),
+            ScanCandidateRow.rank.asc(),
+            ScanCandidateRow.id.asc(),
+        )
+
     row = db.scalars(
         statement
-        .order_by(ScanRunRow.completed_at.desc().nullslast(), ScanRunRow.created_at.desc(), ScanCandidateRow.rank)
+        .order_by(*ordering)
         .limit(1)
     ).first()
     if row is None:
