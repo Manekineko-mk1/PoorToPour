@@ -60,10 +60,11 @@ def get_symbol_chart(
 
 @router.get("/symbols/{symbol}/indicators")
 def get_indicator_snapshot(symbol: str, db: Session = Depends(get_db)) -> dict:
-    bars = market_data.get_daily_bars(db, symbol.upper())
+    normalized_symbol = symbol.upper()
+    bars = market_data.get_daily_bars(db, normalized_symbol)
     if not bars:
-        raise HTTPException(status_code=404, detail=f"No persisted bars found for {symbol.upper()}")
-    return indicator_service.build_snapshot(symbol, bars).model_dump(mode="json")
+        raise HTTPException(status_code=404, detail=f"No persisted bars found for {normalized_symbol}")
+    return indicator_service.build_snapshot(normalized_symbol, bars).model_dump(mode="json")
 
 
 @router.get("/profiles/{symbol}")
