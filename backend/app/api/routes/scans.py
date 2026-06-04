@@ -72,9 +72,10 @@ def run_manual_scan(
                 status_code=502,
                 detail="Market data refresh failed; scanner did not run.",
             )
-        db.flush()
 
     try:
+        if refresh_summary is not None:
+            db.flush()
         bars_by_symbol = {symbol.symbol: market_data.get_daily_bars(db, symbol.symbol) for symbol in run_symbols}
         scan = TechnicalScanner().scan(
             symbols=run_symbols,

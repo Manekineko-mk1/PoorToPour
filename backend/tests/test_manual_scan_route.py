@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 
 from app.api.routes import scans
 from app.core.config import Settings
+from app.db.base import get_db
 from app.main import create_app
 from app.models.market_data import DailyBar, MarketDataRefreshSummary, SymbolProfile
 from app.models.scans import ScanCandidate, ScanRun
@@ -227,6 +228,53 @@ class FakeScanner:
         )
 
 
+def test_manual_scan_rolls_back_on_scanner_exception(monkeypatch) -> None:
+    saved_scans = []
+    db_spy = _SpySession()
+
+    app = create_app()
+
+    def override_get_db():
+        yield db_spy
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    monkeypatch.setattr(
+        scans.market_data,
+        "list_symbols",
+        lambda db: [
+            SymbolProfile(
+                symbol="AAPL",
+                company_name="Apple Inc.",
+                sector="Technology",
+                industry="Consumer Electronics",
+                exchange="NASDAQ",
+            )
+        ],
+    )
+    monkeypatch.setattr(scans.market_data, "get_daily_bars", lambda db, symbol: [_bar(symbol)])
+    monkeypatch.setattr(scans.scans, "upsert_scan_run", lambda db, scan: saved_scans.append(scan))
+    monkeypatch.setattr(
+        scans,
+        "refresh_yfinance_daily_bars",
+        lambda db, symbols, period: MarketDataRefreshSummary(
+            provider="Yahoo Finance via yfinance",
+            period=period,
+            symbols_requested=1,
+            symbols_refreshed=1,
+            bars_persisted=74,
+        ),
+    )
+    monkeypatch.setattr(scans, "TechnicalScanner", lambda: _FailingScanner())
+
+    response = TestClient(app, raise_server_exceptions=False).post("/api/scans/manual")
+
+    assert response.status_code == 500
+    assert saved_scans == [], "upsert_scan_run must not be called when scanner raises"
+    assert db_spy.rolled_back is True, "session must be rolled back on scanner exception"
+    assert db_spy.committed is False, "session must not be committed when scanner raises"
+
+
 def _bar(symbol: str) -> DailyBar:
     return DailyBar(
         symbol=symbol,
@@ -238,3 +286,27 @@ def _bar(symbol: str) -> DailyBar:
         adjusted_close=100,
         volume=1_000_000,
     )
+
+
+class _SpySession:
+    def __init__(self) -> None:
+        self.flushed = False
+        self.rolled_back = False
+        self.committed = False
+
+    def flush(self) -> None:
+        self.flushed = True
+
+    def rollback(self) -> None:
+        self.rolled_back = True
+
+    def commit(self) -> None:
+        self.committed = True
+
+    def close(self) -> None:
+        pass
+
+
+class _FailingScanner:
+    def scan(self, **kwargs) -> None:
+        raise RuntimeError("scanner exploded")
