@@ -1,6 +1,8 @@
+import os
+import warnings
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,6 +19,21 @@ class Settings(BaseSettings):
     hosted_manual_scan_max_symbols: int = Field(default=25, gt=0)
     manual_scan_api_key: str = ""
     manual_scan_rate_limit: int = Field(default=5, gt=0)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _migrate_legacy_env_var(cls, values: dict) -> dict:
+        old = os.environ.get("POORTOPOUR_ENV")
+        new = os.environ.get("POORTOPOUR_ENVIRONMENT")
+        if old is not None and new is None:
+            warnings.warn(
+                "POORTOPOUR_ENV is deprecated and will be removed in a future release. "
+                "Rename it to POORTOPOUR_ENVIRONMENT.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            values.setdefault("environment", old)
+        return values
 
     model_config = SettingsConfigDict(
         env_file=".env",

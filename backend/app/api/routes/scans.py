@@ -76,17 +76,22 @@ def run_manual_scan(
             )
         db.flush()
 
-    bars_by_symbol = {symbol.symbol: market_data.get_daily_bars(db, symbol.symbol) for symbol in run_symbols}
-    scan = TechnicalScanner().scan(
-        symbols=run_symbols,
-        bars_by_symbol=bars_by_symbol,
-        provider=_manual_scan_provider(refresh_market_data),
-        universe=_manual_scan_universe(refresh_limit),
-    )
-    if refresh_summary is not None:
-        scan.warning = _manual_scan_warning(refresh_summary)
-    scans.upsert_scan_run(db, scan)
-    db.commit()
+    try:
+        bars_by_symbol = {symbol.symbol: market_data.get_daily_bars(db, symbol.symbol) for symbol in run_symbols}
+        scan = TechnicalScanner().scan(
+            symbols=run_symbols,
+            bars_by_symbol=bars_by_symbol,
+            provider=_manual_scan_provider(refresh_market_data),
+            universe=_manual_scan_universe(refresh_limit),
+        )
+        if refresh_summary is not None:
+            scan.warning = _manual_scan_warning(refresh_summary)
+        scans.upsert_scan_run(db, scan)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
     payload = scan.model_dump()
     if refresh_summary is not None:
         payload["market_data_refresh"] = refresh_summary.model_dump()
