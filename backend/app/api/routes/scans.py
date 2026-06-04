@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.core.security import check_manual_scan_rate_limit, verify_manual_scan_auth
+from app.core.security import check_manual_scan_rate_limit, is_local, verify_manual_scan_auth
 from app.db.base import get_db
 from app.models.market_data import MarketDataRefreshSummary
 from app.repositories import market_data
@@ -13,7 +13,6 @@ from app.services.market_data_refresh import refresh_yfinance_daily_bars
 from app.services.scanner import TechnicalScanner
 
 router = APIRouter(tags=["scans"])
-LOCAL_MANUAL_SCAN_ENVIRONMENTS = {"local", "dev", "development", "test"}
 
 
 @router.get("/scans/latest")
@@ -115,7 +114,7 @@ def _validated_refresh_limit(
     hosted_manual_scan_max_symbols: int,
     refresh_limit: int | None,
 ) -> int | None:
-    if _is_local_manual_scan_environment(environment):
+    if is_local(environment):
         return refresh_limit
 
     if not allow_hosted_manual_scan:
@@ -128,10 +127,6 @@ def _validated_refresh_limit(
         return hosted_manual_scan_max_symbols
 
     return min(refresh_limit, hosted_manual_scan_max_symbols)
-
-
-def _is_local_manual_scan_environment(environment: str) -> bool:
-    return environment.strip().lower() in LOCAL_MANUAL_SCAN_ENVIRONMENTS
 
 
 def _manual_scan_warning(refresh_summary: MarketDataRefreshSummary) -> str:
