@@ -79,14 +79,47 @@ def _relative_strength_index(closes: Sequence[float], period: int) -> float | No
         average_gain = (average_gain * (period - 1) + gain) / period
         average_loss = (average_loss * (period - 1) + loss) / period
 
+    return _rsi_from_averages(average_gain, average_loss)
+
+
+def _rolling_rsi(closes: list[float], period: int) -> list[float | None]:
+    # Incremental Wilder's RSI in O(n): seed the average gain/loss over the first
+    # `period` changes, then carry the smoothed averages forward one bar at a time
+    # instead of recomputing each prefix from scratch. Each entry matches
+    # _relative_strength_index(closes[: i + 1], period).
+    results: list[float | None] = [None] * len(closes)
+    if len(closes) <= period:
+        return results
+
+    gain_sum = 0.0
+    loss_sum = 0.0
+    average_gain = 0.0
+    average_loss = 0.0
+    for i in range(1, len(closes)):
+        change = closes[i] - closes[i - 1]
+        gain = max(change, 0.0)
+        loss = abs(min(change, 0.0))
+
+        if i < period:
+            gain_sum += gain
+            loss_sum += loss
+        elif i == period:
+            average_gain = (gain_sum + gain) / period
+            average_loss = (loss_sum + loss) / period
+            results[i] = _rsi_from_averages(average_gain, average_loss)
+        else:
+            average_gain = (average_gain * (period - 1) + gain) / period
+            average_loss = (average_loss * (period - 1) + loss) / period
+            results[i] = _rsi_from_averages(average_gain, average_loss)
+
+    return results
+
+
+def _rsi_from_averages(average_gain: float, average_loss: float) -> float:
     if average_loss == 0:
         return 100.0
     rs = average_gain / average_loss
     return 100 - (100 / (1 + rs))
-
-
-def _rolling_rsi(closes: list[float], period: int) -> list[float | None]:
-    return [_relative_strength_index(closes[: i + 1], period) for i in range(len(closes))]
 
 
 def _candidate_context(
