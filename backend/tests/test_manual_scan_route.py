@@ -113,6 +113,99 @@ def test_manual_scan_does_not_run_when_market_data_refresh_fails(monkeypatch) ->
     assert saved_scans == []
 
 
+def _partial_refresh_symbols() -> list[SymbolProfile]:
+    return [
+        SymbolProfile(
+            symbol="AAPL",
+            company_name="Apple Inc.",
+            sector="Technology",
+            industry="Consumer Electronics",
+            exchange="NASDAQ",
+        ),
+        SymbolProfile(
+            symbol="MSFT",
+            company_name="Microsoft Corporation",
+            sector="Technology",
+            industry="Software",
+            exchange="NASDAQ",
+        ),
+    ]
+
+
+def _partial_refresh_summary(db, symbols, period) -> MarketDataRefreshSummary:
+    # One of two requested symbols refreshed -> 50% success ratio.
+    return MarketDataRefreshSummary(
+        provider="Yahoo Finance via yfinance",
+        period=period,
+        symbols_requested=len(symbols),
+        symbols_refreshed=1,
+        symbols_failed=len(symbols) - 1,
+        bars_persisted=74,
+        failure_messages=["MSFT: no daily bars returned"],
+    )
+
+
+def test_manual_scan_aborts_when_partial_refresh_below_request_threshold(monkeypatch) -> None:
+    saved_scans = []
+    monkeypatch.setattr(scans.market_data, "list_symbols", lambda db: _partial_refresh_symbols())
+    monkeypatch.setattr(scans.scans, "upsert_scan_run", lambda db, scan: saved_scans.append(scan))
+    monkeypatch.setattr(scans, "refresh_yfinance_daily_bars", _partial_refresh_summary)
+
+    response = TestClient(create_app()).post("/api/scans/manual?min_refresh_ratio=1")
+
+    assert response.status_code == 502
+    detail = response.json()["detail"]
+    assert "below required threshold" in detail
+    assert "Refreshed 1 of 2 symbols" in detail
+    assert saved_scans == []
+
+
+def test_manual_scan_aborts_when_partial_refresh_below_configured_threshold(monkeypatch) -> None:
+    saved_scans = []
+    monkeypatch.setattr(
+        scans,
+        "get_settings",
+        lambda: Settings(manual_scan_min_refresh_ratio=0.75),
+    )
+    monkeypatch.setattr(scans.market_data, "list_symbols", lambda db: _partial_refresh_symbols())
+    monkeypatch.setattr(scans.scans, "upsert_scan_run", lambda db, scan: saved_scans.append(scan))
+    monkeypatch.setattr(scans, "refresh_yfinance_daily_bars", _partial_refresh_summary)
+
+    response = TestClient(create_app()).post("/api/scans/manual")
+
+    assert response.status_code == 502
+    assert "below required threshold" in response.json()["detail"]
+    assert saved_scans == []
+
+
+def test_manual_scan_proceeds_on_partial_refresh_when_threshold_met(monkeypatch) -> None:
+    saved_scans = []
+    monkeypatch.setattr(scans.market_data, "list_symbols", lambda db: _partial_refresh_symbols())
+    monkeypatch.setattr(scans.market_data, "get_daily_bars", lambda db, symbol: [_bar(symbol)])
+    monkeypatch.setattr(scans.scans, "upsert_scan_run", lambda db, scan: saved_scans.append(scan))
+    monkeypatch.setattr(
+        scans,
+        "TechnicalScanner",
+        lambda: FakeScanner(expected_provider="TechnicalScanner + yfinance refreshed bars"),
+    )
+    monkeypatch.setattr(scans, "refresh_yfinance_daily_bars", _partial_refresh_summary)
+
+    # Default lenient threshold (0.0): a 50% partial refresh still runs the scan.
+    response = TestClient(create_app()).post("/api/scans/manual?min_refresh_ratio=0.5")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["market_data_refresh"]["symbols_failed"] == 1
+    assert "Market data refresh partial" in payload["warning"]
+    assert len(saved_scans) == 1
+
+
+def test_manual_scan_rejects_out_of_range_min_refresh_ratio() -> None:
+    response = TestClient(create_app()).post("/api/scans/manual?min_refresh_ratio=1.5")
+
+    assert response.status_code == 422
+
+
 def test_manual_scan_is_disabled_in_hosted_environment_by_default(monkeypatch) -> None:
     monkeypatch.setattr(scans, "get_settings", lambda: Settings(environment="production"))
 

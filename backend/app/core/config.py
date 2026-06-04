@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     hosted_manual_scan_max_symbols: int = Field(default=25, gt=0)
     manual_scan_api_key: str = ""
     manual_scan_rate_limit: int = Field(default=5, gt=0)
+    # Minimum fraction (0.0-1.0) of requested symbols that must refresh
+    # successfully before a manual scan is allowed to run. 0.0 preserves the
+    # lenient default (any partial refresh proceeds on persisted bars with a
+    # warning); 1.0 requires every symbol to refresh. Overridable per request.
+    manual_scan_min_refresh_ratio: float = Field(default=0.0, ge=0, le=1)
     log_dir: str = "logs"
     log_level: str = "INFO"
     log_retention_days: int = Field(default=3, gt=0)

@@ -48,6 +48,7 @@ def run_manual_scan(
     refresh_market_data: bool = True,
     refresh_period: RefreshPeriod = "1y",
     refresh_limit: int | None = Query(default=None, ge=1),
+    min_refresh_ratio: float | None = Query(default=None, ge=0, le=1),
 ) -> dict:
     settings = get_settings()
     symbols = market_data.list_symbols(db)
@@ -65,12 +66,10 @@ def run_manual_scan(
     refresh_summary = None
     if refresh_market_data:
         refresh_summary = refresh_yfinance_daily_bars(db, run_symbols, period=refresh_period)
-        if refresh_summary.symbols_refreshed == 0:
-            db.rollback()
-            raise HTTPException(
-                status_code=502,
-                detail="Market data refresh failed; scanner did not run.",
-            )
+        required_ratio = (
+            min_refresh_ratio if min_refresh_ratio is not None else settings.manual_scan_min_refresh_ratio
+        )
+        _enforce_refresh_threshold(db, refresh_summary, required_ratio)
 
     try:
         if refresh_summary is not None:
@@ -94,6 +93,42 @@ def run_manual_scan(
     if refresh_summary is not None:
         payload["market_data_refresh"] = refresh_summary.model_dump(mode="json")
     return payload
+
+
+def _enforce_refresh_threshold(
+    db: Session,
+    refresh_summary: MarketDataRefreshSummary,
+    required_ratio: float,
+) -> None:
+    """Abort the scan when the refresh fell below the required success ratio.
+
+    ``required_ratio`` of 0.0 keeps the lenient default: only a total refresh
+    failure (no symbols refreshed) blocks the scan. A higher ratio enforces
+    stricter handling of partial refreshes, rolling back the persisted bars so
+    the scanner never runs on a known-incomplete data set.
+    """
+    if refresh_summary.symbols_requested == 0:
+        return
+
+    if refresh_summary.symbols_refreshed == 0:
+        db.rollback()
+        raise HTTPException(
+            status_code=502,
+            detail="Market data refresh failed; scanner did not run.",
+        )
+
+    success_ratio = refresh_summary.symbols_refreshed / refresh_summary.symbols_requested
+    if success_ratio < required_ratio:
+        db.rollback()
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "Market data refresh below required threshold; scanner did not run. "
+                f"Refreshed {refresh_summary.symbols_refreshed} of "
+                f"{refresh_summary.symbols_requested} symbols ({success_ratio:.0%}); "
+                f"required at least {required_ratio:.0%}."
+            ),
+        )
 
 
 def _manual_scan_provider(refresh_market_data: bool) -> str:
