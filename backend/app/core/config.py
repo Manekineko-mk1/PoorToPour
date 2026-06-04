@@ -1,9 +1,24 @@
-import os
-import warnings
+import logging
 from functools import lru_cache
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
+
+_legacy_env_warning_emitted = False
+
+
+def _warn_legacy_env_var_once() -> None:
+    """Log the POORTOPOUR_ENV deprecation at most once per process."""
+    global _legacy_env_warning_emitted
+    if _legacy_env_warning_emitted:
+        return
+    _legacy_env_warning_emitted = True
+    logger.warning(
+        "POORTOPOUR_ENV is deprecated and will be removed in a future release. "
+        "Rename it to POORTOPOUR_ENVIRONMENT.",
+    )
 
 
 class Settings(BaseSettings):
@@ -23,20 +38,23 @@ class Settings(BaseSettings):
     log_retention_days: int = Field(default=3, gt=0)
     log_max_bytes: int = Field(default=10 * 1024 * 1024, gt=0)
 
-    @model_validator(mode="before")
-    @classmethod
-    def _migrate_legacy_env_var(cls, values: dict) -> dict:
-        old = os.environ.get("POORTOPOUR_ENV")
-        new = os.environ.get("POORTOPOUR_ENVIRONMENT")
-        if old is not None and new is None:
-            warnings.warn(
-                "POORTOPOUR_ENV is deprecated and will be removed in a future release. "
-                "Rename it to POORTOPOUR_ENVIRONMENT.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            values.setdefault("environment", old)
-        return values
+    # Legacy alias for ``environment``. Read through the settings sources (via the
+    # explicit validation alias) so the migration does not touch os.environ
+    # directly. Excluded from serialization; only used to drive the migration.
+    legacy_environment: str | None = Field(
+        default=None,
+        validation_alias="POORTOPOUR_ENV",
+        exclude=True,
+    )
+
+    @model_validator(mode="after")
+    def _migrate_legacy_env_var(self) -> "Settings":
+        # The legacy var is honored only when the canonical ``environment``
+        # (POORTOPOUR_ENVIRONMENT / init kwarg) was not explicitly supplied.
+        if self.legacy_environment is not None and "environment" not in self.model_fields_set:
+            _warn_legacy_env_var_once()
+            self.environment = self.legacy_environment
+        return self
 
     model_config = SettingsConfigDict(
         env_file=".env",
