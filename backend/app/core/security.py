@@ -37,17 +37,32 @@ class _PerClientRateLimiter:
         self._clients: dict[str, deque[float]] = {}
         self._lock = Lock()
 
+    # Sweep the client dict when it reaches this many entries.
+    _MAX_CLIENTS = 10_000
+
     def check(self, client_key: str, max_calls: int, window_seconds: int = 60) -> bool:
         now = time()
         cutoff = now - window_seconds
         with self._lock:
-            calls = self._clients.setdefault(client_key, deque())
-            while calls and calls[0] < cutoff:
-                calls.popleft()
+            calls = self._clients.get(client_key)
+            if calls is None:
+                if len(self._clients) >= self._MAX_CLIENTS:
+                    self._sweep(cutoff)
+                calls = deque()
+                self._clients[client_key] = calls
+            else:
+                while calls and calls[0] < cutoff:
+                    calls.popleft()
             if len(calls) >= max_calls:
                 return False
             calls.append(now)
             return True
+
+    def _sweep(self, cutoff: float) -> None:
+        # Remove entries whose entire window has expired (newest call is stale).
+        stale = [k for k, v in self._clients.items() if not v or v[-1] < cutoff]
+        for k in stale:
+            del self._clients[k]
 
     def reset(self) -> None:
         with self._lock:
