@@ -296,6 +296,9 @@ class _SpySession:
         self.rolled_back = False
         self.committed = False
 
+    def __getattr__(self, name: str) -> None:
+        raise AssertionError(f"Unexpected Session method called: {name!r}")
+
     def flush(self) -> None:
         self.flushed = True
 
