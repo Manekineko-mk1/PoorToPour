@@ -418,32 +418,40 @@ It should answer:
 Recommended MVP layout:
 
 ```text
-Candidate Header
+Compact Candidate Identity Strip
   |
-  +-- Chart Panel
+  +-- Chart Evidence Panel
   |
-  +-- Setup Explanation + Score Breakdown
-  |
-  +-- Risk/Reward Card + Caution Flags
-  |
-  +-- Company / Earnings Snapshot
+  +-- Right Rail
+        +-- Research Context
+        +-- Trade Plan
+        +-- Key Reasons / Signals
+        +-- Validation / Caution
+        +-- Score Components
 ```
 
 For desktop:
 
 ```text
-[Chart Panel - Wide]
-[Explanation / Score] [Risk / Context]
+[Chart Evidence - Wide] [Research / Trade / Caution Rail]
 ```
 
 For smaller screens:
 
 ```text
-Chart
-Explanation
-Risk
-Company Context
+Compact Identity
+Chart Evidence
+Research Context
+Trade Plan
+Reasons / Cautions / Score
 ```
+
+The Candidate Detail page should follow
+`docs/references/Mock_UI_Renders/Mock_UI_PoorToPour_01_CandidateDetail.png`
+within MVP scope. The chart is the primary workspace. Price, relative volume,
+RSI, and data date should not appear as large hero cards above the chart because
+they compete with chart real estate; they may appear in the table, chart context,
+right rail, or tooltips where useful.
 
 ---
 
@@ -455,12 +463,20 @@ Required fields:
 | --- | --- |
 | Ticker | MSFT |
 | Company | Microsoft Corp. |
+| Exchange | NASDAQ |
 | Setup | Pullback continuation |
 | Status | Watch |
 | Overall Score | 78 |
 | Last Scan | 2026-04-30 16:30 |
 | Data Date | 2026-04-30 |
 | Data Status | Fresh |
+
+Header treatment:
+
+- compact identity strip rather than large metric cards;
+- setup and exchange should use compact badges;
+- status and score should be visually prominent but not overlap the chart;
+- back/dashboard navigation should be visible.
 
 Header actions:
 
@@ -487,6 +503,9 @@ MVP chart requirements:
 | RSI panel | Yes | Momentum |
 | Breakout/support marker | Preferred | Helpful if simple |
 | Entry/stop/target lines | Preferred | Research estimates only |
+| Timeframe controls | Yes | Client-side daily-bar slicing is acceptable for MVP |
+| Display options | Yes | Simple toggles such as volume/RSI visibility |
+| Chart fullscreen | Yes | Chart-panel fullscreen, reversible from the UI |
 | MACD panel | Maybe | Optional |
 | EMA 8/21 | Maybe | Optional |
 | VWAP | No | Intraday/post-MVP |
@@ -534,6 +553,8 @@ MVP interactions:
 | --- | --- |
 | Hover candle values | Yes if chart library supports |
 | Switch range | Yes |
+| Toggle volume/RSI display | Yes |
+| Fullscreen chart panel | Yes |
 | Toggle moving averages | Preferred |
 | Zoom/pan | Chart library default |
 | Tooltip with OHLCV | Preferred |
@@ -545,7 +566,8 @@ MVP interactions:
 
 ## 7.6 Setup Explanation Panel
 
-The explanation panel should be generated from structured rule outputs.
+The explanation panel should be generated from structured rule outputs and live
+in the Candidate Detail right rail, not above the chart.
 
 Required content:
 
@@ -639,6 +661,7 @@ UI requirements:
 - show uncertainty/caution;
 - do not visually imply guaranteed profit;
 - show warning if risk/reward is unavailable.
+- use color-coded values sparingly for readability, not as buy/sell instruction.
 
 ---
 
@@ -1154,7 +1177,7 @@ Needs:
 | API | Purpose |
 | --- | --- |
 | `GET /api/candidates/{symbol}` | Candidate summary and explanation |
-| `GET /api/candidates/{symbol}/chart` | Candles and indicators |
+| `GET /api/symbols/{symbol}/chart` | Candles, indicators, candidate context, exchange metadata, and risk estimate overlays |
 | `GET /api/scans/{scan_id}` | Optional scan metadata |
 
 ---
@@ -1197,6 +1220,7 @@ Needs:
 | UI-D-009 | `Actionable` means worth manual review, not buy | Prevents overstating scanner authority |
 | UI-D-010 | The dashboard must show partial/failed scans clearly | Avoids false confidence |
 | UI-D-011 | v0.2 mock renders are visual references, not MVP scope expansion | Preserves scan-rank-inspect-learn while capturing useful UI direction |
+| UI-D-012 | Candidate Detail should be chart-first with compact context panels | Keeps evidence review focused and avoids squeezing chart real estate with duplicate metric cards |
 
 ---
 

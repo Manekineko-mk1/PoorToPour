@@ -3,7 +3,7 @@
 **Project:** PoorToPour
 **Description:** From broke to pouring champagne.
 **Date created:** 2026-04-29
-**Last updated:** 2026-05-28
+**Last updated:** 2026-06-04
 **Status:** 🟨 Phase 3 Active - Dashboard MVP
 
 ---
@@ -64,18 +64,18 @@ Canonical Phase 3 acceptance criteria live in `/docs/phases/phase-3-dashboard-mv
 
 | ID | Acceptance Criterion | Status | Notes |
 | --- | --- | --- | --- |
-| AC-P3-001 | Dashboard Home shows latest scan summary and data health | ⬜ Not Started | Must not hide stale, missing, failed, or partial states |
-| AC-P3-002 | Dashboard Home shows ranked candidates from persisted scanner output | ⬜ Not Started | Sorted by score by default, with setup/status context |
-| AC-P3-003 | Candidate table supports practical scan review | ⬜ Not Started | Filtering, sorting, visible cautions, and click-through detail |
-| AC-P3-004 | Candidate Detail page exists | ⬜ Not Started | Dedicated route or durable view state is acceptable if UX is clear |
-| AC-P3-005 | Candidate Detail shows chart evidence | ⬜ Not Started | Candles, volume, SMA 20/50/200, RSI, and optional research estimate lines |
-| AC-P3-006 | Candidate Detail shows deterministic explanation | ⬜ Not Started | Reasons, cautions, score components, and risk/reward fields are visible |
-| AC-P3-007 | Scan History page exists | ⬜ Not Started | Prior runs are inspectable and traceable |
-| AC-P3-008 | Settings page exists for MVP config visibility | ⬜ Not Started | System/admin options are read-only first; safe user preferences may be editable |
-| AC-P3-009 | Manual scan is usable from the dashboard | ⬜ Not Started | Must show progress and failure clearly |
-| AC-P3-010 | Frontend remains research-only and not trade-instructional | ⬜ Not Started | Copy and visual hierarchy avoid "buy/sell" implication |
-| AC-P3-011 | UI matches the v0.2 mock direction within MVP scope | ⬜ Not Started | Header/sidebar/main structure and candidate evidence take priority over MVP+ panels |
-| AC-P3-012 | Tests and review are complete before merge | ⬜ Not Started | Review artifact and PR draft are updated |
+| AC-P3-001 | Dashboard Home shows latest scan summary and data health | ✅ Done | Freshness, provider, warnings, and candidate counts are visible |
+| AC-P3-002 | Dashboard Home shows ranked candidates from persisted scanner output | ✅ Done | Sorted by score by default, with setup/status context |
+| AC-P3-003 | Candidate table supports practical scan review | ✅ Done | Filtering, sorting, visible cautions, click-through detail, and dynamic overflow are implemented |
+| AC-P3-004 | Candidate Detail page exists | ✅ Done | Dedicated route exists and supports deep-link style review |
+| AC-P3-005 | Candidate Detail shows chart evidence | ✅ Done | Candles, volume, SMA 20/50/200, RSI, research estimate lines, timeframe controls, options, and fullscreen are implemented |
+| AC-P3-006 | Candidate Detail shows deterministic explanation | ✅ Done | Reasons, cautions, score components, setup context, and risk/reward fields are visible in right-side panels |
+| AC-P3-007 | Scan History page exists | ✅ Done | Prior runs are inspectable and traceable |
+| AC-P3-008 | Settings page exists for MVP config visibility | ✅ Done | System/admin settings are read-only; safe display preferences are editable |
+| AC-P3-009 | Manual scan is usable from the dashboard | ✅ Done | Manual scan refreshes yfinance data locally by default, runs deterministic scan, and shows progress/failure |
+| AC-P3-010 | Frontend remains research-only and not trade-instructional | ✅ Done | UI avoids buy/sell instruction and keeps risk/reward framed as research context |
+| AC-P3-011 | UI matches the v0.2 mock direction within MVP scope | ✅ Done | Dashboard, app shell, Candidate Detail, Scan History, and Settings follow mock direction within MVP boundaries |
+| AC-P3-012 | Tests and review are complete before merge | ✅ Done | P3-N verification and P3-O review artifact are complete; PR draft has been updated |
 
 ---
 
@@ -85,16 +85,16 @@ Canonical Phase 3 test tracking lives in `/docs/phases/phase-3-dashboard-mvp/pha
 
 | Test ID | Description | Type | File / Command | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| T-P3-001 | Backend chart/candidate API tests | API/Unit | TBD | ⬜ Not Started | Cover bars, indicators, missing symbol, and stale data behavior |
-| T-P3-002 | Scan history API/page tests | API/UI | TBD | ⬜ Not Started | Cover prior runs and selected run candidates |
-| T-P3-003 | Settings API/page tests | API/UI | TBD | ⬜ Not Started | Cover config display and secret redaction |
-| T-P3-004 | Manual scan flow test | Integration | TBD | ⬜ Not Started | Confirm scan trigger, loading state, persistence, and refresh |
-| T-P3-005 | Frontend component/build tests | Frontend | `npm.cmd run build` plus TBD | ⬜ Not Started | Add component tests if the current frontend test stack supports it cleanly |
-| T-P3-006 | Backend regression suite | Regression | `docker compose run --rm backend pytest` | ⬜ Not Started | Must pass before review |
-| T-P3-007 | Local smoke check | Manual | `http://localhost:5173`, `/api/health`, `/api/scans/latest` | ⬜ Not Started | Include dashboard, detail, scan history, settings, and manual scan |
-| T-P3-008 | Responsive visual checks | Manual/UI | Browser viewports | ⬜ Not Started | Check desktop, tall/narrow 1080x2560, and mobile-ish widths |
-| T-P3-009 | Mock alignment visual review | Manual/UI | Compare against v0.2 mock renders | ⬜ Not Started | Review Dashboard, Scan History, and Settings against the v0.2 mock references |
-| T-P3-010 | Security/dependency checks | Review | `docker compose config --quiet`, `pip check`, `npm audit`, secret scan | ⬜ Not Started | Run before Phase 3 closeout |
+| T-P3-001 | Backend chart/candidate API tests | API/Unit | `docker compose run --rm backend pytest tests/test_chart_data.py` | ✅ Done | Chart payload tests cover indicator enrichment and insufficient-history warnings |
+| T-P3-002 | Scan history API/page tests | API/UI | `/api/scans`; `/scans`; `npm.cmd run build` | ✅ Done | Scan history route and API were checked during Phase 3; no automated frontend route runner exists yet |
+| T-P3-003 | Settings API/page tests | API/UI | `docker compose run --rm backend pytest tests/test_display_settings.py`; `/settings`; `/api/settings/display` | ✅ Done | Secret-redaction API test passed and Settings page was checked |
+| T-P3-004 | Manual scan flow test | Integration | `docker compose run --rm backend pytest tests/test_manual_scan_route.py` | ✅ Done | Manual scan tests cover persisted-only scan, yfinance refresh, refresh failure, hosted disable, and hosted symbol cap |
+| T-P3-005 | Frontend component/build tests | Frontend | `npm.cmd run build` | ✅ Done | Production build passed; no frontend component test runner is configured yet |
+| T-P3-006 | Backend regression suite | Regression | `docker compose run --rm backend pytest` | ✅ Done | Backend suite passed: 78 tests |
+| T-P3-007 | Local smoke check | Manual | `http://localhost:5173`, `/api/health`, `/api/scans/latest` | ✅ Done | Dashboard, detail, scan history, settings, and manual scan were browser/API checked during Phase 3 |
+| T-P3-008 | Responsive visual checks | Manual/UI | Browser viewports | ✅ Done | Desktop and tall/narrow layout issues were fixed and confirmed during Phase 3 |
+| T-P3-009 | Mock alignment visual review | Manual/UI | Compare against v0.2 mock renders | ✅ Done | Mock direction followed within MVP scope |
+| T-P3-010 | Security/dependency checks | Review | `docker compose config --quiet`, `pip check`, `npm audit`, secret scan, `git diff --check` | ✅ Done | Compose config, pip check, npm audit, secret scan review, and diff whitespace check passed |
 
 ---
 

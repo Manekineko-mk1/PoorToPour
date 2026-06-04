@@ -330,11 +330,13 @@ Required sections:
 
 | Section | MVP | Notes |
 | --- | --- | --- |
-| Candidate summary card | Yes | Ticker, company, setup, score, status |
-| Chart section | Yes | Candles, volume, SMA, RSI |
-| Setup explanation | Yes | Rule-level explanation |
-| Score breakdown | Yes | Component scores |
-| Risk/reward card | Yes | Entry, stop, target, R/R |
+| Compact candidate identity | Yes | Ticker, company, exchange, setup badge, score, status |
+| Chart evidence section | Yes | Candles, volume, SMA, RSI, optional research estimate lines |
+| Chart toolbar | Yes | Timeframe slicing, simple display options, chart fullscreen |
+| Research context rail | Yes | Setup, universe, data date, deterministic context |
+| Setup explanation | Yes | Rule-level reasons/signals |
+| Score breakdown | Yes | Component scores in compact right-side panel |
+| Risk/reward card | Yes | Entry, stop/invalidation, target, R/R as research estimate |
 | Company snapshot | Yes | Sector, industry, market cap |
 | Earnings context | Yes | Last/next earnings date where available |
 | Recent headlines | No | Post-MVP |
@@ -416,7 +418,7 @@ Table behavior:
 
 ## 9. Candidate Detail Requirements
 
-## 9.1 Summary Card
+## 9.1 Compact Candidate Identity
 
 Required fields:
 
@@ -424,6 +426,7 @@ Required fields:
 | --- | --- |
 | Ticker | MSFT |
 | Company | Microsoft Corp. |
+| Exchange | NASDAQ |
 | Sector | Technology |
 | Industry | Software |
 | Setup | Pullback continuation |
@@ -431,6 +434,12 @@ Required fields:
 | Status | Watch |
 | Last scan | 2026-04-30 16:15 |
 | Data status | Fresh |
+
+UI notes:
+
+- The Candidate Detail page should preserve chart space by avoiding large top hero cards for price, relative volume, RSI, or data date.
+- Setup, exchange, status, and score should use compact visual treatment inspired by the candidate detail mock.
+- Detailed evidence belongs in the chart panel and right-side research/trade panels.
 
 ---
 
@@ -446,6 +455,9 @@ MVP chart requirements:
 | SMA 50 | Yes | Medium trend |
 | SMA 200 | Yes | Long-term trend |
 | RSI panel | Yes | Momentum |
+| Timeframe controls | Yes | Client-side daily-bar slicing is acceptable for MVP |
+| Display options | Yes | Simple toggles such as volume and RSI visibility |
+| Chart fullscreen | Yes | Chart-panel fullscreen, reversible from the UI |
 | EMA 8/21 | Maybe | Add if simple |
 | MACD panel | Maybe | Not required for first MVP |
 | VWAP | No | Intraday feature |
