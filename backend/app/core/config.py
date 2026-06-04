@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     alpha_vantage_daily_function: str = "TIME_SERIES_DAILY"
     scanner_risk_reward_atr_buffer_multiplier: float = Field(default=0.5, gt=0)
     scanner_risk_reward_target_multiple: float = Field(default=2.0, gt=0)
+    allow_hosted_manual_scan: bool = False
+    hosted_manual_scan_max_symbols: int = Field(default=25, gt=0)
 
     model_config = SettingsConfigDict(
         env_file=".env",

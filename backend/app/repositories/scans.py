@@ -39,6 +39,20 @@ def list_scan_runs(db: Session, limit: int = 20) -> list[ScanRun]:
     return [_scan_run_from_row(row) for row in rows]
 
 
+def get_latest_candidate_for_symbol(db: Session, symbol: str) -> tuple[ScanRun, ScanCandidate] | None:
+    row = db.scalars(
+        select(ScanCandidateRow)
+        .join(ScanRunRow)
+        .where(ScanCandidateRow.symbol == symbol.upper())
+        .options(selectinload(ScanCandidateRow.scan_run))
+        .order_by(ScanRunRow.completed_at.desc().nullslast(), ScanRunRow.created_at.desc(), ScanCandidateRow.rank)
+        .limit(1)
+    ).first()
+    if row is None:
+        return None
+    return _scan_run_from_row(row.scan_run), _candidate_from_row(row)
+
+
 def upsert_scan_run(db: Session, scan: ScanRun) -> None:
     values = {
         "id": scan.scan_id,

@@ -44,3 +44,49 @@ class DailyBar(BaseModel):
     close: float = Field(gt=0)
     adjusted_close: float = Field(gt=0)
     volume: int = Field(ge=0)
+
+
+class ChartIndicatorBar(DailyBar):
+    sma_20: float | None = None
+    sma_50: float | None = None
+    sma_200: float | None = None
+    rsi_14: float | None = None
+
+
+class RiskRewardOverlay(BaseModel):
+    entry: float | None = None
+    invalidation: float | None = None
+    target: float | None = None
+    risk_per_share: float | None = None
+    ratio: str | None = None
+
+
+class ChartCandidateContext(BaseModel):
+    scan_id: str
+    setup: str
+    status: str
+    score: int
+    risk_reward: str | None = None
+    reasons: list[str] = Field(default_factory=list)
+    caution_flags: list[str] = Field(default_factory=list)
+    risk_reward_overlay: RiskRewardOverlay | None = None
+
+
+class SymbolChartPayload(BaseModel):
+    symbol: str
+    company_name: str | None = None
+    exchange: str | None = None
+    data_date: str | None = None
+    bars: list[ChartIndicatorBar] = Field(default_factory=list)
+    candidate: ChartCandidateContext | None = None
+    warnings: list[str] = Field(default_factory=list)
+
+
+class MarketDataRefreshSummary(BaseModel):
+    provider: str
+    period: str
+    symbols_requested: int
+    symbols_refreshed: int = 0
+    symbols_failed: int = 0
+    bars_persisted: int = 0
+    failure_messages: list[str] = Field(default_factory=list)

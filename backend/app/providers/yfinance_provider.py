@@ -36,6 +36,30 @@ class YFinanceProvider:
         )
         return daily_bars_from_frame(symbol, frame)
 
+    def get_daily_bars_for_symbols(self, symbols: list[str], period: str = "1y") -> dict[str, list[DailyBar]]:
+        normalized_symbols = [symbol.upper() for symbol in symbols]
+        if not normalized_symbols:
+            return {}
+
+        if len(normalized_symbols) == 1:
+            symbol = normalized_symbols[0]
+            return {symbol: self.get_daily_bars(symbol, period=period)}
+
+        yfinance_symbols = [to_yfinance_symbol(symbol) for symbol in normalized_symbols]
+        frame = yf.download(
+            tickers=yfinance_symbols,
+            period=period,
+            interval="1d",
+            auto_adjust=False,
+            progress=False,
+            threads=True,
+            group_by="ticker",
+        )
+        return {
+            symbol: daily_bars_from_frame(symbol, _frame_for_downloaded_symbol(frame, to_yfinance_symbol(symbol)))
+            for symbol in normalized_symbols
+        }
+
 
 def to_yfinance_symbol(symbol: str) -> str:
     return symbol.upper().replace(".", "-")
@@ -97,6 +121,19 @@ def _normalize_columns(frame: pd.DataFrame, symbol: str) -> pd.DataFrame:
     else:
         normalized.columns = [_canonical_field(column) for column in normalized.columns]
     return normalized
+
+
+def _frame_for_downloaded_symbol(frame: pd.DataFrame, yf_symbol: str) -> pd.DataFrame:
+    if frame.empty or not isinstance(frame.columns, pd.MultiIndex):
+        return frame
+
+    target = yf_symbol.upper()
+    for level in range(frame.columns.nlevels):
+        level_values = {str(value).upper() for value in frame.columns.get_level_values(level)}
+        if target in level_values:
+            return frame.xs(yf_symbol, axis=1, level=level, drop_level=True)
+
+    return pd.DataFrame(index=frame.index)
 
 
 def _field_from_multiindex(column: tuple[Any, ...], symbol: str) -> str:

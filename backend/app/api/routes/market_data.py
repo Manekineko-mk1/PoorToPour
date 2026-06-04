@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.db.base import get_db
 from app.providers.mock_provider import MockProvider
-from app.repositories import market_data
+from app.repositories import market_data, scans
+from app.services.chart_data import build_symbol_chart_payload
 from app.services.indicators import IndicatorService
 
 router = APIRouter(tags=["market-data"])
@@ -29,6 +30,22 @@ def get_daily_bars(symbol: str, db: Session = Depends(get_db)) -> list[dict]:
     if not bars:
         raise HTTPException(status_code=404, detail=f"No persisted bars found for {symbol.upper()}")
     return [bar.model_dump() for bar in bars]
+
+
+@router.get("/symbols/{symbol}/chart")
+def get_symbol_chart(symbol: str, db: Session = Depends(get_db)) -> dict:
+    normalized_symbol = symbol.upper()
+    bars = market_data.get_daily_bars(db, normalized_symbol)
+    if not bars:
+        raise HTTPException(status_code=404, detail=f"No persisted bars found for {normalized_symbol}")
+
+    payload = build_symbol_chart_payload(
+        normalized_symbol,
+        bars,
+        profile=market_data.get_company_profile(db, normalized_symbol),
+        candidate_context=scans.get_latest_candidate_for_symbol(db, normalized_symbol),
+    )
+    return payload.model_dump()
 
 
 @router.get("/symbols/{symbol}/indicators")
