@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from app.core.config import get_settings
-from app.core.security import _is_local
+from app.core.config import Settings, get_settings
+from app.core.security import is_local
 from app.services.setup_detectors import ENABLED_SETUP_NAMES
 
 router = APIRouter(tags=["configuration"])
@@ -30,7 +30,7 @@ def display_settings() -> dict:
             "database_urls_visible": False,
         },
     }
-    if _is_local(settings.environment):
+    if is_local(settings.environment):
         payload["scanner"] = {
             "risk_reward_atr_buffer_multiplier": settings.scanner_risk_reward_atr_buffer_multiplier,
             "risk_reward_target_multiple": settings.scanner_risk_reward_target_multiple,
@@ -55,7 +55,7 @@ def _scan_schedule(allow_hosted: bool) -> str:
     return "Manual/local daily scan."
 
 
-def _manual_scan_note(settings) -> str:
+def _manual_scan_note(settings: Settings) -> str:
     if settings.allow_hosted_manual_scan:
         return (
             f"Hosted scan enabled "

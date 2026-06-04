@@ -11,13 +11,13 @@ _LOCAL_ENVIRONMENTS = {"local", "dev", "development", "test"}
 _api_key_scheme = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
-def _is_local(environment: str) -> bool:
+def is_local(environment: str) -> bool:
     return environment.strip().lower() in _LOCAL_ENVIRONMENTS
 
 
 def verify_manual_scan_auth(api_key: str | None = Depends(_api_key_scheme)) -> None:
     settings = get_settings()
-    if _is_local(settings.environment):
+    if is_local(settings.environment):
         return
     configured_key = settings.manual_scan_api_key
     if not configured_key:
@@ -73,7 +73,7 @@ def check_manual_scan_rate_limit(
     api_key: str | None = Depends(_api_key_scheme),
 ) -> None:
     settings = get_settings()
-    if _is_local(settings.environment):
+    if is_local(settings.environment):
         return
     key = _client_key(request, api_key)
     if not manual_scan_limiter.check(key, settings.manual_scan_rate_limit):
