@@ -34,7 +34,14 @@ def build_symbol_chart_payload(
         data_date=ordered_bars[-1].date if ordered_bars else None,
         bars=[
             ChartIndicatorBar(
-                **bar.model_dump(),
+                symbol=bar.symbol,
+                date=bar.date,
+                open=bar.open,
+                high=bar.high,
+                low=bar.low,
+                close=bar.close,
+                adjusted_close=bar.adjusted_close,
+                volume=bar.volume,
                 **{f"sma_{p}": _round_optional(sma_series[p][i]) for p in CHART_SMA_PERIODS},
                 rsi_14=_round_optional(rsi_14s[i]),
             )
