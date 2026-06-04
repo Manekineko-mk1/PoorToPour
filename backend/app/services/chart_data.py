@@ -9,7 +9,6 @@ from app.models.market_data import (
     SymbolChartPayload,
 )
 from app.models.scans import ScanCandidate, ScanRun
-from app.services.indicators import simple_moving_average
 
 RSI_PERIOD = 14
 CHART_SMA_PERIODS = (20, 50, 200)
@@ -25,28 +24,68 @@ def build_symbol_chart_payload(
     ordered_bars = sorted(bars, key=lambda bar: bar.date)
     closes = [bar.close for bar in ordered_bars]
 
+    sma_20s = _rolling_sma(closes, 20)
+    sma_50s = _rolling_sma(closes, 50)
+    sma_200s = _rolling_sma(closes, 200)
+    rsi_14s = _rolling_rsi(closes, RSI_PERIOD)
+
     return SymbolChartPayload(
         symbol=symbol.upper(),
         company_name=profile.company_name if profile else None,
         exchange=profile.exchange if profile else None,
         data_date=ordered_bars[-1].date if ordered_bars else None,
         bars=[
-            _chart_bar(bar, closes[: index + 1])
-            for index, bar in enumerate(ordered_bars)
+            ChartIndicatorBar(
+                **bar.model_dump(),
+                sma_20=_round_optional(sma_20s[i]),
+                sma_50=_round_optional(sma_50s[i]),
+                sma_200=_round_optional(sma_200s[i]),
+                rsi_14=_round_optional(rsi_14s[i]),
+            )
+            for i, bar in enumerate(ordered_bars)
         ],
         candidate=_candidate_context(candidate_context),
         warnings=_chart_warnings(ordered_bars),
     )
 
 
-def _chart_bar(bar: DailyBar, closes_to_date: Sequence[float]) -> ChartIndicatorBar:
-    return ChartIndicatorBar(
-        **bar.model_dump(),
-        sma_20=_round_optional(simple_moving_average(closes_to_date, 20)),
-        sma_50=_round_optional(simple_moving_average(closes_to_date, 50)),
-        sma_200=_round_optional(simple_moving_average(closes_to_date, 200)),
-        rsi_14=_round_optional(_relative_strength_index(closes_to_date, RSI_PERIOD)),
-    )
+def _rolling_sma(closes: list[float], period: int) -> list[float | None]:
+    results: list[float | None] = []
+    window_sum = 0.0
+    for i, close in enumerate(closes):
+        window_sum += close
+        if i >= period:
+            window_sum -= closes[i - period]
+        results.append(window_sum / period if i >= period - 1 else None)
+    return results
+
+
+def _rolling_rsi(closes: list[float], period: int) -> list[float | None]:
+    results: list[float | None] = [None] * len(closes)
+    if len(closes) <= period:
+        return results
+
+    changes = [closes[i] - closes[i - 1] for i in range(1, len(closes))]
+    gains = [max(c, 0.0) for c in changes]
+    losses = [abs(min(c, 0.0)) for c in changes]
+
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+    results[period] = _rsi_from_averages(avg_gain, avg_loss)
+
+    for i in range(period, len(changes)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+        results[i + 1] = _rsi_from_averages(avg_gain, avg_loss)
+
+    return results
+
+
+def _rsi_from_averages(avg_gain: float, avg_loss: float) -> float:
+    if avg_loss == 0:
+        return 100.0
+    rs = avg_gain / avg_loss
+    return 100 - (100 / (1 + rs))
 
 
 def _candidate_context(
@@ -108,11 +147,7 @@ def _relative_strength_index(closes: Sequence[float], period: int) -> float | No
         average_gain = (average_gain * (period - 1) + gain) / period
         average_loss = (average_loss * (period - 1) + loss) / period
 
-    if average_loss == 0:
-        return 100.0
-
-    relative_strength = average_gain / average_loss
-    return 100 - (100 / (1 + relative_strength))
+    return _rsi_from_averages(average_gain, average_loss)
 
 
 def _to_float_or_none(value: object) -> float | None:
