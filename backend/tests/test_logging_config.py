@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import time
 
 from app.core.logging_config import (
@@ -84,6 +85,22 @@ def test_retention_deletes_files_older_than_backup_count_days(tmp_path) -> None:
 
     assert not os.path.exists(stale)
     assert os.path.exists(fresh)
+
+
+def test_get_files_to_delete_tolerates_missing_log_dir(tmp_path) -> None:
+    log_dir = os.path.join(tmp_path, "logs")
+    os.makedirs(log_dir)
+    log_path = os.path.join(log_dir, "app.log")
+    handler = _SizedTimedRotatingFileHandler(log_path, max_bytes=1, backup_count=3)
+
+    try:
+        # Simulate the directory being removed out from under the handler
+        # between rollovers; cleanup must not raise.
+        handler.close()
+        shutil.rmtree(log_dir)
+        assert handler.getFilesToDelete() == []
+    finally:
+        handler.close()
 
 
 def test_configure_logging_is_idempotent(tmp_path) -> None:

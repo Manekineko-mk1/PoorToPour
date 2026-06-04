@@ -61,11 +61,23 @@ class _SizedTimedRotatingFileHandler(TimedRotatingFileHandler):
         prefix = base_name + "."
         cutoff = time.time() - self.backupCount * _SECONDS_PER_DAY
         stale: list[str] = []
-        for name in os.listdir(dir_name):
+        try:
+            names = os.listdir(dir_name)
+        except FileNotFoundError:
+            # The log directory was removed out from under us (e.g. an external
+            # cleanup between rollovers). Nothing to reap; the next emit will
+            # recreate the directory and base file.
+            return []
+        for name in names:
             if not name.startswith(prefix):
                 continue
             path = os.path.join(dir_name, name)
-            if os.path.getmtime(path) < cutoff:
+            try:
+                mtime = os.path.getmtime(path)
+            except OSError:
+                # The file vanished between listing and stat; skip it.
+                continue
+            if mtime < cutoff:
                 stale.append(path)
         return stale
 
