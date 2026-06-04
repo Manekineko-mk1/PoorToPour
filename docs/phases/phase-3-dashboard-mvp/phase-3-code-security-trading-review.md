@@ -196,7 +196,7 @@ The remaining work before merge is ordinary PR hygiene: review the diff, confirm
 
 | Check | Result |
 | --- | --- |
-| `docker compose run --rm backend pytest` | ✅ 82 passed (78 prior + 4 new regression tests) |
+| `docker compose run --rm backend pytest` | ✅ 83 passed |
 | `npm.cmd audit --audit-level=moderate` | ✅ 0 vulnerabilities |
 | `git diff --check` | ✅ Clean |
 
@@ -228,3 +228,29 @@ Fix detail:
 ### 9.5 Secondary review outcome
 
 ✅ Phase 3 remains ready for PR. The two new Low findings were fixed during this pass and do not change the overall outcome.
+
+---
+
+## 10. Code Review Follow-Up
+
+**Reviewer:** Code review follow-up, 2026-06-04.
+**Status:** ✅ Passed after fixes.
+
+Findings fixed:
+
+| Severity | Finding | File / Area | Status |
+| --- | --- | --- | --- |
+| Medium | Candidate Detail opened from Scan History could show "Candidate not found" if the clicked historical candidate was no longer present in the latest scan. | `frontend/src/App.tsx` | ✅ Fixed |
+| Medium | Chart endpoint attached candidate context by latest symbol/rank only, so duplicate-symbol setups could show the wrong setup's risk overlay. | `backend/app/repositories/scans.py`, `backend/app/api/routes/market_data.py`, `frontend/src/api.ts`, `frontend/src/App.tsx` | ✅ Fixed |
+
+Fix detail:
+
+- Candidate detail routing now carries clicked candidate context and the selected source scan/run so historical candidates opened from Scan History remain inspectable.
+- Chart requests now include selected `setup` and `scan_id`; backend chart context lookup filters by both when provided.
+- Added regression coverage for setup/scan-aware chart context lookup.
+
+Verification:
+
+- `docker compose run --rm backend pytest tests/test_chart_data.py`: ✅ 5 passed.
+- `docker compose run --rm backend pytest`: ✅ 83 passed.
+- `npm.cmd run build`: ✅ passed.

@@ -57,6 +57,11 @@ type CandidateRoute = {
   setupSlug: string;
 };
 
+type RouteCandidateContext = {
+  candidate: Candidate;
+  scan: LatestScan | null;
+};
+
 function StatusPill({ status }: { status: Candidate["status"] }) {
   return <span className={`status status-${status.toLowerCase()}`}>{status}</span>;
 }
@@ -98,6 +103,7 @@ function App() {
   const [sortKey, setSortKey] = useState<SortKey>("score");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [path, setPath] = useState(() => window.location.pathname);
+  const [routeCandidateContext, setRouteCandidateContext] = useState<RouteCandidateContext | null>(null);
   const [manualScanState, setManualScanState] = useState<"idle" | "running" | "success" | "error">("idle");
   const [manualScanMessage, setManualScanMessage] = useState<string | null>(null);
 
@@ -121,12 +127,16 @@ function App() {
 
   const candidates = scan?.candidates ?? [];
   const routeCandidate = parseCandidateRoute(path);
+  const carriedRouteCandidate = routeCandidateContext && routeCandidateMatches(routeCandidateContext.candidate, routeCandidate)
+    ? routeCandidateContext
+    : null;
   const detailCandidate = routeCandidate
     ? candidates.find((candidate) => (
       candidate.symbol.toUpperCase() === routeCandidate.symbol
       && slugify(candidate.setup) === routeCandidate.setupSlug
-    )) ?? null
+    )) ?? carriedRouteCandidate?.candidate ?? null
     : null;
+  const detailScan = carriedRouteCandidate?.scan ?? scan;
   const setupOptions = useMemo(() => uniqueOptions(candidates.map((candidate) => candidate.setup)), [candidates]);
   const statusOptions = useMemo(() => uniqueOptions(candidates.map((candidate) => candidate.status)), [candidates]);
   const displayedCandidates = useMemo(
@@ -160,8 +170,9 @@ function App() {
     setPath(nextPath);
   }
 
-  function openCandidateDetail(candidate: Candidate) {
+  function openCandidateDetail(candidate: Candidate, sourceScan: LatestScan | null = scan) {
     setSelectedKey(candidateKey(candidate));
+    setRouteCandidateContext({ candidate, scan: sourceScan });
     navigateTo(candidatePath(candidate));
   }
 
@@ -299,7 +310,7 @@ function App() {
             candidate={detailCandidate}
             onBack={() => navigateTo("/")}
             requestedRoute={routeCandidate}
-            scan={scan}
+            scan={detailScan}
           />
         ) : isScanHistoryRoute ? (
           <ScanHistoryPage
@@ -571,7 +582,7 @@ function ScanHistoryPage({
   onOpenCandidate,
 }: {
   latestScan: LatestScan | null;
-  onOpenCandidate: (candidate: Candidate) => void;
+  onOpenCandidate: (candidate: Candidate, sourceScan: LatestScan | null) => void;
 }) {
   const [scanRuns, setScanRuns] = useState<LatestScan[]>([]);
   const [selectedScanId, setSelectedScanId] = useState<string | null>(null);
@@ -695,11 +706,11 @@ function ScanHistoryPage({
                   selectedCandidates.map((candidate) => (
                     <tr
                       key={candidateKey(candidate)}
-                      onClick={() => onOpenCandidate(candidate)}
+                      onClick={() => onOpenCandidate(candidate, selectedRun)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter" || event.key === " ") {
                           event.preventDefault();
-                          onOpenCandidate(candidate);
+                          onOpenCandidate(candidate, selectedRun);
                         }
                       }}
                       role="button"
@@ -848,7 +859,7 @@ function CandidateDetailPage({
     let isCurrent = true;
     setChartError(null);
     setChartPayload(null);
-    fetchSymbolChart(candidate.symbol)
+    fetchSymbolChart(candidate.symbol, candidate.setup, scan?.scan_id)
       .then((payload) => {
         if (isCurrent) {
           setChartPayload(payload);
@@ -863,7 +874,7 @@ function CandidateDetailPage({
     return () => {
       isCurrent = false;
     };
-  }, [candidate]);
+  }, [candidate, scan?.scan_id]);
 
   if (!scan) {
     return (
@@ -1444,6 +1455,14 @@ function candidateKey(candidate: Candidate) {
 
 function candidatePath(candidate: Candidate) {
   return `/candidates/${candidate.symbol.toUpperCase()}/${slugify(candidate.setup)}`;
+}
+
+function routeCandidateMatches(candidate: Candidate, route: CandidateRoute | null) {
+  return Boolean(
+    route
+    && candidate.symbol.toUpperCase() === route.symbol
+    && slugify(candidate.setup) === route.setupSlug,
+  );
 }
 
 function parseCandidateRoute(path: string): CandidateRoute | null {

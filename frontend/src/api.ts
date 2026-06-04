@@ -132,8 +132,20 @@ export async function fetchScanRuns(limit = 20): Promise<LatestScan[]> {
   return response.json();
 }
 
-export async function fetchSymbolChart(symbol: string): Promise<SymbolChartPayload> {
-  const response = await fetch(`${API_BASE_URL}/api/symbols/${encodeURIComponent(symbol)}/chart`);
+export async function fetchSymbolChart(
+  symbol: string,
+  setup?: string,
+  scanId?: string | null,
+): Promise<SymbolChartPayload> {
+  const params = new URLSearchParams();
+  if (setup) {
+    params.set("setup", setup);
+  }
+  if (scanId) {
+    params.set("scan_id", scanId);
+  }
+  const query = params.size ? `?${params.toString()}` : "";
+  const response = await fetch(`${API_BASE_URL}/api/symbols/${encodeURIComponent(symbol)}/chart${query}`);
   if (!response.ok) {
     throw new Error(await responseErrorMessage(response, "Unable to load symbol chart"));
   }

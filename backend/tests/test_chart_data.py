@@ -1,7 +1,10 @@
 from datetime import date, timedelta
 
+from fastapi.testclient import TestClient
 import pytest
 
+from app.api.routes import market_data
+from app.main import create_app
 from app.models.market_data import CompanyProfile, DailyBar
 from app.models.scans import ScanCandidate, ScanRun
 from app.services.chart_data import _relative_strength_index, build_symbol_chart_payload
@@ -75,6 +78,59 @@ def test_chart_payload_reports_insufficient_history_warnings() -> None:
     assert payload.bars[-1].rsi_14 is None
     assert "Only 10 bars available; SMA 20 is incomplete." in payload.warnings
     assert "Only 10 bars available; RSI 14 is incomplete." in payload.warnings
+
+
+def test_chart_route_uses_requested_setup_for_candidate_context(monkeypatch) -> None:
+    requested_context = {}
+    candidate = ScanCandidate(
+        rank=2,
+        symbol="AAPL",
+        company_name="Apple Inc.",
+        setup="Pullback Continuation",
+        status="Watch",
+        score=50,
+        risk_reward="2.0:1",
+        score_breakdown={
+            "risk_reward": {
+                "entry": 100.0,
+                "invalidation": 90.0,
+                "target": 120.0,
+                "risk_per_share": 10.0,
+            }
+        },
+    )
+
+    monkeypatch.setattr(market_data.market_data, "get_daily_bars", lambda db, symbol: [_bar(index) for index in range(1, 61)])
+    monkeypatch.setattr(market_data.market_data, "get_company_profile", lambda db, symbol: None)
+
+    def fake_candidate_lookup(db, symbol, setup=None, scan_id=None):
+        requested_context["symbol"] = symbol
+        requested_context["setup"] = setup
+        requested_context["scan_id"] = scan_id
+        return (
+            ScanRun(
+                scan_id="scan-setup",
+                scan_type="technical",
+                universe="Persisted Symbols",
+                status="completed",
+                provider="TechnicalScanner",
+            ),
+            candidate,
+        )
+
+    monkeypatch.setattr(market_data.scans, "get_latest_candidate_for_symbol", fake_candidate_lookup)
+
+    response = TestClient(create_app()).get("/api/symbols/AAPL/chart?setup=Pullback%20Continuation&scan_id=scan-setup")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert requested_context == {
+        "symbol": "AAPL",
+        "setup": "Pullback Continuation",
+        "scan_id": "scan-setup",
+    }
+    assert payload["candidate"]["setup"] == "Pullback Continuation"
+    assert payload["candidate"]["risk_reward_overlay"]["entry"] == 100.0
 
 
 def test_relative_strength_index_uses_wilder_smoothing() -> None:

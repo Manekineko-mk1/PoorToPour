@@ -59,7 +59,7 @@ git diff --check
 
 Observed results:
 
-- `docker compose run --rm backend pytest`: 82 passed.
+- `docker compose run --rm backend pytest`: 83 passed.
 - `npm.cmd run build`: passed.
 - `docker compose config --quiet`: passed.
 - `docker compose run --rm backend python -m pip check`: no broken requirements.
@@ -95,7 +95,7 @@ Secondary review outcome:
 - Two additional Low findings were raised and fixed during the secondary pass:
   - Chart RSI moved from a simple mean to Wilder's smoothing so values match standard charting platforms (display-only, deterministic), with a reference-value regression test.
   - `POST /api/scans/manual` now validates `refresh_limit` (`Query(ge=1)`) and constrains `refresh_period` to supported yfinance periods, returning 422 on bad input, with regression tests.
-- Backend suite is now 82 passed (78 prior + 4 new regression tests).
+- Backend suite is now 83 passed.
 
 ## Known Limitations and Follow-Ups
 
@@ -119,7 +119,7 @@ Follow-ups:
 
 ## Reviewer Checklist
 
-- [x] Confirm backend tests pass (82 passed).
+- [x] Confirm backend tests pass (83 passed).
 - [x] Confirm frontend build passes.
 - [x] Confirm dashboard UX matches MVP scope.
 - [x] Confirm candidate chart evidence is deterministic and backend-derived.

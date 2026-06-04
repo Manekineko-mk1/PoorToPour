@@ -39,12 +39,25 @@ def list_scan_runs(db: Session, limit: int = 20) -> list[ScanRun]:
     return [_scan_run_from_row(row) for row in rows]
 
 
-def get_latest_candidate_for_symbol(db: Session, symbol: str) -> tuple[ScanRun, ScanCandidate] | None:
-    row = db.scalars(
+def get_latest_candidate_for_symbol(
+    db: Session,
+    symbol: str,
+    setup: str | None = None,
+    scan_id: str | None = None,
+) -> tuple[ScanRun, ScanCandidate] | None:
+    statement = (
         select(ScanCandidateRow)
         .join(ScanRunRow)
         .where(ScanCandidateRow.symbol == symbol.upper())
         .options(selectinload(ScanCandidateRow.scan_run))
+    )
+    if setup:
+        statement = statement.where(ScanCandidateRow.setup == setup)
+    if scan_id:
+        statement = statement.where(ScanCandidateRow.scan_run_id == scan_id)
+
+    row = db.scalars(
+        statement
         .order_by(ScanRunRow.completed_at.desc().nullslast(), ScanRunRow.created_at.desc(), ScanCandidateRow.rank)
         .limit(1)
     ).first()

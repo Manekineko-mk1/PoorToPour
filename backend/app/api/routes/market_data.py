@@ -33,7 +33,12 @@ def get_daily_bars(symbol: str, db: Session = Depends(get_db)) -> list[dict]:
 
 
 @router.get("/symbols/{symbol}/chart")
-def get_symbol_chart(symbol: str, db: Session = Depends(get_db)) -> dict:
+def get_symbol_chart(
+    symbol: str,
+    setup: str | None = None,
+    scan_id: str | None = None,
+    db: Session = Depends(get_db),
+) -> dict:
     normalized_symbol = symbol.upper()
     bars = market_data.get_daily_bars(db, normalized_symbol)
     if not bars:
@@ -43,7 +48,12 @@ def get_symbol_chart(symbol: str, db: Session = Depends(get_db)) -> dict:
         normalized_symbol,
         bars,
         profile=market_data.get_company_profile(db, normalized_symbol),
-        candidate_context=scans.get_latest_candidate_for_symbol(db, normalized_symbol),
+        candidate_context=scans.get_latest_candidate_for_symbol(
+            db,
+            normalized_symbol,
+            setup=setup,
+            scan_id=scan_id,
+        ),
     )
     return payload.model_dump()
 
