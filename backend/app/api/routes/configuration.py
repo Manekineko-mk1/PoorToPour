@@ -16,18 +16,14 @@ def display_settings() -> dict:
         "data_source_note": _data_source_note(settings.provider),
         "universe": "Persisted symbols",
         "enabled_setups": list(ENABLED_SETUP_NAMES),
-        "safe_user_preferences": {
+        "ui_feature_notes": {
             "theme": "Dark",
             "sidebar_collapse": "Local UI state only",
             "chart_rsi_panel": "Resizable per session",
         },
-        "ai": {
+        "ai_notes": {
             "trade_decisions": "Disabled",
             "summaries": "Disabled by default until post-MVP review",
-        },
-        "secrets": {
-            "api_keys_visible": False,
-            "database_urls_visible": False,
         },
     }
     if is_local(settings.environment):
@@ -37,7 +33,6 @@ def display_settings() -> dict:
             "schedule": _scan_schedule(settings.allow_hosted_manual_scan),
         }
         payload["admin_controls"] = {
-            "system_options": "Read-only in MVP",
             "manual_scan": _manual_scan_note(settings),
         }
     return payload

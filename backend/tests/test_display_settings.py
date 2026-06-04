@@ -18,10 +18,9 @@ def test_display_settings_redacts_secrets() -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["secrets"]["api_keys_visible"] is False
-    assert payload["secrets"]["database_urls_visible"] is False
     assert "database_url" not in payload
     assert "alpha_vantage_api_key" not in payload
+    assert "secrets" not in payload
 
 
 def test_display_settings_local_includes_internal_fields() -> None:
@@ -90,4 +89,4 @@ def test_display_settings_production_strips_internal_fields() -> None:
     assert "scanner" not in payload
     assert "admin_controls" not in payload
     assert payload["environment"] == "production"
-    assert payload["secrets"]["api_keys_visible"] is False
+    assert "secrets" not in payload

@@ -94,18 +94,14 @@ export type DisplaySettings = {
   data_source_note: string;
   universe: string;
   enabled_setups: string[];
-  scanner: {
+  scanner?: {
     risk_reward_atr_buffer_multiplier: number;
     risk_reward_target_multiple: number;
     schedule: string;
   };
-  safe_user_preferences: Record<string, string>;
-  admin_controls: Record<string, string>;
-  ai: Record<string, string>;
-  secrets: {
-    api_keys_visible: boolean;
-    database_urls_visible: boolean;
-  };
+  ui_feature_notes: Record<string, string>;
+  admin_controls?: Record<string, string>;
+  ai_notes: Record<string, string>;
 };
 
 export async function fetchLatestScan(): Promise<LatestScan | null> {

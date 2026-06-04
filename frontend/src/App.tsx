@@ -788,19 +788,21 @@ function SettingsPage({ latestScan }: { latestScan: LatestScan | null }) {
       </section>
 
       <section className="settings-grid">
-        <section className="panel settings-panel">
-          <h3>Scanner Configuration</h3>
-          <dl className="settings-list">
-            <dt>Schedule</dt>
-            <dd>{settings.scanner.schedule}</dd>
-            <dt>Risk ATR Buffer</dt>
-            <dd>{settings.scanner.risk_reward_atr_buffer_multiplier}</dd>
-            <dt>Target Multiple</dt>
-            <dd>{settings.scanner.risk_reward_target_multiple}</dd>
-            <dt>Latest Scan Type</dt>
-            <dd>{latestScan?.scan_type ?? "--"}</dd>
-          </dl>
-        </section>
+        {settings.scanner && (
+          <section className="panel settings-panel">
+            <h3>Scanner Configuration</h3>
+            <dl className="settings-list">
+              <dt>Schedule</dt>
+              <dd>{settings.scanner.schedule}</dd>
+              <dt>Risk ATR Buffer</dt>
+              <dd>{settings.scanner.risk_reward_atr_buffer_multiplier}</dd>
+              <dt>Target Multiple</dt>
+              <dd>{settings.scanner.risk_reward_target_multiple}</dd>
+              <dt>Latest Scan Type</dt>
+              <dd>{latestScan?.scan_type ?? "--"}</dd>
+            </dl>
+          </section>
+        )}
 
         <section className="panel settings-panel">
           <h3>Enabled Setups</h3>
@@ -810,28 +812,20 @@ function SettingsPage({ latestScan }: { latestScan: LatestScan | null }) {
         </section>
 
         <section className="panel settings-panel">
-          <h3>Safe User Preferences</h3>
-          <SettingsDictionary values={settings.safe_user_preferences} />
+          <h3>UI Feature Notes</h3>
+          <SettingsDictionary values={settings.ui_feature_notes} />
         </section>
 
-        <section className="panel settings-panel">
-          <h3>Admin/System Options</h3>
-          <SettingsDictionary values={settings.admin_controls} />
-        </section>
+        {settings.admin_controls && (
+          <section className="panel settings-panel">
+            <h3>Admin/System Options</h3>
+            <SettingsDictionary values={settings.admin_controls} />
+          </section>
+        )}
 
         <section className="panel settings-panel">
-          <h3>AI Controls</h3>
-          <SettingsDictionary values={settings.ai} />
-        </section>
-
-        <section className="panel settings-panel">
-          <h3>Secret Safety</h3>
-          <dl className="settings-list">
-            <dt>API Keys Visible</dt>
-            <dd>{settings.secrets.api_keys_visible ? "Yes" : "No"}</dd>
-            <dt>Database URLs Visible</dt>
-            <dd>{settings.secrets.database_urls_visible ? "Yes" : "No"}</dd>
-          </dl>
+          <h3>AI Notes</h3>
+          <SettingsDictionary values={settings.ai_notes} />
         </section>
       </section>
     </section>
