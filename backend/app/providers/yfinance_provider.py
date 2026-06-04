@@ -129,9 +129,13 @@ def _frame_for_downloaded_symbol(frame: pd.DataFrame, yf_symbol: str) -> pd.Data
 
     target = yf_symbol.upper()
     for level in range(frame.columns.nlevels):
-        level_values = {str(value).upper() for value in frame.columns.get_level_values(level)}
-        if target in level_values:
-            return frame.xs(yf_symbol, axis=1, level=level, drop_level=True)
+        raw_values = frame.columns.get_level_values(level)
+        actual_label = next(
+            (v for v in raw_values if str(v).upper() == target),
+            None,
+        )
+        if actual_label is not None:
+            return frame.xs(actual_label, axis=1, level=level, drop_level=True)
 
     return pd.DataFrame(index=frame.index)
 
