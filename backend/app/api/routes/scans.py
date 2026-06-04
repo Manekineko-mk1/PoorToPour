@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.security import check_manual_scan_rate_limit, verify_manual_scan_auth
 from app.db.base import get_db
 from app.models.market_data import MarketDataRefreshSummary
 from app.providers.mock_provider import MockProvider
@@ -41,7 +42,10 @@ def get_scan(scan_id: str, db: Session = Depends(get_db)) -> dict:
 RefreshPeriod = Literal["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
 
 
-@router.post("/scans/manual")
+@router.post(
+    "/scans/manual",
+    dependencies=[Depends(verify_manual_scan_auth), Depends(check_manual_scan_rate_limit)],
+)
 def run_manual_scan(
     db: Session = Depends(get_db),
     refresh_market_data: bool = True,
