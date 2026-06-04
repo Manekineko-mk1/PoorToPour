@@ -21,6 +21,8 @@ def verify_manual_scan_auth(api_key: str | None = Depends(_api_key_scheme)) -> N
         return
     configured_key = settings.manual_scan_api_key
     if not configured_key:
+        if settings.allow_hosted_manual_scan:
+            raise HTTPException(status_code=401, detail="Invalid or missing API key.")
         return
     if api_key != configured_key:
         raise HTTPException(status_code=401, detail="Invalid or missing API key.")

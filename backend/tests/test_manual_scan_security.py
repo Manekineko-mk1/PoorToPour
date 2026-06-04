@@ -71,11 +71,22 @@ def test_hosted_accepts_correct_api_key(monkeypatch) -> None:
     assert response.status_code == 400  # no symbols — not 401
 
 
-def test_hosted_open_when_api_key_not_configured(monkeypatch) -> None:
+def test_hosted_fail_closed_when_api_key_empty(monkeypatch) -> None:
     monkeypatch.setattr(
         security,
         "get_settings",
-        lambda: Settings(environment="production", manual_scan_api_key=""),
+        lambda: Settings(environment="production", allow_hosted_manual_scan=True, manual_scan_api_key=""),
+    )
+
+    response = TestClient(create_app()).post("/api/scans/manual")
+    assert response.status_code == 401  # key required but not configured — deny
+
+
+def test_hosted_scan_disabled_passes_auth_without_key(monkeypatch) -> None:
+    monkeypatch.setattr(
+        security,
+        "get_settings",
+        lambda: Settings(environment="production", allow_hosted_manual_scan=False, manual_scan_api_key=""),
     )
     monkeypatch.setattr(
         scans,
@@ -94,7 +105,7 @@ def test_rate_limit_blocks_after_max_requests(monkeypatch) -> None:
     hosted_settings = Settings(
         environment="production",
         allow_hosted_manual_scan=True,
-        manual_scan_api_key="",
+        manual_scan_api_key="test-key",
         hosted_manual_scan_max_symbols=25,
         manual_scan_rate_limit=2,
     )
@@ -103,9 +114,10 @@ def test_rate_limit_blocks_after_max_requests(monkeypatch) -> None:
     _no_symbols(monkeypatch)
 
     client = TestClient(create_app())
-    assert client.post("/api/scans/manual").status_code == 400  # req 1 — allowed
-    assert client.post("/api/scans/manual").status_code == 400  # req 2 — allowed
-    assert client.post("/api/scans/manual").status_code == 429  # req 3 — blocked
+    headers = {"X-API-Key": "test-key"}
+    assert client.post("/api/scans/manual", headers=headers).status_code == 400  # req 1 — allowed
+    assert client.post("/api/scans/manual", headers=headers).status_code == 400  # req 2 — allowed
+    assert client.post("/api/scans/manual", headers=headers).status_code == 429  # req 3 — blocked
 
 
 def test_rate_limit_skipped_in_local_environment(monkeypatch) -> None:
@@ -123,16 +135,17 @@ def test_rate_limit_429_response_includes_limit(monkeypatch) -> None:
     hosted_settings = Settings(
         environment="production",
         allow_hosted_manual_scan=True,
-        manual_scan_api_key="",
+        manual_scan_api_key="test-key",
         manual_scan_rate_limit=1,
     )
     monkeypatch.setattr(security, "get_settings", lambda: hosted_settings)
     monkeypatch.setattr(scans, "get_settings", lambda: hosted_settings)
     _no_symbols(monkeypatch)
 
+    headers = {"X-API-Key": "test-key"}
     client = TestClient(create_app())
-    client.post("/api/scans/manual")  # consume the one allowed request
-    response = client.post("/api/scans/manual")
+    client.post("/api/scans/manual", headers=headers)  # consume the one allowed request
+    response = client.post("/api/scans/manual", headers=headers)
 
     assert response.status_code == 429
     assert "1" in response.json()["detail"]
