@@ -95,7 +95,9 @@ def configure_logging(
     root.setLevel(log_level)
 
     if not root.handlers:
-        root.addHandler(logging.StreamHandler())
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(log_level)
+        root.addHandler(stream_handler)
 
     # Re-creating the app (tests, reload) must not stack duplicate file handlers
     # on the same path, which would multiply writes and break rotation renames.
@@ -107,6 +109,7 @@ def configure_logging(
         max_bytes=log_max_bytes,
         backup_count=log_retention_days,
     )
+    handler.setLevel(log_level)
     handler.setFormatter(
         logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
     )

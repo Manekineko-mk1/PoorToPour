@@ -156,3 +156,27 @@ def test_configure_logging_honors_requested_level(tmp_path) -> None:
             handler.close()
         root.handlers = original_handlers
         root.setLevel(original_level)
+
+
+def test_configure_logging_sets_handler_levels_to_match_root(tmp_path) -> None:
+    root = logging.getLogger()
+    original_handlers = list(root.handlers)
+    original_level = root.level
+    try:
+        root.handlers = []
+        configure_logging(
+            str(tmp_path),
+            log_retention_days=3,
+            log_max_bytes=1024,
+            log_level=logging.WARNING,
+        )
+        # Both the stream and file handlers must filter at the same level as the
+        # root logger, rather than relying on the default NOTSET pass-through.
+        assert root.handlers
+        for handler in root.handlers:
+            assert handler.level == logging.WARNING
+    finally:
+        for handler in root.handlers:
+            handler.close()
+        root.handlers = original_handlers
+        root.setLevel(original_level)

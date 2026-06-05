@@ -138,11 +138,15 @@ def _frame_for_downloaded_symbol(frame: pd.DataFrame, yf_symbol: str) -> pd.Data
         # Single-symbol download: columns are already flat OHLCV fields.
         return frame
 
-    target = yf_symbol.upper()
+    target = _normalize_symbol_label(yf_symbol)
     for level in range(frame.columns.nlevels):
         raw_values = frame.columns.get_level_values(level)
+        # Match tolerantly: yfinance may label a ticker with different casing,
+        # surrounding whitespace, or a "." separator where we requested "-"
+        # (e.g. "BRK.B" vs "BRK-B"). An exact-only match would silently drop
+        # data that is actually present under one of these variant labels.
         actual_label = next(
-            (v for v in raw_values if str(v).upper() == target),
+            (v for v in raw_values if _normalize_symbol_label(v) == target),
             None,
         )
         if actual_label is not None:
@@ -155,7 +159,42 @@ def _frame_for_downloaded_symbol(frame: pd.DataFrame, yf_symbol: str) -> pd.Data
                 )
                 continue
 
+    # No column level matched the requested symbol. The frame is non-empty, so
+    # data may be present under a label we did not anticipate. Surface this
+    # loudly instead of returning a silently-empty result that downstream code
+    # cannot distinguish from a genuinely empty download.
+    logger.warning(
+        "yfinance batch frame has no columns matching requested symbol; "
+        "returning empty result (data may exist under an unexpected label)",
+        extra={
+            "yf_symbol": yf_symbol,
+            "available_labels": _column_label_preview(frame.columns),
+        },
+    )
     return pd.DataFrame(index=frame.index)
+
+
+def _normalize_symbol_label(value: Any) -> str:
+    """Canonicalize a ticker label for tolerant matching.
+
+    Uppercases, trims whitespace, and treats "." and "-" as equivalent so
+    requested symbols match yfinance's column labels across separator and
+    casing variations.
+    """
+    return str(value).strip().upper().replace(".", "-")
+
+
+def _column_label_preview(columns: pd.MultiIndex, limit: int = 20) -> list[str]:
+    """Distinct, stringified column labels across all levels for diagnostics."""
+    seen: list[str] = []
+    for level in range(columns.nlevels):
+        for value in columns.get_level_values(level):
+            label = str(value)
+            if label not in seen:
+                seen.append(label)
+                if len(seen) >= limit:
+                    return seen
+    return seen
 
 
 def _field_from_multiindex(column: tuple[Any, ...], symbol: str) -> str:

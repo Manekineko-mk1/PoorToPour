@@ -1,12 +1,16 @@
 import logging
 import uuid
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Session
 
-from app.models.market_data import MarketDataRefreshSummary, SymbolProfile
+from app.models.market_data import MarketDataRefreshSummary
 from app.providers.yfinance_provider import YFinanceProvider
 from app.repositories.market_data import upsert_daily_bar
+
+if TYPE_CHECKING:
+    from app.models.market_data import SymbolProfile
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +21,7 @@ YFINANCE_PROVIDER_LABEL = "Yahoo Finance via yfinance"
 
 def refresh_yfinance_daily_bars(
     db: Session,
-    symbols: list[SymbolProfile],
+    symbols: "list[SymbolProfile]",
     period: str = "1y",
     provider: YFinanceProvider | None = None,
     chunk_size: int = DEFAULT_REFRESH_CHUNK_SIZE,

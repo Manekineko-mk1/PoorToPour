@@ -7,7 +7,7 @@ from app.api.routes import market_data
 from app.main import create_app
 from app.models.market_data import CompanyProfile, DailyBar
 from app.models.scans import ScanCandidate, ScanRun
-from app.services.chart_data import _relative_strength_index, _rolling_rsi, build_symbol_chart_payload
+from app.services.chart_data import _rolling_rsi, build_symbol_chart_payload
 
 
 def test_chart_payload_includes_indicator_bars_and_candidate_context() -> None:
@@ -133,18 +133,10 @@ def test_chart_route_uses_requested_setup_for_candidate_context(monkeypatch) -> 
     assert payload["candidate"]["risk_reward_overlay"]["entry"] == 100.0
 
 
-def test_relative_strength_index_uses_wilder_smoothing() -> None:
-    # EN: Wilder's smoothing over [10, 11, 10, 11] with period 2 yields RSI 75.0.
-    # A simple (non-Wilder) average over the same closes would return 50.0,
-    # so this pins the calculation to the standard method.
-    assert _relative_strength_index([10.0, 11.0, 10.0, 11.0], 2) == pytest.approx(75.0)
-
-
-def test_relative_strength_index_requires_more_than_period_closes() -> None:
-    assert _relative_strength_index([10.0, 11.0], 2) is None
-
-
-def test_rolling_rsi_produces_none_until_enough_history_then_matches_single_rsi() -> None:
+def test_rolling_rsi_produces_none_until_enough_history_then_uses_wilder_smoothing() -> None:
+    # Entries before `period + 1` closes are None. Once seeded, Wilder's smoothing
+    # over [10, 11, 10, 11] with period 2 yields RSI 75.0 at the final bar; a simple
+    # (non-Wilder) average would return 50.0, so this pins the standard method.
     closes = [10.0, 11.0, 10.0, 11.0]
     result = _rolling_rsi(closes, 2)
     assert result[0] is None

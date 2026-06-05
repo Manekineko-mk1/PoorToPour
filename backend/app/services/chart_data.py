@@ -63,30 +63,11 @@ def _rolling_sma(closes: list[float], period: int) -> list[float | None]:
     return results
 
 
-def _relative_strength_index(closes: Sequence[float], period: int) -> float | None:
-    # Wilder's RSI. Seed with a simple average of the first `period` changes,
-    # then apply Wilder's smoothing so values match standard charting platforms.
-    if len(closes) <= period:
-        return None
-
-    changes = [current - previous for previous, current in zip(closes, closes[1:])]
-    gains = [max(change, 0.0) for change in changes]
-    losses = [abs(min(change, 0.0)) for change in changes]
-
-    average_gain = sum(gains[:period]) / period
-    average_loss = sum(losses[:period]) / period
-    for gain, loss in zip(gains[period:], losses[period:]):
-        average_gain = (average_gain * (period - 1) + gain) / period
-        average_loss = (average_loss * (period - 1) + loss) / period
-
-    return _rsi_from_averages(average_gain, average_loss)
-
-
 def _rolling_rsi(closes: list[float], period: int) -> list[float | None]:
     # Incremental Wilder's RSI in O(n): seed the average gain/loss over the first
-    # `period` changes, then carry the smoothed averages forward one bar at a time
-    # instead of recomputing each prefix from scratch. Each entry matches
-    # _relative_strength_index(closes[: i + 1], period).
+    # `period` changes, then carry the smoothed averages forward one bar at a time.
+    # Wilder's smoothing makes values match standard charting platforms. Entries
+    # before enough history is available are None.
     results: list[float | None] = [None] * len(closes)
     if len(closes) <= period:
         return results

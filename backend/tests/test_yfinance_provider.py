@@ -154,6 +154,45 @@ def test_frame_for_downloaded_symbol_match_is_case_insensitive() -> None:
     assert result.iloc[0]["Open"] == 100.0
 
 
+def test_frame_for_downloaded_symbol_matches_dot_dash_separator_variant() -> None:
+    # We request "BRK-B" but yfinance labels the column "BRK.B": data is present
+    # and must not be silently dropped over a separator mismatch.
+    frame = pd.DataFrame(
+        [[100.0, 110.0]],
+        index=pd.to_datetime(["2026-05-22"]),
+        columns=pd.MultiIndex.from_tuples([("Open", "BRK.B"), ("High", "BRK.B")]),
+    )
+    result = _frame_for_downloaded_symbol(frame, "BRK-B")
+    assert not result.empty
+    assert result.iloc[0]["Open"] == 100.0
+
+
+def test_frame_for_downloaded_symbol_matches_label_with_surrounding_whitespace() -> None:
+    frame = pd.DataFrame(
+        [[100.0]],
+        index=pd.to_datetime(["2026-05-22"]),
+        columns=pd.MultiIndex.from_tuples([("Open", " AAPL ")]),
+    )
+    result = _frame_for_downloaded_symbol(frame, "AAPL")
+    assert not result.empty
+    assert result.iloc[0]["Open"] == 100.0
+
+
+def test_frame_for_downloaded_symbol_warns_when_nonempty_frame_has_no_match(caplog) -> None:
+    import logging
+
+    frame = pd.DataFrame(
+        [[200.0, 202.0]],
+        index=pd.to_datetime(["2026-05-22"]),
+        columns=pd.MultiIndex.from_tuples([("Open", "MSFT"), ("High", "MSFT")]),
+    )
+    with caplog.at_level(logging.WARNING, logger=yfinance_provider.__name__):
+        result = _frame_for_downloaded_symbol(frame, "AAPL")
+
+    assert result.empty
+    assert any("unexpected label" in record.message for record in caplog.records)
+
+
 def test_frame_for_downloaded_symbol_none_values_in_level_do_not_crash() -> None:
     # A corrupted MultiIndex with None in one level should not raise
     frame = pd.DataFrame(

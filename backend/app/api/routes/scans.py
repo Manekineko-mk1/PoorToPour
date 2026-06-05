@@ -61,19 +61,22 @@ def run_manual_scan(
         settings.hosted_manual_scan_max_symbols,
         refresh_limit,
     )
-    run_symbols = symbols[:refresh_limit] if refresh_limit is not None else symbols
-
-    refresh_summary = None
-    if refresh_market_data:
-        refresh_summary = refresh_yfinance_daily_bars(db, run_symbols, period=refresh_period)
-        required_ratio = (
-            min_refresh_ratio if min_refresh_ratio is not None else settings.manual_scan_min_refresh_ratio
-        )
-        _enforce_refresh_threshold(db, refresh_summary, required_ratio)
+    # Sort so symbol ordering (and any limited subset) is deterministic regardless
+    # of the order in which symbols were returned.
+    run_symbols = sorted(symbols, key=lambda s: s.symbol)
+    if refresh_limit is not None:
+        run_symbols = run_symbols[:refresh_limit]
 
     try:
-        if refresh_summary is not None:
+        refresh_summary = None
+        if refresh_market_data:
+            refresh_summary = refresh_yfinance_daily_bars(db, run_symbols, period=refresh_period)
+            required_ratio = (
+                min_refresh_ratio if min_refresh_ratio is not None else settings.manual_scan_min_refresh_ratio
+            )
+            _enforce_refresh_threshold(refresh_summary, required_ratio)
             db.flush()
+
         bars_by_symbol = {symbol.symbol: market_data.get_daily_bars(db, symbol.symbol) for symbol in run_symbols}
         scan = TechnicalScanner().scan(
             symbols=run_symbols,
@@ -96,7 +99,6 @@ def run_manual_scan(
 
 
 def _enforce_refresh_threshold(
-    db: Session,
     refresh_summary: MarketDataRefreshSummary,
     required_ratio: float,
 ) -> None:
@@ -104,14 +106,14 @@ def _enforce_refresh_threshold(
 
     ``required_ratio`` of 0.0 keeps the lenient default: only a total refresh
     failure (no symbols refreshed) blocks the scan. A higher ratio enforces
-    stricter handling of partial refreshes, rolling back the persisted bars so
-    the scanner never runs on a known-incomplete data set.
+    stricter handling of partial refreshes so the scanner never runs on a
+    known-incomplete data set. Raising here triggers the centralized rollback
+    in ``run_manual_scan``.
     """
     if refresh_summary.symbols_requested == 0:
         return
 
     if refresh_summary.symbols_refreshed == 0:
-        db.rollback()
         raise HTTPException(
             status_code=502,
             detail="Market data refresh failed; scanner did not run.",
@@ -119,7 +121,6 @@ def _enforce_refresh_threshold(
 
     success_ratio = refresh_summary.symbols_refreshed / refresh_summary.symbols_requested
     if success_ratio < required_ratio:
-        db.rollback()
         raise HTTPException(
             status_code=502,
             detail=(

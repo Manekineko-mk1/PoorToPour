@@ -70,11 +70,22 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _migrate_legacy_env_var(self) -> "Settings":
-        # The legacy var is honored only when the canonical ``environment``
-        # (POORTOPOUR_ENVIRONMENT / init kwarg) was not explicitly supplied.
-        if self.legacy_environment is not None and "environment" not in self.model_fields_set:
-            _warn_legacy_env_var_once()
-            self.environment = self.legacy_environment
+        # Treat a blank canonical ``environment`` (e.g. POORTOPOUR_ENVIRONMENT="")
+        # as unset: an empty value must not silently override the legacy alias or
+        # leave the app running with no environment. The canonical var wins only
+        # when it was explicitly supplied *and* carries a non-blank value.
+        canonical_supplied = (
+            "environment" in self.model_fields_set and self.environment.strip() != ""
+        )
+        if not canonical_supplied and self.legacy_environment is not None:
+            legacy = self.legacy_environment.strip()
+            if legacy:
+                _warn_legacy_env_var_once()
+                self.environment = legacy
+        # Never let a blank value survive; fall back to the safe default so
+        # downstream checks (e.g. is_local) behave predictably.
+        if self.environment.strip() == "":
+            self.environment = "local"
         return self
 
     model_config = SettingsConfigDict(

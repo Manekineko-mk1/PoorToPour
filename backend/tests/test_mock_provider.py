@@ -1,3 +1,5 @@
+from datetime import date
+
 from app.providers.mock_provider import MockProvider
 
 
@@ -16,6 +18,8 @@ def test_mock_provider_returns_daily_bars() -> None:
 
     assert len(bars) == 10
     assert bars[-1].close == 938.70
+    assert bars[-1].date == date(2025, 5, 20)
+    assert all(isinstance(bar.date, date) for bar in bars)
 
 
 def test_mock_provider_returns_latest_scan_fixture() -> None:
