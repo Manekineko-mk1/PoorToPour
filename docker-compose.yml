@@ -4,7 +4,7 @@ services:
       context: ./backend
     command: sh -c "alembic upgrade head && python -m app.scripts.seed_mock_data && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     environment:
-      POORTOPOUR_ENV: local
+      POORTOPOUR_ENVIRONMENT: local
       POORTOPOUR_PROVIDER: mock
       POORTOPOUR_DATABASE_URL: postgresql+psycopg://poortopour:poortopour@db:5432/poortopour
       POORTOPOUR_ALPHA_VANTAGE_API_KEY: ${POORTOPOUR_ALPHA_VANTAGE_API_KEY:-}

@@ -117,7 +117,7 @@ def _leader_bars(
 def _bar(symbol: str, first_date: datetime, index: int, close: float, volume: int) -> DailyBar:
     return DailyBar(
         symbol=symbol,
-        date=(first_date + timedelta(days=index)).date().isoformat(),
+        date=(first_date + timedelta(days=index)).date(),
         open=max(close - 0.5, 0.01),
         high=close + 1.0,
         low=max(close - 1.0, 0.01),

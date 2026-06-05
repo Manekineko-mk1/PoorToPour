@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from functools import cached_property
 from pathlib import Path
 from typing import Any
@@ -32,7 +33,14 @@ class MockProvider:
 
     def get_daily_bars(self, symbol: str) -> list[DailyBar]:
         rows = self._daily_bars.get(symbol.upper(), [])
-        return [DailyBar(symbol=symbol.upper(), **row) for row in rows]
+        return [self._build_daily_bar(symbol.upper(), row) for row in rows]
+
+    @staticmethod
+    def _build_daily_bar(symbol: str, row: dict[str, Any]) -> DailyBar:
+        # Fixtures store the trading date as an ISO string; parse it explicitly so
+        # DailyBar.date carries a real datetime.date rather than relying on the
+        # model's implicit string coercion at the fixture boundary.
+        return DailyBar(symbol=symbol, **{**row, "date": date.fromisoformat(row["date"])})
 
     def get_company_profile(self, symbol: str) -> CompanyProfile | None:
         row = self._company_profiles.get(symbol.upper())

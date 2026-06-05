@@ -1,7 +1,17 @@
+import logging
+
 import pytest
 from pydantic import ValidationError
 
+import app.core.config as config
 from app.core.config import Settings
+
+
+@pytest.fixture
+def reset_legacy_warning() -> None:
+    config._legacy_env_warning_emitted = False
+    yield
+    config._legacy_env_warning_emitted = False
 
 
 def test_scanner_risk_reward_settings_have_conservative_defaults() -> None:
@@ -32,3 +42,103 @@ def test_scanner_risk_reward_settings_can_be_overridden() -> None:
 def test_scanner_risk_reward_settings_reject_non_positive_values(field: str, value: float) -> None:
     with pytest.raises(ValidationError):
         Settings(**{field: value}, _env_file=None)
+
+
+def test_log_level_defaults_to_info() -> None:
+    assert Settings(_env_file=None).log_level == "INFO"
+
+
+def test_log_level_is_normalized_to_upper_case() -> None:
+    assert Settings(log_level="debug", _env_file=None).log_level == "DEBUG"
+
+
+def test_log_level_rejects_unknown_values() -> None:
+    with pytest.raises(ValidationError):
+        Settings(log_level="verbose", _env_file=None)
+
+
+def test_legacy_env_var_migrates_to_environment(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    reset_legacy_warning: None,
+) -> None:
+    monkeypatch.delenv("POORTOPOUR_ENVIRONMENT", raising=False)
+    monkeypatch.setenv("POORTOPOUR_ENV", "production")
+
+    with caplog.at_level(logging.WARNING, logger="app.core.config"):
+        settings = Settings(_env_file=None)
+
+    assert settings.environment == "production"
+    assert "POORTOPOUR_ENV is deprecated" in caplog.text
+
+
+def test_canonical_env_var_takes_precedence_over_legacy(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    reset_legacy_warning: None,
+) -> None:
+    monkeypatch.setenv("POORTOPOUR_ENVIRONMENT", "staging")
+    monkeypatch.setenv("POORTOPOUR_ENV", "production")
+
+    with caplog.at_level(logging.WARNING, logger="app.core.config"):
+        settings = Settings(_env_file=None)
+
+    assert settings.environment == "staging"
+    assert "deprecated" not in caplog.text
+
+
+def test_blank_canonical_env_var_does_not_override_legacy(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    reset_legacy_warning: None,
+) -> None:
+    monkeypatch.setenv("POORTOPOUR_ENVIRONMENT", "")
+    monkeypatch.setenv("POORTOPOUR_ENV", "production")
+
+    with caplog.at_level(logging.WARNING, logger="app.core.config"):
+        settings = Settings(_env_file=None)
+
+    assert settings.environment == "production"
+    assert "POORTOPOUR_ENV is deprecated" in caplog.text
+
+
+def test_blank_canonical_env_var_falls_back_to_default(
+    monkeypatch: pytest.MonkeyPatch,
+    reset_legacy_warning: None,
+) -> None:
+    monkeypatch.setenv("POORTOPOUR_ENVIRONMENT", "   ")
+    monkeypatch.delenv("POORTOPOUR_ENV", raising=False)
+
+    settings = Settings(_env_file=None)
+
+    assert settings.environment == "local"
+
+
+def test_blank_legacy_env_var_is_ignored(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    reset_legacy_warning: None,
+) -> None:
+    monkeypatch.delenv("POORTOPOUR_ENVIRONMENT", raising=False)
+    monkeypatch.setenv("POORTOPOUR_ENV", "   ")
+
+    with caplog.at_level(logging.WARNING, logger="app.core.config"):
+        settings = Settings(_env_file=None)
+
+    assert settings.environment == "local"
+    assert "deprecated" not in caplog.text
+
+
+def test_legacy_env_var_deprecation_warns_only_once(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    reset_legacy_warning: None,
+) -> None:
+    monkeypatch.delenv("POORTOPOUR_ENVIRONMENT", raising=False)
+    monkeypatch.setenv("POORTOPOUR_ENV", "production")
+
+    with caplog.at_level(logging.WARNING, logger="app.core.config"):
+        Settings(_env_file=None)
+        Settings(_env_file=None)
+
+    assert caplog.text.count("POORTOPOUR_ENV is deprecated") == 1

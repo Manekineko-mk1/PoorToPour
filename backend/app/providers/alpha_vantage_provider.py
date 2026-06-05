@@ -110,7 +110,7 @@ def daily_bars_from_alpha_vantage_payload(symbol: str, payload: dict[str, Any]) 
         bars.append(
             DailyBar(
                 symbol=symbol.upper(),
-                date=bar_date,
+                date=date.fromisoformat(bar_date),
                 open=open_value,
                 high=high_value,
                 low=low_value,

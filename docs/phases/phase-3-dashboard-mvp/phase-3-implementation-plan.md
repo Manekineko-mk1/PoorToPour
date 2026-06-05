@@ -4,7 +4,7 @@
 **Phase:** Phase 3 - Dashboard MVP
 **Status:** 🟨 Active
 **Branch:** `feature/phase_3_dashboard_mvp`
-**Last updated:** 2026-05-28
+**Last updated:** 2026-06-04
 
 ---
 
@@ -154,12 +154,15 @@ Outcome:
 Tasks:
 
 - Add a dedicated candidate detail route or route-compatible view.
-- Show candidate header: ticker, company, setup, status, score, scan time, data date.
-- Show chart evidence: candlesticks, volume, SMA 20/50/200, RSI.
-- Show setup explanation: reasons, cautions, score components, and rule-derived labels.
-- Show risk/reward card with entry, invalidation, target, risk/share, and risk/reward ratio.
-- Show company context available from symbol metadata.
-- Use the MainScreen v0.2 candidate evidence/detail composition as the visual guide for the MVP detail page.
+- Use `Mock_UI_PoorToPour_01_CandidateDetail.png` as the visual guide for the MVP detail page.
+- Show a compact identity strip: ticker, company, exchange badge, setup badge, status, score, and dashboard/back navigation.
+- Do not use top hero cards for price, relative volume, RSI, or data date; preserve chart real estate.
+- Show chart evidence as the primary center panel: candlesticks, volume, SMA 20/50/200, RSI, and optional research estimate lines.
+- Add chart toolbar controls for MVP review: timeframe slicing, simple display options, and chart-panel fullscreen.
+- Show setup explanation, reasons, cautions, score components, and rule-derived labels in right-side research panels.
+- Show risk/reward estimate with entry, invalidation, target, risk/share, and risk/reward ratio in a color-coded right-side trade plan panel.
+- Show company context available from symbol metadata, including exchange/listing context where available.
+- Keep Company Overview and News & Events as disabled/placeholder tabs unless Phase 3 explicitly expands their data scope.
 
 Exit criteria:
 
@@ -216,11 +219,15 @@ Exit criteria:
 
 Outcome:
 
-- Manual scan can be triggered from the dashboard safely.
+- Manual scan can refresh market data, persist updated bars, and then trigger the deterministic scanner safely.
 
 Tasks:
 
 - Add backend route or frontend flow for manual scan if missing.
+- Refresh yfinance daily bars before the default local/dev manual scan.
+- Persist refreshed bars before running the deterministic scanner.
+- Keep an explicit persisted-only scan mode for debugging and fallback.
+- Return refresh metadata: symbols requested, symbols refreshed, symbols failed, bars persisted, provider, and period.
 - Show loading, success, failure, and partial-success states.
 - Refresh latest scan after completion.
 - Default local/dev manual scans to the yfinance-backed data path while preserving the provider abstraction.
@@ -231,6 +238,7 @@ Tasks:
 Exit criteria:
 
 - Manual scan is useful for local development and clear in hosted demo mode.
+- The default local/dev manual scan does not silently scan stale persisted bars.
 - Failures are visible and do not leave stale success UI behind.
 - Data source and freshness are visible enough that yfinance-backed results are not mistaken for paid/trading-grade provider output.
 
@@ -303,7 +311,7 @@ Recommended first coding order:
 4. Candidate detail page and chart rendering.
 5. Scan History page.
 6. Settings page.
-7. Manual scan flow.
+7. Manual scan flow with yfinance refresh-before-scan.
 8. Mock-alignment pass for Dashboard, Scan History, and Settings.
 9. UX/accessibility/responsive polish.
 10. Tests, review, and PR draft.

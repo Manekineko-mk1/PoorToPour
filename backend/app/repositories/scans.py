@@ -39,6 +39,48 @@ def list_scan_runs(db: Session, limit: int = 20) -> list[ScanRun]:
     return [_scan_run_from_row(row) for row in rows]
 
 
+def get_latest_candidate_for_symbol(
+    db: Session,
+    symbol: str,
+    setup: str | None = None,
+    scan_id: str | None = None,
+) -> tuple[ScanRun, ScanCandidate] | None:
+    statement = (
+        select(ScanCandidateRow)
+        .join(ScanRunRow)
+        .where(ScanCandidateRow.symbol == symbol.upper())
+        .options(selectinload(ScanCandidateRow.scan_run))
+    )
+    if setup:
+        statement = statement.where(ScanCandidateRow.setup == setup)
+    if scan_id:
+        statement = statement.where(ScanCandidateRow.scan_run_id == scan_id)
+
+    if scan_id:
+        # The run is pinned, so recency ordering is irrelevant. Select the
+        # best-ranked matching candidate explicitly; rank is unique per run
+        # (uq_scan_candidates_run_rank), with id as a final stable tiebreaker.
+        ordering = (ScanCandidateRow.rank.asc(), ScanCandidateRow.id.asc())
+    else:
+        # Prefer the most recent run, then the best-ranked candidate within it.
+        # id is the final deterministic tiebreaker if every prior key ties.
+        ordering = (
+            ScanRunRow.completed_at.desc().nullslast(),
+            ScanRunRow.created_at.desc(),
+            ScanCandidateRow.rank.asc(),
+            ScanCandidateRow.id.asc(),
+        )
+
+    row = db.scalars(
+        statement
+        .order_by(*ordering)
+        .limit(1)
+    ).first()
+    if row is None:
+        return None
+    return _scan_run_from_row(row.scan_run), _candidate_from_row(row)
+
+
 def upsert_scan_run(db: Session, scan: ScanRun) -> None:
     values = {
         "id": scan.scan_id,
