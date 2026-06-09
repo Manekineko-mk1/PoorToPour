@@ -3,7 +3,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 from app.core.security import check_manual_scan_rate_limit, is_local, verify_manual_scan_auth
 from app.db.base import get_db
 from app.models.market_data import MarketDataRefreshSummary
@@ -51,16 +51,52 @@ def run_manual_scan(
     min_refresh_ratio: float | None = Query(default=None, ge=0, le=1),
 ) -> dict:
     settings = get_settings()
+    return _run_scan(
+        db,
+        settings,
+        refresh_market_data=refresh_market_data,
+        refresh_period=refresh_period,
+        refresh_limit=refresh_limit,
+        min_refresh_ratio=min_refresh_ratio,
+        enforce_hosted_guard=True,
+    )
+
+
+def run_scheduled_scan(
+    db: Session,
+    settings: Settings,
+) -> dict:
+    return _run_scan(
+        db,
+        settings,
+        refresh_market_data=True,
+        refresh_period=settings.scheduled_scan_refresh_period,
+        refresh_limit=settings.scheduled_scan_max_symbols,
+        min_refresh_ratio=settings.manual_scan_min_refresh_ratio,
+        enforce_hosted_guard=False,
+    )
+
+
+def _run_scan(
+    db: Session,
+    settings: Settings,
+    refresh_market_data: bool,
+    refresh_period: str,
+    refresh_limit: int | None,
+    min_refresh_ratio: float | None,
+    enforce_hosted_guard: bool,
+) -> dict:
     symbols = market_data.list_symbols(db)
     if not symbols:
         raise HTTPException(status_code=400, detail="No persisted symbols are available for scanning")
 
-    refresh_limit = _validated_refresh_limit(
-        settings.environment,
-        settings.allow_hosted_manual_scan,
-        settings.hosted_manual_scan_max_symbols,
-        refresh_limit,
-    )
+    if enforce_hosted_guard:
+        refresh_limit = _validated_refresh_limit(
+            settings.environment,
+            settings.allow_hosted_manual_scan,
+            settings.hosted_manual_scan_max_symbols,
+            refresh_limit,
+        )
     # Sort so symbol ordering (and any limited subset) is deterministic regardless
     # of the order in which symbols were returned.
     run_symbols = sorted(symbols, key=lambda s: s.symbol)

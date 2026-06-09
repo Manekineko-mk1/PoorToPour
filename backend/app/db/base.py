@@ -11,7 +11,13 @@ class Base(DeclarativeBase):
 
 
 def build_engine(database_url: str | None = None):
-    return create_engine(database_url or get_settings().database_url, pool_pre_ping=True)
+    url = database_url or get_settings().database_url
+    connect_args = {}
+    if url.startswith("postgresql+psycopg"):
+        # Supabase pooler/PgBouncer can reuse server connections across clients,
+        # which conflicts with psycopg's automatic prepared statement names.
+        connect_args["prepare_threshold"] = None
+    return create_engine(url, pool_pre_ping=True, connect_args=connect_args)
 
 
 engine = build_engine()

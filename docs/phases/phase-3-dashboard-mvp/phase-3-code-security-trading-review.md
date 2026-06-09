@@ -3,7 +3,7 @@
 **Project:** PoorToPour
 **Phase:** Phase 3 - Dashboard MVP
 **Status:** ✅ Complete
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-09
 
 ---
 
@@ -17,6 +17,7 @@ Reviewed Phase 3 Dashboard MVP changes:
 - candidate detail route, chart evidence, chart toolbar, and right rail;
 - backend chart, scan, settings, and market-data refresh APIs;
 - manual scan flow with yfinance refresh-before-scan;
+- scheduled scan flow with daily yfinance refresh-before-scan reuse and local/dev startup catch-up;
 - scan history;
 - settings page and secret redaction;
 - accessibility and MVP UX polish;
@@ -148,7 +149,7 @@ git diff --check
 
 Results:
 
-- ✅ Backend suite passed: 78 tests.
+- ✅ Backend suite passed: 156 tests.
 - ✅ Frontend production build passed.
 - ✅ Docker Compose config validation passed.
 - ✅ Backend dependency check passed.
@@ -176,6 +177,7 @@ Manual/browser checks completed during Phase 3:
 | No frontend test runner | Low | Add Vitest/Testing Library or Playwright-style route checks when frontend complexity grows. |
 | Large `App.tsx` | Low | Split page, chart, table, settings, and scan-history components after MVP feature stabilization. |
 | Strategy not backtested | High | Do not add alerts, paper trading, or automation until Phase 5 validation exists. |
+| In-process scheduler is not cloud-grade orchestration | Medium | Accept for single-instance MVP/demo; move to Render Cron, a worker, or a DB/distributed lock before relying on hosted schedule reliability. |
 
 ---
 
@@ -196,7 +198,7 @@ The remaining work before merge is ordinary PR hygiene: review the diff, confirm
 
 | Check | Result |
 | --- | --- |
-| `docker compose run --rm backend pytest` | ✅ 83 passed |
+| `docker compose run --rm backend pytest` | ✅ 156 passed |
 | `npm.cmd audit --audit-level=moderate` | ✅ 0 vulnerabilities |
 | `git diff --check` | ✅ Clean |
 
@@ -252,5 +254,34 @@ Fix detail:
 Verification:
 
 - `docker compose run --rm backend pytest tests/test_chart_data.py`: ✅ 5 passed.
-- `docker compose run --rm backend pytest`: ✅ 83 passed.
+- `docker compose run --rm backend pytest`: ✅ 156 passed.
 - `npm.cmd run build`: ✅ passed.
+
+---
+
+## 11. Scheduled Scan Follow-Up
+
+**Reviewer:** Scheduled scan follow-up, 2026-06-09.
+**Status:** ✅ Passed for single-instance MVP/demo scope.
+
+Changes reviewed:
+
+- Added a small FastAPI lifespan-managed scheduler that starts with the deployed app.
+- Defaults to `06:00` in `America/New_York`.
+- Reuses the same yfinance refresh-before-scan and deterministic scan path as manual scans.
+- Adds local/dev startup catch-up when today's scheduled scan was missed.
+- Keeps public hosted manual-scan safeguards separate from the trusted in-process scheduled job.
+- Adds environment settings and safe display-settings copy.
+- Shutdown now sets a stop event, cancels the scheduler loop to break out of waits, shields and tracks the thread-backed scan task, and waits for any in-progress scan to finish with an explicit timeout warning.
+- Scheduled scan timezone is now normalized in settings; unknown or blank timezone values fall back to `UTC`, so runtime scheduling and `/api/settings/display` report the same effective timezone.
+- Each scheduled scan attempts a Postgres advisory lock before work starts; if another process holds the lock, the run is skipped so reloads/workers/replicas do not double-run the same scheduled scan.
+
+Risk notes:
+
+- This is an in-process scheduler. It only runs while the app process is awake.
+- Single-instance Render-style demos are acceptable for MVP. The advisory lock prevents duplicate scan execution across app processes, but a dedicated cron/worker is still preferred later for missed-run reliability when services sleep.
+
+Verification:
+
+- `docker compose run --rm backend pytest tests/test_scheduled_scan.py tests/test_scanner_config.py tests/test_display_settings.py`: ✅ 40 passed.
+- `docker compose run --rm backend pytest`: ✅ 156 passed.

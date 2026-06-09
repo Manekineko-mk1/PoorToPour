@@ -34,6 +34,10 @@ def test_display_settings_local_includes_internal_fields() -> None:
         allow_hosted_manual_scan=False,
         manual_scan_rate_limit=5,
         hosted_manual_scan_max_symbols=25,
+        scheduled_scan_enabled=True,
+        scheduled_scan_time="06:00",
+        scheduled_scan_timezone="America/New_York",
+        scheduled_scan_startup_catchup=True,
     )
     with mock.patch("app.api.routes.configuration.get_settings", return_value=mock_cfg):
         client = TestClient(create_app())
@@ -44,7 +48,7 @@ def test_display_settings_local_includes_internal_fields() -> None:
     assert "scanner" in payload
     assert "admin_controls" in payload
     assert payload["scanner"]["risk_reward_atr_buffer_multiplier"] == 0.5
-    assert payload["scanner"]["schedule"] == "Manual/local daily scan."
+    assert payload["scanner"]["schedule"] == "Daily scheduled scan at 06:00 America/New_York with local startup catch-up."
     assert "Local/dev only" in payload["admin_controls"]["manual_scan"]
 
 
@@ -59,6 +63,10 @@ def test_display_settings_hosted_manual_scan_reflects_in_schedule() -> None:
         allow_hosted_manual_scan=True,
         manual_scan_rate_limit=10,
         hosted_manual_scan_max_symbols=50,
+        scheduled_scan_enabled=True,
+        scheduled_scan_time="06:00",
+        scheduled_scan_timezone="America/New_York",
+        scheduled_scan_startup_catchup=True,
     )
     with mock.patch("app.api.routes.configuration.get_settings", return_value=mock_cfg):
         client = TestClient(create_app())
@@ -66,9 +74,24 @@ def test_display_settings_hosted_manual_scan_reflects_in_schedule() -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["scanner"]["schedule"] == "Hosted manual scan enabled."
+    assert payload["scanner"]["schedule"] == "Daily scheduled scan at 06:00 America/New_York with local startup catch-up."
     assert "10 req/min" in payload["admin_controls"]["manual_scan"]
     assert "50 symbols" in payload["admin_controls"]["manual_scan"]
+
+
+def test_display_settings_reports_effective_scheduled_timezone() -> None:
+    import unittest.mock as mock
+
+    from app.core.config import Settings
+
+    settings = Settings(scheduled_scan_timezone="Not/AZone", _env_file=None)
+    with mock.patch("app.api.routes.configuration.get_settings", return_value=settings):
+        client = TestClient(create_app())
+        response = client.get("/api/settings/display")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["scanner"]["schedule"] == "Daily scheduled scan at 06:00 UTC with local startup catch-up."
 
 
 def test_display_settings_production_strips_internal_fields() -> None:

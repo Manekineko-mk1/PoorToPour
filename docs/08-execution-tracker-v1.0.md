@@ -3,7 +3,7 @@
 **Project:** PoorToPour
 **Description:** From broke to pouring champagne.
 **Date created:** 2026-04-29
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-09
 **Status:** 🟨 Phase 3 Active - Dashboard MVP
 
 ---
@@ -15,7 +15,7 @@
 
 Current objective:
 
-Turn the Phase 2 deterministic scanner output into the first complete Dashboard MVP workflow: latest scan summary, ranked candidate review, candidate detail with chart evidence, scan history, settings, manual scan flow, and clear data-health states.
+Turn the Phase 2 deterministic scanner output into the first complete Dashboard MVP workflow: latest scan summary, ranked candidate review, candidate detail with chart evidence, scan history, settings, manual scan flow, scheduled refresh-and-scan flow, and clear data-health states.
 
 Detailed Phase 3 tracker and plan:
 
@@ -73,6 +73,7 @@ Canonical Phase 3 acceptance criteria live in `/docs/phases/phase-3-dashboard-mv
 | AC-P3-007 | Scan History page exists | ✅ Done | Prior runs are inspectable and traceable |
 | AC-P3-008 | Settings page exists for MVP config visibility | ✅ Done | System/admin settings are read-only; safe display preferences are editable |
 | AC-P3-009 | Manual scan is usable from the dashboard | ✅ Done | Manual scan refreshes yfinance data locally by default, runs deterministic scan, and shows progress/failure |
+| AC-P3-009B | Scheduled scan can refresh market data and run deterministically | ✅ Done | In-process scheduler runs daily at 06:00 America/New_York by default and performs local/dev startup catch-up after missed scheduled runs |
 | AC-P3-010 | Frontend remains research-only and not trade-instructional | ✅ Done | UI avoids buy/sell instruction and keeps risk/reward framed as research context |
 | AC-P3-011 | UI matches the v0.2 mock direction within MVP scope | ✅ Done | Dashboard, app shell, Candidate Detail, Scan History, and Settings follow mock direction within MVP boundaries |
 | AC-P3-012 | Tests and review are complete before merge | ✅ Done | P3-N verification and P3-O review artifact are complete; PR draft has been updated |
@@ -90,11 +91,12 @@ Canonical Phase 3 test tracking lives in `/docs/phases/phase-3-dashboard-mvp/pha
 | T-P3-003 | Settings API/page tests | API/UI | `docker compose run --rm backend pytest tests/test_display_settings.py`; `/settings`; `/api/settings/display` | ✅ Done | Secret-redaction API test passed and Settings page was checked |
 | T-P3-004 | Manual scan flow test | Integration | `docker compose run --rm backend pytest tests/test_manual_scan_route.py` | ✅ Done | Manual scan tests cover persisted-only scan, yfinance refresh, refresh failure, hosted disable, and hosted symbol cap |
 | T-P3-005 | Frontend component/build tests | Frontend | `npm.cmd run build` | ✅ Done | Production build passed; no frontend component test runner is configured yet |
-| T-P3-006 | Backend regression suite | Regression | `docker compose run --rm backend pytest` | ✅ Done | Backend suite passed: 78 tests |
+| T-P3-006 | Backend regression suite | Regression | `docker compose run --rm backend pytest` | ✅ Done | Backend suite passed: 156 tests |
 | T-P3-007 | Local smoke check | Manual | `http://localhost:5173`, `/api/health`, `/api/scans/latest` | ✅ Done | Dashboard, detail, scan history, settings, and manual scan were browser/API checked during Phase 3 |
 | T-P3-008 | Responsive visual checks | Manual/UI | Browser viewports | ✅ Done | Desktop and tall/narrow layout issues were fixed and confirmed during Phase 3 |
 | T-P3-009 | Mock alignment visual review | Manual/UI | Compare against v0.2 mock renders | ✅ Done | Mock direction followed within MVP scope |
 | T-P3-010 | Security/dependency checks | Review | `docker compose config --quiet`, `pip check`, `npm audit`, secret scan, `git diff --check` | ✅ Done | Compose config, pip check, npm audit, secret scan review, and diff whitespace check passed |
+| T-P3-012 | Scheduled scan runner tests | Unit/API | `docker compose run --rm backend pytest tests/test_scheduled_scan.py tests/test_scanner_config.py tests/test_display_settings.py` | ✅ Done | Schedule timing, local startup catch-up, config validation, and display settings copy are covered |
 
 ---
 
