@@ -117,6 +117,13 @@ export async function fetchLatestScan(): Promise<LatestScan | null> {
 
 export async function runManualScan(): Promise<LatestScan> {
   const response = await fetch(`${API_BASE_URL}/api/scans/manual`, { method: "POST" });
+  if (response.status === 401) {
+    const triggerResponse = await fetch(`${API_BASE_URL}/api/scans/trigger`, { method: "POST" });
+    if (!triggerResponse.ok) {
+      throw new Error(await responseErrorMessage(triggerResponse, "Unable to trigger persisted scan"));
+    }
+    return triggerResponse.json();
+  }
   if (!response.ok) {
     throw new Error(await responseErrorMessage(response, "Unable to run manual scan"));
   }

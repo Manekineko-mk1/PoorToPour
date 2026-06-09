@@ -34,6 +34,7 @@ def display_settings() -> dict:
         }
         payload["admin_controls"] = {
             "manual_scan": _manual_scan_note(settings),
+            "hosted_persisted_scan_trigger": _persisted_scan_trigger_note(settings),
         }
     return payload
 
@@ -62,3 +63,11 @@ def _manual_scan_note(settings: Settings) -> str:
             f"max {settings.hosted_manual_scan_max_symbols} symbols)."
         )
     return "Local/dev only until hosted rate limits are reviewed."
+
+
+def _persisted_scan_trigger_note(settings: Settings) -> str:
+    if is_local(settings.environment):
+        return "Enabled locally; runs scanner on persisted bars only."
+    if settings.allow_hosted_persisted_scan_trigger:
+        return "Enabled for hosted demo; runs scanner on persisted bars only."
+    return "Disabled for hosted demo."

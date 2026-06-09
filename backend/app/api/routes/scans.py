@@ -62,6 +62,26 @@ def run_manual_scan(
     )
 
 
+@router.post(
+    "/scans/trigger",
+    dependencies=[Depends(check_manual_scan_rate_limit)],
+)
+def run_persisted_scan_trigger(
+    db: Session = Depends(get_db),
+) -> dict:
+    settings = get_settings()
+    _validate_persisted_scan_trigger(settings)
+    return _run_scan(
+        db,
+        settings,
+        refresh_market_data=False,
+        refresh_period=settings.scheduled_scan_refresh_period,
+        refresh_limit=None,
+        min_refresh_ratio=None,
+        enforce_hosted_guard=False,
+    )
+
+
 def run_scheduled_scan(
     db: Session,
     settings: Settings,
@@ -199,6 +219,17 @@ def _validated_refresh_limit(
         return hosted_manual_scan_max_symbols
 
     return min(refresh_limit, hosted_manual_scan_max_symbols)
+
+
+def _validate_persisted_scan_trigger(settings: Settings) -> None:
+    if is_local(settings.environment):
+        return
+    if settings.allow_hosted_persisted_scan_trigger:
+        return
+    raise HTTPException(
+        status_code=403,
+        detail="Hosted persisted scan trigger is disabled.",
+    )
 
 
 def _manual_scan_warning(refresh_summary: MarketDataRefreshSummary) -> str:
