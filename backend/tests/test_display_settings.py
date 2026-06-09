@@ -38,6 +38,7 @@ def test_display_settings_local_includes_internal_fields() -> None:
         scheduled_scan_time="06:00",
         scheduled_scan_timezone="America/New_York",
         scheduled_scan_startup_catchup=True,
+        allow_hosted_persisted_scan_trigger=False,
     )
     with mock.patch("app.api.routes.configuration.get_settings", return_value=mock_cfg):
         client = TestClient(create_app())
@@ -50,6 +51,7 @@ def test_display_settings_local_includes_internal_fields() -> None:
     assert payload["scanner"]["risk_reward_atr_buffer_multiplier"] == 0.5
     assert payload["scanner"]["schedule"] == "Daily scheduled scan at 06:00 America/New_York with local startup catch-up."
     assert "Local/dev only" in payload["admin_controls"]["manual_scan"]
+    assert payload["admin_controls"]["hosted_persisted_scan_trigger"] == "Enabled locally; runs scanner on persisted bars only."
 
 
 def test_display_settings_hosted_manual_scan_reflects_in_schedule() -> None:
@@ -67,6 +69,7 @@ def test_display_settings_hosted_manual_scan_reflects_in_schedule() -> None:
         scheduled_scan_time="06:00",
         scheduled_scan_timezone="America/New_York",
         scheduled_scan_startup_catchup=True,
+        allow_hosted_persisted_scan_trigger=False,
     )
     with mock.patch("app.api.routes.configuration.get_settings", return_value=mock_cfg):
         client = TestClient(create_app())

@@ -215,6 +215,83 @@ def test_manual_scan_is_disabled_in_hosted_environment_by_default(monkeypatch) -
     assert response.json()["detail"] == "Manual scan is disabled outside local/dev environments."
 
 
+def test_hosted_persisted_scan_trigger_is_disabled_by_default(monkeypatch) -> None:
+    monkeypatch.setattr(scans, "get_settings", lambda: Settings(environment="production"))
+
+    response = TestClient(create_app()).post("/api/scans/trigger")
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Hosted persisted scan trigger is disabled."
+
+
+def test_hosted_persisted_scan_trigger_runs_without_refresh_when_enabled(monkeypatch) -> None:
+    saved_scans = []
+    monkeypatch.setattr(
+        scans,
+        "get_settings",
+        lambda: Settings(
+            environment="production",
+            allow_hosted_persisted_scan_trigger=True,
+        ),
+    )
+    monkeypatch.setattr(
+        scans.market_data,
+        "list_symbols",
+        lambda db: [
+            SymbolProfile(
+                symbol="AAPL",
+                company_name="Apple Inc.",
+                sector="Technology",
+                industry="Consumer Electronics",
+                exchange="NASDAQ",
+            )
+        ],
+    )
+    monkeypatch.setattr(scans.market_data, "get_daily_bars", lambda db, symbol: [_bar(symbol)])
+    monkeypatch.setattr(scans.scans, "upsert_scan_run", lambda db, scan: saved_scans.append(scan))
+    monkeypatch.setattr(scans, "TechnicalScanner", lambda: FakeScanner())
+
+    def fail_if_refresh_called(*args, **kwargs):
+        raise AssertionError("persisted scan trigger must not refresh market data")
+
+    monkeypatch.setattr(scans, "refresh_yfinance_daily_bars", fail_if_refresh_called)
+
+    response = TestClient(create_app()).post("/api/scans/trigger")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["provider"] == "TechnicalScanner + persisted bars"
+    assert "market_data_refresh" not in payload
+    assert len(saved_scans) == 1
+
+
+def test_local_persisted_scan_trigger_does_not_require_flag(monkeypatch) -> None:
+    saved_scans = []
+    monkeypatch.setattr(scans, "get_settings", lambda: Settings(environment="local"))
+    monkeypatch.setattr(
+        scans.market_data,
+        "list_symbols",
+        lambda db: [
+            SymbolProfile(
+                symbol="AAPL",
+                company_name="Apple Inc.",
+                sector="Technology",
+                industry="Consumer Electronics",
+                exchange="NASDAQ",
+            )
+        ],
+    )
+    monkeypatch.setattr(scans.market_data, "get_daily_bars", lambda db, symbol: [_bar(symbol)])
+    monkeypatch.setattr(scans.scans, "upsert_scan_run", lambda db, scan: saved_scans.append(scan))
+    monkeypatch.setattr(scans, "TechnicalScanner", lambda: FakeScanner())
+
+    response = TestClient(create_app()).post("/api/scans/trigger")
+
+    assert response.status_code == 200
+    assert response.json()["provider"] == "TechnicalScanner + persisted bars"
+    assert len(saved_scans) == 1
+
+
 def test_hosted_manual_scan_uses_configured_symbol_cap(monkeypatch) -> None:
     saved_scans = []
     requested_symbols = [

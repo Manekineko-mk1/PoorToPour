@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     scanner_risk_reward_atr_buffer_multiplier: float = Field(default=0.5, gt=0)
     scanner_risk_reward_target_multiple: float = Field(default=2.0, gt=0)
     allow_hosted_manual_scan: bool = False
+    allow_hosted_persisted_scan_trigger: bool = False
     hosted_manual_scan_max_symbols: int = Field(default=25, gt=0)
     manual_scan_api_key: str = ""
     manual_scan_rate_limit: int = Field(default=5, gt=0)
