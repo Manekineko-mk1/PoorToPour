@@ -4,7 +4,7 @@
 
 Phase 3 turns the Phase 2 deterministic scanner output into the first complete Dashboard MVP workflow.
 
-The user can now open the app, read the latest scan health, compare ranked candidates with practical filtering/sorting, open a candidate detail route with backend-derived chart evidence and rule context, review previous scan runs, view safe (secret-free) settings, and trigger a manual scan that refreshes local yfinance data before running the deterministic scanner.
+The user can now open the app, read the latest scan health, compare ranked candidates with practical filtering/sorting, open a candidate detail route with backend-derived chart evidence and rule context, review previous scan runs, view safe (secret-free) settings, trigger a manual scan that refreshes local yfinance data before running the deterministic scanner, and let a small scheduled job run that same refresh-and-scan workflow daily.
 
 The dashboard, scan history, and settings screens follow the v0.2 mock render direction while staying inside MVP scope: research-only, deterministic, long-only, no automation, no AI trade decisions.
 
@@ -19,6 +19,7 @@ Backend:
 - Add `GET /api/symbols/{symbol}/chart` and a `chart_data` service that builds a deterministic chart payload server-side: candles, volume, SMA 20/50/200, RSI 14, insufficient-history warnings, and candidate context (setup, status, score, reasons, caution flags, risk/reward overlay).
 - Add `GET /api/settings/display` and a `configuration` route that returns environment/provider context, scanner assumptions, safe user preferences, and explicit secret-visibility booleans — never secret values.
 - Add `POST /api/scans/manual` with an optional yfinance refresh-before-scan path, plus a `market_data_refresh` service that refreshes persisted daily bars in chunks and returns a per-run refresh summary (requested/refreshed/failed/bars, bounded failure messages).
+- Add an in-process scheduled scan service that starts with FastAPI, defaults to `06:00` `America/New_York`, reuses the yfinance refresh-before-scan pipeline, and performs local/dev startup catch-up when today's scheduled scan was missed.
 - Add `get_latest_candidate_for_symbol` repository lookup to attach the most recent candidate context to a symbol chart.
 - Add hosted manual-scan safeguards in config: disabled outside local/dev by default, opt-in via `POORTOPOUR_ALLOW_HOSTED_MANUAL_SCAN`, capped by `POORTOPOUR_HOSTED_MANUAL_SCAN_MAX_SYMBOLS` (default 25).
 
@@ -59,7 +60,7 @@ git diff --check
 
 Observed results:
 
-- `docker compose run --rm backend pytest`: 83 passed.
+- `docker compose run --rm backend pytest`: 148 passed.
 - `npm.cmd run build`: passed.
 - `docker compose config --quiet`: passed.
 - `docker compose run --rm backend python -m pip check`: no broken requirements.
@@ -76,6 +77,7 @@ Manual/user-confirmed checks (completed during Phase 3):
 - Scan History loads previous runs.
 - Settings loads without exposing secrets.
 - Manual scan refreshes yfinance data locally, runs the deterministic scan, and labels source/freshness; loading/error/success states are clear.
+- Scheduled scan defaults and local/dev startup catch-up are covered by focused backend tests; hosted scheduling remains an in-process MVP/demo mechanism.
 - Narrow/tall (1080x2560) layout remains usable.
 
 ## Review Outcomes
@@ -95,7 +97,7 @@ Secondary review outcome:
 - Two additional Low findings were raised and fixed during the secondary pass:
   - Chart RSI moved from a simple mean to Wilder's smoothing so values match standard charting platforms (display-only, deterministic), with a reference-value regression test.
   - `POST /api/scans/manual` now validates `refresh_limit` (`Query(ge=1)`) and constrains `refresh_period` to supported yfinance periods, returning 422 on bad input, with regression tests.
-- Backend suite is now 83 passed.
+- Backend suite is now 148 passed after scheduled scan follow-up work.
 
 ## Known Limitations and Follow-Ups
 
@@ -110,6 +112,7 @@ Expected MVP boundaries:
 - No intraday scanner.
 - yfinance-backed MVP scan data is not trading-grade and is labelled with source/freshness.
 - No authentication layer; hosted/demo deployments must stay read-only or explicitly constrained, with `POORTOPOUR_ENVIRONMENT=production` set so non-local safeguards apply.
+- Scheduled scans are in-process and suitable for single-instance MVP/demo use; use Render Cron, a worker, or a database/distributed lock before depending on cloud schedule reliability.
 
 Follow-ups:
 
@@ -119,11 +122,11 @@ Follow-ups:
 
 ## Reviewer Checklist
 
-- [x] Confirm backend tests pass (83 passed).
+- [x] Confirm backend tests pass (148 passed).
 - [x] Confirm frontend build passes.
 - [x] Confirm dashboard UX matches MVP scope.
 - [x] Confirm candidate chart evidence is deterministic and backend-derived.
 - [x] Confirm copy remains research-only, not trade-instructional.
 - [x] Confirm no secrets are exposed in frontend, logs, docs, or committed files.
 - [x] Confirm Phase 3 code/security/trading/UX review has been read.
-- [ ] Confirm hosted environment variables (`POORTOPOUR_ENVIRONMENT`, manual-scan flags) before any non-local deploy.
+- [ ] Confirm hosted environment variables (`POORTOPOUR_ENVIRONMENT`, manual-scan flags, scheduled-scan flags) before any non-local deploy.

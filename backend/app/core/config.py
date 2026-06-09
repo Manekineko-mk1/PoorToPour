@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     # lenient default (any partial refresh proceeds on persisted bars with a
     # warning); 1.0 requires every symbol to refresh. Overridable per request.
     manual_scan_min_refresh_ratio: float = Field(default=0.0, ge=0, le=1)
+    scheduled_scan_enabled: bool = True
+    scheduled_scan_time: str = "06:00"
+    scheduled_scan_timezone: str = "America/New_York"
+    scheduled_scan_refresh_period: str = "1y"
+    scheduled_scan_max_symbols: int | None = Field(default=None, gt=0)
+    scheduled_scan_startup_catchup: bool = True
     log_dir: str = "logs"
     log_level: str = "INFO"
     log_retention_days: int = Field(default=3, gt=0)
@@ -58,6 +64,35 @@ class Settings(BaseSettings):
                 f"{', '.join(sorted(logging.getLevelNamesMapping()))}"
             )
         return normalized
+
+    @field_validator("scheduled_scan_time")
+    @classmethod
+    def _validate_scheduled_scan_time(cls, value: str) -> str:
+        parts = value.strip().split(":")
+        if len(parts) != 2:
+            raise ValueError("scheduled_scan_time must use HH:MM format")
+        try:
+            hour, minute = (int(part) for part in parts)
+        except ValueError as exc:
+            raise ValueError("scheduled_scan_time must use HH:MM format") from exc
+        if hour < 0 or hour > 23 or minute < 0 or minute > 59:
+            raise ValueError("scheduled_scan_time must use HH:MM format")
+        return f"{hour:02d}:{minute:02d}"
+
+    @field_validator("scheduled_scan_refresh_period")
+    @classmethod
+    def _validate_scheduled_scan_refresh_period(cls, value: str) -> str:
+        allowed = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"}
+        if value not in allowed:
+            raise ValueError(f"scheduled_scan_refresh_period must be one of {', '.join(sorted(allowed))}")
+        return value
+
+    @field_validator("scheduled_scan_max_symbols", mode="before")
+    @classmethod
+    def _blank_scheduled_scan_max_symbols_as_none(cls, value: object) -> object:
+        if isinstance(value, str) and value.strip() == "":
+            return None
+        return value
 
     # Legacy alias for ``environment``. Read through the settings sources (via the
     # explicit validation alias) so the migration does not touch os.environ

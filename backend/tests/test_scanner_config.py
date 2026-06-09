@@ -48,6 +48,38 @@ def test_log_level_defaults_to_info() -> None:
     assert Settings(_env_file=None).log_level == "INFO"
 
 
+def test_scheduled_scan_defaults_to_6am_eastern_with_local_catchup() -> None:
+    settings = Settings(_env_file=None)
+
+    assert settings.scheduled_scan_enabled is True
+    assert settings.scheduled_scan_time == "06:00"
+    assert settings.scheduled_scan_timezone == "America/New_York"
+    assert settings.scheduled_scan_refresh_period == "1y"
+    assert settings.scheduled_scan_max_symbols is None
+    assert settings.scheduled_scan_startup_catchup is True
+
+
+def test_scheduled_scan_time_is_normalized() -> None:
+    assert Settings(scheduled_scan_time="6:05", _env_file=None).scheduled_scan_time == "06:05"
+
+
+def test_blank_scheduled_scan_max_symbols_is_unlimited() -> None:
+    settings = Settings(scheduled_scan_max_symbols="", _env_file=None)
+
+    assert settings.scheduled_scan_max_symbols is None
+
+
+@pytest.mark.parametrize("value", ["24:00", "06:60", "bogus", "6"])
+def test_scheduled_scan_time_rejects_invalid_values(value: str) -> None:
+    with pytest.raises(ValidationError):
+        Settings(scheduled_scan_time=value, _env_file=None)
+
+
+def test_scheduled_scan_period_rejects_unknown_values() -> None:
+    with pytest.raises(ValidationError):
+        Settings(scheduled_scan_refresh_period="bogus", _env_file=None)
+
+
 def test_log_level_is_normalized_to_upper_case() -> None:
     assert Settings(log_level="debug", _env_file=None).log_level == "DEBUG"
 

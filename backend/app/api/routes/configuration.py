@@ -30,7 +30,7 @@ def display_settings() -> dict:
         payload["scanner"] = {
             "risk_reward_atr_buffer_multiplier": settings.scanner_risk_reward_atr_buffer_multiplier,
             "risk_reward_target_multiple": settings.scanner_risk_reward_target_multiple,
-            "schedule": _scan_schedule(settings.allow_hosted_manual_scan),
+            "schedule": _scan_schedule(settings),
         }
         payload["admin_controls"] = {
             "manual_scan": _manual_scan_note(settings),
@@ -44,10 +44,14 @@ def _data_source_note(provider: str) -> str:
     return "Configured provider mode; secrets are redacted."
 
 
-def _scan_schedule(allow_hosted: bool) -> str:
-    if allow_hosted:
-        return "Hosted manual scan enabled."
-    return "Manual/local daily scan."
+def _scan_schedule(settings: Settings) -> str:
+    if not settings.scheduled_scan_enabled:
+        return "Scheduled scan disabled."
+    catchup = " with local startup catch-up" if settings.scheduled_scan_startup_catchup else ""
+    return (
+        f"Daily scheduled scan at {settings.scheduled_scan_time} "
+        f"{settings.scheduled_scan_timezone}{catchup}."
+    )
 
 
 def _manual_scan_note(settings: Settings) -> str:

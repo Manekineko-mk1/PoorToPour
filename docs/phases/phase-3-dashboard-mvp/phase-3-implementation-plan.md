@@ -244,7 +244,32 @@ Exit criteria:
 
 ---
 
-### Step 9: UX Polish, Accessibility, and Responsive QA
+### Step 9: Scheduled Scan Runner
+
+Outcome:
+
+- The app can run the same yfinance refresh-before-scan workflow on a small daily schedule without requiring the user to click `Run Manual Scan`.
+
+Tasks:
+
+- Add an in-process scheduled scan service that starts with the FastAPI app.
+- Default the remote/demo schedule to `06:00` in `America/New_York`.
+- Reuse the manual-scan refresh and deterministic scan pipeline so scheduled and manual results remain consistent.
+- Keep public hosted manual-scan safeguards separate from the trusted in-process scheduled job.
+- Add local/dev startup catch-up: if the app starts after today's scheduled time and no scan completed after that time, run the scheduled scan in the background.
+- Expose safe schedule settings through `.env.example` and the display settings API; do not expose secrets.
+- Add focused tests for schedule timing, local catch-up, config validation, and display settings copy.
+
+Exit criteria:
+
+- Scheduled scan defaults are configurable through environment variables.
+- Local/dev catch-up runs only when the scheduled run was missed.
+- The scheduler avoids overlapping runs in a single process.
+- Docs clearly note that this is a single-process MVP scheduler; cloud cron/worker hardening can come later if hosted reliability matters.
+
+---
+
+### Step 10: UX Polish, Accessibility, and Responsive QA
 
 Outcome:
 
@@ -267,7 +292,7 @@ Exit criteria:
 
 ---
 
-### Step 10: Review and Closeout
+### Step 11: Review and Closeout
 
 Outcome:
 
