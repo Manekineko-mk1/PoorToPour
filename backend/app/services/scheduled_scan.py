@@ -5,6 +5,7 @@ from contextlib import suppress
 from datetime import UTC, datetime, time, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.routes.scans import run_scheduled_scan
@@ -17,10 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 SessionFactory = Callable[[], Session]
+SHUTDOWN_SCAN_WAIT_SECONDS = 300.0
+SCHEDULED_SCAN_ADVISORY_LOCK_KEY = 733_261_006
 
 
 class ScheduledScanService:
-    """Small in-process daily scanner for local/dev and single-instance demos."""
+    """Small daily scanner with an in-process lock and a Postgres advisory lock."""
 
     def __init__(
         self,
@@ -30,20 +33,25 @@ class ScheduledScanService:
         self.settings = settings
         self.session_factory = session_factory
         self._task: asyncio.Task | None = None
+        self._stop_event = asyncio.Event()
         self._scan_lock = asyncio.Lock()
+        self._inflight: asyncio.Future | None = None
 
     def start(self) -> None:
         if self._task is not None:
             return
+        self._stop_event.clear()
         self._task = asyncio.create_task(self._run_loop(), name="scheduled-scan-service")
 
     async def stop(self) -> None:
         if self._task is None:
             return
+        self._stop_event.set()
         self._task.cancel()
         with suppress(asyncio.CancelledError):
             await self._task
         self._task = None
+        await self._wait_for_inflight()
 
     async def _run_loop(self) -> None:
         timezone = _scan_timezone(self.settings.scheduled_scan_timezone)
@@ -57,17 +65,21 @@ class ScheduledScanService:
         if _should_run_startup_catchup(self.settings, datetime.now(timezone), self._latest_scan_completed_at(timezone)):
             await self._run_once("startup catch-up")
 
-        while True:
+        while not self._stop_event.is_set():
             now = datetime.now(timezone)
             wait_seconds = _seconds_until_next_run(
                 now,
                 self.settings.scheduled_scan_time,
                 timezone,
             )
-            await asyncio.sleep(wait_seconds)
+            if await self._wait_for_stop(wait_seconds):
+                break
             await self._run_once("daily schedule")
 
     async def _run_once(self, reason: str) -> None:
+        if self._stop_event.is_set():
+            logger.info("Scheduled scan skipped during shutdown (%s).", reason)
+            return
         if self._scan_lock.locked():
             logger.info("Scheduled scan skipped because another scheduled scan is already running.")
             return
@@ -75,21 +87,56 @@ class ScheduledScanService:
         async with self._scan_lock:
             logger.info("Starting scheduled scan (%s).", reason)
             try:
-                payload = await asyncio.to_thread(self._run_once_sync)
+                inflight = asyncio.create_task(asyncio.to_thread(self._run_once_sync), name="scheduled-scan-run")
+                self._inflight = inflight
+                payload = await asyncio.shield(inflight)
             except Exception:
                 logger.exception("Scheduled scan failed.")
                 return
+            finally:
+                if self._inflight is not None and self._inflight.done():
+                    self._inflight = None
             logger.info(
                 "Scheduled scan completed: scan_id=%s candidates=%s",
                 payload.get("scan_id"),
                 payload.get("candidates_found"),
             )
 
+    async def _wait_for_stop(self, timeout_seconds: float) -> bool:
+        try:
+            await asyncio.wait_for(self._stop_event.wait(), timeout=timeout_seconds)
+        except TimeoutError:
+            return False
+        return True
+
+    async def _wait_for_inflight(self) -> None:
+        if self._inflight is None or self._inflight.done():
+            self._inflight = None
+            return
+        logger.info("Waiting for in-progress scheduled scan to finish before shutdown.")
+        try:
+            await asyncio.wait_for(asyncio.shield(self._inflight), timeout=SHUTDOWN_SCAN_WAIT_SECONDS)
+        except TimeoutError:
+            logger.warning(
+                "Scheduled scan is still running after %.0f seconds; shutdown will continue.",
+                SHUTDOWN_SCAN_WAIT_SECONDS,
+            )
+        finally:
+            if self._inflight is not None and self._inflight.done():
+                self._inflight = None
+
     def _run_once_sync(self) -> dict:
         db = self.session_factory()
+        lock_acquired = False
         try:
+            lock_acquired = _try_acquire_scheduled_scan_lock(db)
+            if not lock_acquired:
+                logger.info("Scheduled scan skipped because another process holds the scheduler lock.")
+                return {"scan_id": None, "candidates_found": None, "skipped": True}
             return run_scheduled_scan(db, self.settings)
         finally:
+            if lock_acquired:
+                _release_scheduled_scan_lock(db)
             db.close()
 
     def _latest_scan_completed_at(self, timezone: ZoneInfo) -> datetime | None:
@@ -140,6 +187,25 @@ def _scan_timezone(name: str) -> ZoneInfo:
     except ZoneInfoNotFoundError:
         logger.warning("Unknown scheduled scan timezone %r; falling back to UTC.", name)
         return ZoneInfo("UTC")
+
+
+def _try_acquire_scheduled_scan_lock(db: Session) -> bool:
+    return bool(
+        db.execute(
+            text("select pg_try_advisory_lock(:lock_key)"),
+            {"lock_key": SCHEDULED_SCAN_ADVISORY_LOCK_KEY},
+        ).scalar_one()
+    )
+
+
+def _release_scheduled_scan_lock(db: Session) -> None:
+    try:
+        db.execute(
+            text("select pg_advisory_unlock(:lock_key)"),
+            {"lock_key": SCHEDULED_SCAN_ADVISORY_LOCK_KEY},
+        ).scalar_one()
+    except Exception:
+        logger.warning("Failed to release scheduled scan advisory lock.", exc_info=True)
 
 
 def _parse_completed_at(value: str, timezone: ZoneInfo) -> datetime | None:

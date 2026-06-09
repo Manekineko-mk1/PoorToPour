@@ -91,7 +91,7 @@ Canonical Phase 3 test tracking lives in `/docs/phases/phase-3-dashboard-mvp/pha
 | T-P3-003 | Settings API/page tests | API/UI | `docker compose run --rm backend pytest tests/test_display_settings.py`; `/settings`; `/api/settings/display` | ✅ Done | Secret-redaction API test passed and Settings page was checked |
 | T-P3-004 | Manual scan flow test | Integration | `docker compose run --rm backend pytest tests/test_manual_scan_route.py` | ✅ Done | Manual scan tests cover persisted-only scan, yfinance refresh, refresh failure, hosted disable, and hosted symbol cap |
 | T-P3-005 | Frontend component/build tests | Frontend | `npm.cmd run build` | ✅ Done | Production build passed; no frontend component test runner is configured yet |
-| T-P3-006 | Backend regression suite | Regression | `docker compose run --rm backend pytest` | ✅ Done | Backend suite passed: 148 tests |
+| T-P3-006 | Backend regression suite | Regression | `docker compose run --rm backend pytest` | ✅ Done | Backend suite passed: 156 tests |
 | T-P3-007 | Local smoke check | Manual | `http://localhost:5173`, `/api/health`, `/api/scans/latest` | ✅ Done | Dashboard, detail, scan history, settings, and manual scan were browser/API checked during Phase 3 |
 | T-P3-008 | Responsive visual checks | Manual/UI | Browser viewports | ✅ Done | Desktop and tall/narrow layout issues were fixed and confirmed during Phase 3 |
 | T-P3-009 | Mock alignment visual review | Manual/UI | Compare against v0.2 mock renders | ✅ Done | Mock direction followed within MVP scope |

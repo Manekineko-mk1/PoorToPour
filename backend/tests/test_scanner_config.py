@@ -63,6 +63,30 @@ def test_scheduled_scan_time_is_normalized() -> None:
     assert Settings(scheduled_scan_time="6:05", _env_file=None).scheduled_scan_time == "06:05"
 
 
+def test_scheduled_scan_timezone_accepts_known_timezone() -> None:
+    assert Settings(scheduled_scan_timezone="America/New_York", _env_file=None).scheduled_scan_timezone == "America/New_York"
+
+
+def test_scheduled_scan_timezone_falls_back_to_utc_for_unknown_value(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level(logging.WARNING, logger="app.core.config"):
+        settings = Settings(scheduled_scan_timezone="Mars/Base", _env_file=None)
+
+    assert settings.scheduled_scan_timezone == "UTC"
+    assert "Unknown scheduled_scan_timezone" in caplog.text
+
+
+def test_blank_scheduled_scan_timezone_falls_back_to_utc(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level(logging.WARNING, logger="app.core.config"):
+        settings = Settings(scheduled_scan_timezone="   ", _env_file=None)
+
+    assert settings.scheduled_scan_timezone == "UTC"
+    assert "Blank scheduled_scan_timezone" in caplog.text
+
+
 def test_blank_scheduled_scan_max_symbols_is_unlimited() -> None:
     settings = Settings(scheduled_scan_max_symbols="", _env_file=None)
 

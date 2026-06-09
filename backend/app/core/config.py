@@ -1,5 +1,6 @@
 import logging
 from functools import lru_cache
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -78,6 +79,20 @@ class Settings(BaseSettings):
         if hour < 0 or hour > 23 or minute < 0 or minute > 59:
             raise ValueError("scheduled_scan_time must use HH:MM format")
         return f"{hour:02d}:{minute:02d}"
+
+    @field_validator("scheduled_scan_timezone")
+    @classmethod
+    def _normalize_scheduled_scan_timezone(cls, value: str) -> str:
+        normalized = value.strip()
+        if normalized == "":
+            logger.warning("Blank scheduled_scan_timezone; falling back to UTC.")
+            return "UTC"
+        try:
+            timezone = ZoneInfo(normalized)
+        except ZoneInfoNotFoundError:
+            logger.warning("Unknown scheduled_scan_timezone %r; falling back to UTC.", value)
+            return "UTC"
+        return timezone.key
 
     @field_validator("scheduled_scan_refresh_period")
     @classmethod
